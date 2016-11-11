@@ -1,0 +1,28 @@
+<tabs>
+
+    <tab
+        id="@+id/tab_my_signs"
+        icon="@drawable/ic_my_signs"
+        title="My Signs" />
+    <tab
+        id="@+id/tab_favorites"
+        icon="@drawable/ic_favorites"
+        title="Favorites" />
+
+    <tab
+        id="@+id/tab_create_sign"
+        icon="@drawable/ic_create_sign"
+        title="Create Sign"
+        />
+
+    <tab
+        id="@+id/tab_nearby_signs"
+        icon="@drawable/ic_signs_near_me"
+        title="Nearby Signs"
+        />
+    <tab
+        id="@+id/tab_settings"
+        icon="@drawable/ic_settings"
+        title="Settings" />
+
+</tabs>
