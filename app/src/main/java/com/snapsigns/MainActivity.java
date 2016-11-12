@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    /******************* Google API Client Methods ***************************/
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 

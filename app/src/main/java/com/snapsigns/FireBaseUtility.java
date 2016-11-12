@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import static android.location.LocationManager.*;
 
-
+/** Helper class which executes reading/writing to FireBase backend **/
 public class FireBaseUtility {
     public static final String TAG = FireBaseUtility.class.getSimpleName();
     private StorageReference mStorageRef;
@@ -31,31 +31,44 @@ public class FireBaseUtility {
 
     public FireBaseUtility(MainActivity activity) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
+
+        //Getting instance of storage bucket for storing images
         this.mStorageRef = storage.getReferenceFromUrl("gs://snapsigns-c2dc1.appspot.com");
+
+        //Getting instance of json database
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
+
         this.mActivity = activity;
     }
 
     public void uploadImageToFireBase(File pictureFile) {
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
+        //TODO: Replace placeholders fha423 and img1
         String storagePath = "signs/fha423/img1";
+
         StorageReference signsFolder = mStorageRef.child(storagePath);
         signsFolder.putFile(takenPhoto);
 
-        /** Writing image to FireBase database**/
+        /** Writing image to FireBase database **/
 
         mStorageRef.child(storagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
             @Override
+            /**
+             *@param uri - Returns the public download url of image that was just stored in bucket.
+             */
             public void onSuccess(Uri uri) {
                 String currentUser = "fha423";
                 String imgURL = uri.toString();
                 ImageSign imageSign = new ImageSign(currentUser, imgURL,getUserLocation());
-                mDatabase.child(imageSign.userID).setValue(imageSign);
+                
+                //Pushes a new imagesign object into database
+                mDatabase.getRef().push().setValue(imageSign);
             }
         });
     }
-
+    //Returns users location in list form [latitude,longitude] using google's api client.
     private ArrayList<Double> getUserLocation() {
         ArrayList<Double> coordinates = new ArrayList<>();
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
@@ -65,7 +78,9 @@ public class FireBaseUtility {
             coordinates.add(mLastLocation.getLongitude());
             return coordinates;
         }
-        return null;
+        else{
+            return getUserLocation();
+        }
     }
 
 
