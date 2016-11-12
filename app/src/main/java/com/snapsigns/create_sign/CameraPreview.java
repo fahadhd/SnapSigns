@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.snapsigns.FireBaseUtility;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.SnapSigns;
@@ -30,7 +31,7 @@ import java.util.Date;
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private static final int MEDIA_TYPE_IMAGE = 1;
     private SurfaceHolder mHolder;
-    StorageReference mStorageRef;
+    private FireBaseUtility fireBaseUtility;
 
     private Camera mCamera;
 
@@ -47,7 +48,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     public CameraPreview(MainActivity activity) {
         super(activity);
         this.mActivity = activity;
-        this.mStorageRef = ((SnapSigns)mActivity.getApplication()).getFirebaseStorageRef();
+        fireBaseUtility = new FireBaseUtility(mActivity);
         openCamera();
         setUpHolder();
     }
@@ -282,8 +283,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
             Toast.makeText(mActivity,"Photo saved to gallery", Toast.LENGTH_LONG).show();
 
-            ImageSign createdSign = new ImageSign(null,Uri.fromFile(pictureFile),"test/"+pictureFile.getName());
-            uploadImageToFirebase(createdSign);
+
+            fireBaseUtility.uploadImageToFireBase(pictureFile);
 
             startCameraPreview();
         }
@@ -321,9 +322,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return mediaFile;
     }
 
-    private void uploadImageToFirebase(ImageSign sign){
-        StorageReference signsFolder = mStorageRef.child("signs");
-        signsFolder.putFile(sign.getImage());
-    }
+
 
 }
