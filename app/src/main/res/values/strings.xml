@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SnapSigns</string>
+    <string name="location">Location</string>
+    <string name="imageDescrip">"Full screen image of picture taken</string>
 </resources>
