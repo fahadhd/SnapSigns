@@ -1,7 +1,9 @@
 package com.snapsigns;
 
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -23,6 +26,8 @@ import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
 import com.snapsigns.my_signs.MySignsFragment;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     GoogleApiClient mGoogleApiClient;
@@ -31,19 +36,15 @@ public class MainActivity extends AppCompatActivity implements
     FrameLayout mCameraFragmentContainer;
     FrameLayout mFragmentContainer;
     private static final String TAG = MainActivity.class.getSimpleName();
+    public final int PICTURE_TAKEN = 1;
+    private FireBaseUtility fireBaseUtility;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
+        mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
 
         //Camera fragment is always active but its view hides if other tab is selected
         mCameraFragmentContainer = (FrameLayout)findViewById(R.id.camera_fragment_container);
@@ -151,5 +152,18 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == PICTURE_TAKEN) {
+            if(resultCode == RESULT_OK) {
+                Log.d("PICTURE TAKEN: ", "onActivityResult was properly reached");
+                fireBaseUtility = new FireBaseUtility(this);
+                String picPath = data.getStringExtra("FILE_PATH");
+                File picture = new File(picPath);
+                fireBaseUtility.uploadImageToFireBase(picture);
+            }
+        }
     }
 }

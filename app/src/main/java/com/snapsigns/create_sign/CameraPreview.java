@@ -1,6 +1,7 @@
 package com.snapsigns.create_sign;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -283,8 +284,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
             Toast.makeText(mActivity,"Photo saved to gallery", Toast.LENGTH_LONG).show();
 
+            Log.d("CAMERA: ", "picture was taken");
+            Intent picTakenIntent = new Intent(mActivity.getApplicationContext(), PictureTakenActivity.class);
+            picTakenIntent.putExtra("FILE_PATH", pictureFile.getAbsolutePath());
+            mActivity.startActivityForResult(picTakenIntent, mActivity.PICTURE_TAKEN);
 
-            fireBaseUtility.uploadImageToFireBase(pictureFile);
 
             startCameraPreview();
         }
