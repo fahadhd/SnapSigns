@@ -18,7 +18,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements
     public static final int PICTURE_TAKEN = 23;
 
     private FireBaseUtility fireBaseUtility;
+    private SignIn signIn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,13 @@ public class MainActivity extends AppCompatActivity implements
 
         mFragmentManager = getSupportFragmentManager();
         setBottomBarListeners();
+
+        signIn = ((SnapSigns) getApplicationContext()).getSignIn();
+        signIn.setActivity(this);
+
+        if (signIn.getCurrentUser() == null) {
+            signIn.signIn();
+        }
 
     }
 
@@ -165,13 +176,28 @@ public class MainActivity extends AppCompatActivity implements
     /****************** Activity Result Methods ******************************/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == PICTURE_TAKEN && resultCode == RESULT_OK) {
+        switch (requestCode){
+            case SignIn.RC_SIGN_IN:
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                if (result.isSuccess()) {
+                    Log.d(TAG, "Sign in succeeded.");
+                    signIn.firebaseAuthWithGoogle(result.getSignInAccount());
 
-            Log.d("PICTURE TAKEN: ", "onActivityResult was properly reached");
-            fireBaseUtility = new FireBaseUtility(this);
-            File pictureFile = (File) data.getSerializableExtra(PictureTakenActivity.PICTURE_KEY);
-            fireBaseUtility.uploadImageToFireBase(pictureFile);
-            mCurrentFragment = MY_SIGNS_FRAGMENT;
+                } else {
+                    Log.w(TAG, "Failed to sign in");
+                    Toast.makeText(this, "Failed to sign in.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case PICTURE_TAKEN:
+                if(resultCode == RESULT_OK) {
+                    Log.d("PICTURE TAKEN: ", "onActivityResult was properly reached");
+                    fireBaseUtility = new FireBaseUtility(this);
+                    File pictureFile = (File) data.getSerializableExtra(PictureTakenActivity.PICTURE_KEY);
+                    fireBaseUtility.uploadImageToFireBase(pictureFile);
+                    mCurrentFragment = MY_SIGNS_FRAGMENT;
+                }
+                break;
         }
     }
 
