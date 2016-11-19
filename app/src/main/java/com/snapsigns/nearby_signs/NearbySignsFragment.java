@@ -67,7 +67,8 @@ public class NearbySignsFragment extends BaseFragment {
 
         if (nearbySigns != null && nearbySigns.size() > 0) {
 
-
+            Picasso.with(getContext()).load(Integer.parseInt(nearbySigns.get(currentSignIndex).getImgURL())).
+                    into(currentSignView);
             num.setText(String.valueOf(currentSignIndex + 1));
 
         }
@@ -78,7 +79,9 @@ public class NearbySignsFragment extends BaseFragment {
         if (nearbySigns != null){
             if(currentSignIndex < nearbySigns.size()-1){
                 currentSignIndex++;
-                Picasso.with(getContext()).load(nearbySigns.get(currentSignIndex).getImgURL()).into(currentSignView);
+
+                Picasso.with(getContext()).load(Integer.parseInt(nearbySigns.get(currentSignIndex).getImgURL())).
+                        into(currentSignView);
                 num.setText(String.valueOf(currentSignIndex+1));
 
             }
@@ -89,7 +92,8 @@ public class NearbySignsFragment extends BaseFragment {
         if (nearbySigns != null){
             if(currentSignIndex > 0){
                 currentSignIndex--;
-
+                Picasso.with(getContext()).load(Integer.parseInt(nearbySigns.get(currentSignIndex).getImgURL())).
+                        into(currentSignView);
                 num.setText(String.valueOf(currentSignIndex+1));
             }
         }
