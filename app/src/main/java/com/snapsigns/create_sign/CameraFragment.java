@@ -1,5 +1,6 @@
 package com.snapsigns.create_sign;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -34,10 +35,13 @@ public class CameraFragment extends BaseFragment {
         captureButton.setVisibility(View.VISIBLE);
 
 
+
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPreview.takePicture();
+
+
             }
         });
 

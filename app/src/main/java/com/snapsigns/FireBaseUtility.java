@@ -51,7 +51,6 @@ public class FireBaseUtility {
         signsFolder.putFile(takenPhoto);
 
         /** Writing image to FireBase database **/
-
         mStorageRef.child(storagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
             @Override
@@ -62,12 +61,13 @@ public class FireBaseUtility {
                 String currentUser = "fha423";
                 String imgURL = uri.toString();
                 ImageSign imageSign = new ImageSign(currentUser, imgURL,getUserLocation());
-                
+
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
             }
         });
     }
+
     //Returns users location in list form [latitude,longitude] using google's api client.
     private ArrayList<Double> getUserLocation() {
         ArrayList<Double> coordinates = new ArrayList<>();
@@ -79,11 +79,10 @@ public class FireBaseUtility {
             return coordinates;
         }
         else{
+            //TODO: change this
             return getUserLocation();
         }
     }
-
-
 
 
 }

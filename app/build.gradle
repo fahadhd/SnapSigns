@@ -26,6 +26,8 @@ dependencies {
     compile 'com.google.firebase:firebase-database:9.8.0'
     compile 'com.google.android.gms:play-services-location:9.8.0'
     compile 'com.google.android.gms:play-services-drive:9.8.0'
+    compile 'com.firebase:geofire-android:2.1.1'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
     compile 'com.roughike:bottom-bar:2.0.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])

@@ -4,6 +4,7 @@ package com.snapsigns;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,6 +26,7 @@ import com.google.android.gms.location.LocationServices;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
+import com.snapsigns.create_sign.PictureTakenActivity;
 import com.snapsigns.my_signs.MySignsFragment;
 
 import java.io.File;
@@ -32,11 +35,20 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     GoogleApiClient mGoogleApiClient;
     FragmentManager mFragmentManager;
-    String mTag;
+    String mCurrentFragment;
     FrameLayout mCameraFragmentContainer;
+    BottomBar bottomBar;
+    ImageButton captureButton;
     FrameLayout mFragmentContainer;
     private static final String TAG = MainActivity.class.getSimpleName();
-    public final int PICTURE_TAKEN = 1;
+    private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
+    private static final String CREATE_SIGN_FRAGMENT = "camera_fragment";
+    private static final String NEARBY_SIGNS_FRAGMENT = "nearby_signs_fragment";
+    private static final String FAVORITES_FRAGMENT = "favorites_fragment";
+    private static final String SETTINGS_FRAGMENT = "settings_fragment";
+
+    public static final int PICTURE_TAKEN = 23;
+
     private FireBaseUtility fireBaseUtility;
 
     @Override
@@ -44,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        captureButton = (ImageButton) findViewById(R.id.button_capture);
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
 
         //Camera fragment is always active but its view hides if other tab is selected
@@ -73,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements
      * Initialize bottom-bar tab listeners for fragments
      */
     public void setBottomBarListeners(){
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+        bottomBar = (BottomBar) findViewById(R.id.bottomBar);
 
         if(bottomBar != null) {
 
@@ -95,15 +108,16 @@ public class MainActivity extends AppCompatActivity implements
                     switch(tabId){
                         case R.id.tab_my_signs:
                             targetFragment = new MySignsFragment();
-                            mTag = "my_signs_fragment";
+                            mCurrentFragment = MY_SIGNS_FRAGMENT;
                             break;
 
                         case R.id.tab_favorites:
                             break;
 
                         case R.id.tab_create_sign:
-                            mTag = "camera_fragment";
+                            mCurrentFragment = CREATE_SIGN_FRAGMENT;
                             mFragmentContainer.setVisibility(View.GONE);
+                            captureButton.setVisibility(View.VISIBLE);
                             mCameraFragmentContainer.setVisibility(View.VISIBLE);
                             break;
 
@@ -116,27 +130,52 @@ public class MainActivity extends AppCompatActivity implements
                         //In case no tab is selected, use "my_signs" as default
                         default:
                             targetFragment = new MySignsFragment();
-                            mTag = "my_signs_fragment";
+                            mCurrentFragment = MY_SIGNS_FRAGMENT;
                             break;
                     }
-
-                    /**
-                     * Populating container with selected fragment
-                     */
-
-                    if(targetFragment != null &&!mTag.equals("camera_fragment")) {
-
-                        mCameraFragmentContainer.setVisibility(View.GONE);
-                        mFragmentContainer.setVisibility(View.VISIBLE);
-                        mFragmentManager.beginTransaction()
-                                .replace(R.id.fragment_container,targetFragment,mTag)
-                                .commit();
-                    }
-
+                    if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT))
+                        displayFragment(targetFragment);
                 }
             });
         }
     }
+
+    @Override
+    protected void onResume() {
+        if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT)) {
+            bottomBar.selectTabAtPosition(0);
+        }
+
+        super.onResume();
+    }
+
+    //Displays selected fragment overlaid on top of camera fragment for efficiency
+    public void displayFragment(BaseFragment targetFragment){
+        if(targetFragment != null) {
+            captureButton.setVisibility(View.GONE);
+            mCameraFragmentContainer.setVisibility(View.GONE);
+            mFragmentContainer.setVisibility(View.VISIBLE);
+            mFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container,targetFragment,mCurrentFragment)
+                    .commit();
+        }
+
+    }
+
+    /****************** Activity Result Methods ******************************/
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == PICTURE_TAKEN && resultCode == RESULT_OK) {
+
+            Log.d("PICTURE TAKEN: ", "onActivityResult was properly reached");
+            fireBaseUtility = new FireBaseUtility(this);
+            File pictureFile = (File) data.getSerializableExtra(PictureTakenActivity.PICTURE_KEY);
+            fireBaseUtility.uploadImageToFireBase(pictureFile);
+            mCurrentFragment = MY_SIGNS_FRAGMENT;
+        }
+    }
+
+
 
     /******************* Google API Client Methods ***************************/
     @Override
@@ -154,16 +193,4 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == PICTURE_TAKEN) {
-            if(resultCode == RESULT_OK) {
-                Log.d("PICTURE TAKEN: ", "onActivityResult was properly reached");
-                fireBaseUtility = new FireBaseUtility(this);
-                String picPath = data.getStringExtra("FILE_PATH");
-                File picture = new File(picPath);
-                fireBaseUtility.uploadImageToFireBase(picture);
-            }
-        }
-    }
 }

@@ -35,6 +35,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private FireBaseUtility fireBaseUtility;
 
     private Camera mCamera;
+    private File pictureTaken;
 
     //In charge of opening the camera in a separate thread
     private CameraHandlerThread mThread = null;
@@ -282,20 +283,26 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
 
-            Toast.makeText(mActivity,"Photo saved to gallery", Toast.LENGTH_LONG).show();
+            pictureTaken = pictureFile;
+
+
+            /******* Picture taken - Starting new PictureTakenActivity *******/
 
             Log.d("CAMERA: ", "picture was taken");
-            Intent picTakenIntent = new Intent(mActivity.getApplicationContext(), PictureTakenActivity.class);
-            picTakenIntent.putExtra("FILE_PATH", pictureFile.getAbsolutePath());
-            mActivity.startActivityForResult(picTakenIntent, mActivity.PICTURE_TAKEN);
+            Intent picTakenIntent = new Intent(mActivity, PictureTakenActivity.class);
+            picTakenIntent.putExtra(PictureTakenActivity.PICTURE_KEY,pictureFile);
+            mActivity.startActivityForResult(picTakenIntent,MainActivity.PICTURE_TAKEN);
+            //releaseCameraAndPreview();
 
 
-            startCameraPreview();
+           // startCameraPreview();
         }
     };
 
     public void takePicture(){
-        if(mCamera != null) mCamera.takePicture(null,null,mPicture);
+        if(mCamera != null){
+            mCamera.takePicture(null,null,mPicture);
+        }
     }
 
     /** Creates a File for saving an image **/

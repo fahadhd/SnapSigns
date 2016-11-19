@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,44 +20,81 @@ import com.google.android.gms.location.LocationServices;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
 
 public class PictureTakenActivity extends Activity {
-    String pictureFile;
-    Bitmap picture;
+    public static final String TAG = PictureTakenActivity.class.getSimpleName();
+    public static final String PICTURE_KEY = "PICTURE_FILE";
+    File pictureFile;
     ImageView pictureView;
-    double longitude, latitude;
-    Geocoder geocoder;
-    List<Address> addressList;
-    String loc, country;
-    TextView location;
+    TextView mLocationView;
     Button exit, confirm;
     GoogleApiClient mGoogleApiClient;
 
     public void onCreate(Bundle savedInstanceState) {
-        // set up layout
         super.onCreate(savedInstanceState);
         setContentView(R.layout.picture_taken);
         pictureView = (ImageView) findViewById(R.id.pictureView);
+        mLocationView = (TextView) findViewById(R.id.locationText);
 
-        // get the picture which was passed by an intent
-        // and set it as the background
-        Intent intent = getIntent();
-        pictureFile = intent.getStringExtra("FILE_PATH");
-        picture = BitmapFactory.decodeFile(pictureFile);
-        pictureView.setImageBitmap(picture);
+        displayPicture();
+        displayUserLocation();
+
+        /*** Setting up button listeners ***/
+
+        exit = (Button) findViewById(R.id.exitButton);
+        confirm = (Button) findViewById(R.id.confirmPicture);
+
+        exit.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                setResult(Activity.RESULT_CANCELED);
+                finish();
+            }
+        });
+
+        confirm.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                setResult(Activity.RESULT_OK,new Intent().putExtra(PICTURE_KEY,pictureFile));
+                finish();
+            }
+        });
+        /*************************************/
+    }
+
+    public void displayPicture(){
+        //Display taken picture as background
+        Intent previewIntent = getIntent();
+
+        if(previewIntent != null && previewIntent.hasExtra(PICTURE_KEY)){
+            pictureFile = (File) previewIntent.getSerializableExtra(PICTURE_KEY);
+            Log.v(TAG,PICTURE_KEY+pictureFile.getAbsolutePath());
+            Picasso.with(this).load(pictureFile).into(pictureView);
+        }
+        else{
+            Log.v(TAG,PICTURE_KEY+" was null");
+        }
+
+    }
+
+    public void displayUserLocation(){
+        List<Address> addressList;
+        Geocoder geocoder;
+        double longitude, latitude;
+        String locationName = "N/A", country = "N/A";
 
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
 
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
 
-
-
+        //TODO: Handle case where user location is null
+        if(mLastLocation == null) return;
 
         // create a gps tracker and get longitude/latitude
         longitude = mLastLocation.getLongitude();
@@ -67,50 +105,22 @@ public class PictureTakenActivity extends Activity {
             geocoder = new Geocoder(this, Locale.getDefault());
             try {
                 addressList = geocoder.getFromLocation(latitude, longitude, 1);
-                loc = addressList.get(0).getLocality();
+                locationName = addressList.get(0).getLocality();
                 country = addressList.get(0).getCountryName();
             } catch (IOException e) {
                 Log.d("ADDRESS ISSUE:", "gecoder failed to get from location");
                 e.printStackTrace();
             }
         } else {
-            loc = "Invalid";
+            locationName = "Invalid";
             country = "Address!";
             Log.d("ADDRESS ISSUE: ", "invalid coordinates");
         }
 
         // Set text to display location
-        location = (TextView) findViewById(R.id.locationText);
-        String locText = loc + ", " + country;
-        location.setText(locText);
 
-        // Manage buttons
-        exit = (Button) findViewById(R.id.exitButton);
-        confirm = (Button) findViewById(R.id.confirmPicture);
-
-        exit.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                finishActivity(Activity.RESULT_CANCELED);
-            }
-        });
-
-
-        confirm.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                finishActivity(Activity.RESULT_OK);
-            }
-        });
+        String locText = locationName + ", " + country;
+        mLocationView.setText(locText);
     }
 
-    @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
 }
