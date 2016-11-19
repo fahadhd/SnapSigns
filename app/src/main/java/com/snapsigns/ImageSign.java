@@ -37,9 +37,7 @@ public class ImageSign {
         this.comments = new ArrayList<>();
     }
 
-
-
-
-
-
+    public String getImgURL() {
+        return imgURL;
+    }
 }
