@@ -55,33 +55,35 @@ public class NearbySignsFragment extends BaseFragment {
         });
 
         if (mNearbySigns != null && mNearbySigns.size() > 0) {
-
-            Picasso.with(getContext()).load(mNearbySigns.get(mCurrentSignIndex).getImgURL()).
-                    into(mCurrentSignView);
+            loadIntoImageView();
             mSignNumber.setText(String.valueOf(mCurrentSignIndex + 1));
-
         }
+
         return rootView;
     }
 
     public void incrementRight(){
         if (mNearbySigns != null  && mNearbySigns.size() > 0 && (mCurrentSignIndex < mNearbySigns.size()-1)){
-                mCurrentSignIndex++;
-
-                Picasso.with(getContext()).load(mNearbySigns.get(mCurrentSignIndex).getImgURL()).
-                        into(mCurrentSignView);
-                mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
+            mCurrentSignIndex++;
+            loadIntoImageView();
+            mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
 
         }
     }
 
     public void incrementLeft(){
         if (mNearbySigns != null  && mNearbySigns.size() > 0 && mCurrentSignIndex > 0){
-                mCurrentSignIndex--;
-                Picasso.with(getContext()).load(mNearbySigns.get(mCurrentSignIndex).getImgURL()).
-                        into(mCurrentSignView);
+            mCurrentSignIndex--;
+            loadIntoImageView();
             mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
-            }
+        }
+    }
+
+    public void loadIntoImageView(){
+        Picasso.with(getContext()).
+                load(mNearbySigns.get(mCurrentSignIndex).getImgURL()).
+                resize(800,800).
+                into(mCurrentSignView);
     }
 
 

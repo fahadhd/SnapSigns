@@ -23,6 +23,7 @@ import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
+import com.snapsigns.SnapSigns;
 
 import java.util.ArrayList;
 
@@ -47,39 +48,7 @@ public class MySignsFragment extends BaseFragment {
         Log.i(TAG,"in onCreateView of MySignsFragment");
         View rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
 
-        myImageSigns = new ArrayList<>();
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-
-        // Get a reference to the todoItems child items it the database
-        DatabaseReference myRef = database.getReferenceFromUrl("https://snapsigns-c2dc1.firebaseio.com/");
-
-
-
-
-        if(myRef != null) {
-            myRef.orderByChild("userID").equalTo("fha423").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Log.i(TAG, "in onDataChange");
-                    for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        myImageSigns.add(child.getValue(ImageSign.class));
-                    }
-                    Log.i(TAG, "notifying data changed");
-                    mAdapter.notifyDataSetChanged();
-                    // mySigns.clear();
-                    //mySigns.addAll(tempSigns);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.i(TAG, "Failed to read value");
-                }
-            });
-        }
-        else{
-            Log.i(TAG,"null ref");
-        }
+        myImageSigns = ((SnapSigns)(getActivity().getApplicationContext())).getMyImageSigns();
 
         mAdapter = new MySignsAdapter((MainActivity) getActivity(),myImageSigns);
         gridView = (GridView) rootView.findViewById(R.id.gridview);

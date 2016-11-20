@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements
     BottomBar bottomBar;
     ImageButton captureButton;
     FrameLayout mFragmentContainer;
-    public static ArrayList<ImageSign> mNearbySigns = new ArrayList<>();
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
@@ -85,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements
         if (signIn.getCurrentUser() == null) {
             signIn.signIn();
         }
-
-        new MainLoadNearby().execute();
 
     }
 
@@ -228,29 +225,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-    }
-
-
-
-
-    /**
-     * Background thread responsible for loading images from a database.
-     */
-    public class MainLoadNearby extends AsyncTask<Void,Void,ArrayList<ImageSign>> {
-
-        @Override
-        protected ArrayList<ImageSign> doInBackground(Void... params) {
-            mNearbySigns.add(new ImageSign(null,Integer.toString(R.drawable.a01),null));
-
-
-            return mNearbySigns;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<ImageSign> signs) {
-            mNearbySigns.clear();
-            mNearbySigns.addAll(signs);
-        }
     }
 
 }
