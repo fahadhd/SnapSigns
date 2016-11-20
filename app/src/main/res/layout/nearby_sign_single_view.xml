@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/nearbyNavig"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="50dp">
+        <ImageButton
+            android:id="@+id/left_nearby"
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:background="#000000"
+            android:src="@android:drawable/ic_media_rew"
+            android:visibility="visible"/>
+        <TextView
+            android:id="@+id/nearbyNumber"
+            android:layout_width="0dp"
+            android:textAlignment="center"
+            android:textSize="@dimen/bb_height"
+            android:layout_weight="0.4"
+            android:layout_height="match_parent" />
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="#000000"
+            android:src="@android:drawable/ic_media_ff"
+            android:visibility="visible"
+            android:id="@+id/right_nearby"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/singleNearby"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nearbyNavig"
+        android:layout_marginBottom="60dp"/>
+    
+</RelativeLayout>
