@@ -12,8 +12,11 @@ import android.widget.Toast;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -29,16 +32,21 @@ public class FireBaseUtility {
     private DatabaseReference mDatabase;
     private MainActivity mActivity;
 
+    public FireBaseUtility(){
+        initFireBase();
+    }
     public FireBaseUtility(MainActivity activity) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        initFireBase();
+        this.mActivity = activity;
+    }
 
+
+    private void initFireBase(){
+        FirebaseStorage storage = FirebaseStorage.getInstance();
         //Getting instance of storage bucket for storing images
         this.mStorageRef = storage.getReferenceFromUrl("gs://snapsigns-c2dc1.appspot.com");
-
         //Getting instance of json database
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        this.mActivity = activity;
     }
 
     public void uploadImageToFireBase(File pictureFile) {
@@ -82,6 +90,32 @@ public class FireBaseUtility {
             //TODO: change this
             return getUserLocation();
         }
+    }
+
+    public ArrayList<ImageSign> getUserSigns(){
+        final ArrayList<ImageSign> myImageSigns = new ArrayList<>();
+        if(mDatabase != null) {
+            mDatabase.orderByChild("userID").equalTo("fha423").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.i(TAG, "in onDataChange");
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        myImageSigns.add(child.getValue(ImageSign.class));
+                    }
+                    Log.i(TAG, "notifying data changed");
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "Failed to read value");
+                }
+            });
+        }
+        else{
+            Log.i(TAG,"null ref");
+        }
+        return myImageSigns;
     }
 
 

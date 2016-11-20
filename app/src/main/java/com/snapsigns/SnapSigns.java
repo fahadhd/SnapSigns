@@ -13,16 +13,22 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+
 
 public class SnapSigns extends android.app.Application implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     GoogleApiClient mGoogleApiClient;
+    ArrayList<ImageSign> myImageSigns;
     SignIn signIn;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        FireBaseUtility fireBaseUtility = new FireBaseUtility();
+        myImageSigns = fireBaseUtility.getUserSigns();
 
         if (mGoogleApiClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -40,6 +46,11 @@ public class SnapSigns extends android.app.Application implements
         if (signIn == null) {
             signIn = new SignIn(mGoogleApiClient);
         }
+
+    }
+
+    public ArrayList<ImageSign> getMyImageSigns() {
+        return myImageSigns;
     }
 
     public GoogleApiClient getmGoogleApiClient() {
