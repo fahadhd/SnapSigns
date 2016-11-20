@@ -3,8 +3,11 @@ package com.snapsigns;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -31,8 +34,10 @@ import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
 import com.snapsigns.create_sign.PictureTakenActivity;
 import com.snapsigns.my_signs.MySignsFragment;
+import com.snapsigns.nearby_signs.NearbySignsFragment;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -43,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements
     BottomBar bottomBar;
     ImageButton captureButton;
     FrameLayout mFragmentContainer;
+    public static ArrayList<ImageSign> mNearbySigns = new ArrayList<>();
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
     private static final String CREATE_SIGN_FRAGMENT = "camera_fragment";
@@ -78,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements
         if (signIn.getCurrentUser() == null) {
             signIn.signIn();
         }
+
+        new MainLoadNearby().execute();
 
     }
 
@@ -133,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements
                             break;
 
                         case R.id.tab_nearby_signs:
+                            targetFragment = new NearbySignsFragment();
+                            mCurrentFragment = NEARBY_SIGNS_FRAGMENT;
                             break;
 
                         case R.id.tab_settings:
@@ -217,6 +228,29 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+
+
+
+    /**
+     * Background thread responsible for loading images from a database.
+     */
+    public class MainLoadNearby extends AsyncTask<Void,Void,ArrayList<ImageSign>> {
+
+        @Override
+        protected ArrayList<ImageSign> doInBackground(Void... params) {
+            mNearbySigns.add(new ImageSign(null,Integer.toString(R.drawable.a01),null));
+
+
+            return mNearbySigns;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ImageSign> signs) {
+            mNearbySigns.clear();
+            mNearbySigns.addAll(signs);
+        }
     }
 
 }
