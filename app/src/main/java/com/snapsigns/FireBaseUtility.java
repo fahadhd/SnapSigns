@@ -60,7 +60,7 @@ public class FireBaseUtility {
             public void onSuccess(Uri uri) {
                 String currentUser = "fha423";
                 String imgURL = uri.toString();
-                ImageSign imageSign = new ImageSign(currentUser, imgURL,getUserLocation());
+                ImageSign imageSign = new ImageSign(currentUser, imgURL,getUserLocation(10));
 
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
@@ -69,18 +69,24 @@ public class FireBaseUtility {
     }
 
     //Returns users location in list form [latitude,longitude] using google's api client.
-    private ArrayList<Double> getUserLocation() {
+    private ArrayList<Double> getUserLocation(int tries) {
+        if(tries == 0){
+            Log.v(TAG,"Request user location failed");
+            return null;
+
+        }
         ArrayList<Double> coordinates = new ArrayList<>();
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mActivity.mGoogleApiClient);
+
         if (mLastLocation != null) {
             coordinates.add(mLastLocation.getLatitude());
             coordinates.add(mLastLocation.getLongitude());
             return coordinates;
         }
         else{
-            //TODO: change this
-            return getUserLocation();
+            //Attempt to read location again
+            return getUserLocation(tries-1);
         }
     }
 

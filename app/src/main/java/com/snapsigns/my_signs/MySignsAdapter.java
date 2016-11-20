@@ -21,9 +21,9 @@ import java.util.ArrayList;
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
  */
 public class MySignsAdapter extends BaseAdapter {
-    MainActivity mActivity;
-    ArrayList<ImageSign> myImageSigns;
-    int width;
+    private MainActivity mActivity;
+    private ArrayList<ImageSign> myImageSigns;
+    private int gridWidth;
 
     public MySignsAdapter(MainActivity activity, ArrayList<ImageSign> myImageSigns){
         this.mActivity = activity;
@@ -34,7 +34,7 @@ public class MySignsAdapter extends BaseAdapter {
         display.getSize(size);
 
         //Used to display two ImageSigns per row
-        width = size.x/2;
+        this.gridWidth = size.x/2;
 
     }
 
@@ -53,7 +53,7 @@ public class MySignsAdapter extends BaseAdapter {
         return position;
     }
 
-    //In charge of populating each list item with a view.
+    //In charge of populating each grid item with a view.
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
@@ -71,7 +71,8 @@ public class MySignsAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Picasso.with(mActivity).load(myImageSigns.get(position).getImgURL()).resize(width,width).into(viewHolder.gridImage);
+        Picasso.with(mActivity).load(myImageSigns.get(position).getImgURL()).
+                resize(gridWidth,gridWidth).into(viewHolder.gridImage);
 
         return gridItem;
     }
