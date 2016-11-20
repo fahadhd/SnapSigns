@@ -1,6 +1,8 @@
 package com.snapsigns.my_signs;
 
 import android.content.Context;
+import android.graphics.Point;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.snapsigns.ImageSign;
+import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.squareup.picasso.Picasso;
 
@@ -18,12 +21,21 @@ import java.util.ArrayList;
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
  */
 public class MySignsAdapter extends BaseAdapter {
-    Context mContext;
+    MainActivity mActivity;
     ArrayList<ImageSign> myImageSigns;
+    int width;
 
-    public MySignsAdapter(Context mContext, ArrayList<ImageSign> myImageSigns){
-        this.mContext = mContext;
+    public MySignsAdapter(MainActivity activity, ArrayList<ImageSign> myImageSigns){
+        this.mActivity = activity;
         this.myImageSigns = myImageSigns;
+
+        Display display = mActivity.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        //Used to display two ImageSigns per row
+        width = size.x/2;
+
     }
 
     @Override
@@ -48,7 +60,7 @@ public class MySignsAdapter extends BaseAdapter {
         View gridItem = convertView;
 
         if(gridItem == null) {
-            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             gridItem = inflater.inflate(R.layout.my_signs_grid_item, parent, false);
 
@@ -59,7 +71,7 @@ public class MySignsAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Picasso.with(mContext).load(myImageSigns.get(position).getImgURL()).into(viewHolder.gridImage);
+        Picasso.with(mActivity).load(myImageSigns.get(position).getImgURL()).resize(width,width).into(viewHolder.gridImage);
 
         return gridItem;
     }
@@ -69,9 +81,7 @@ public class MySignsAdapter extends BaseAdapter {
 
         ViewHolder(View gridItem){
             this.gridImage = (ImageView) gridItem.findViewById(R.id.grid_image);
-            this.gridImage.setLayoutParams(new GridView.LayoutParams(160, 160));
             this.gridImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            this.gridImage.setPadding(4, 4, 4, 4);
         }
 
     }

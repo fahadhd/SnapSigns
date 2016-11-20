@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
+import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 
 import java.util.ArrayList;
@@ -33,10 +34,6 @@ public class MySignsFragment extends BaseFragment {
     GridView gridView;
     MySignsAdapter mAdapter;
     ArrayList<ImageSign> myImageSigns = new ArrayList<>();
-    Context mContext;
-    FragmentContainer mFragmentContainer;
-
-    //FireBaseUtility mFireBaseUtility;
 
     private final static String TAG = "My_Signs_Tag";
     public final static String IMAGE_URL_KEY = "img_url";
@@ -49,12 +46,13 @@ public class MySignsFragment extends BaseFragment {
 
         Log.i(TAG,"in onCreateView of MySignsFragment");
         View rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
+
         myImageSigns = new ArrayList<>();
 
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         // Get a reference to the todoItems child items it the database
-        final DatabaseReference myRef = database.getReferenceFromUrl("https://snapsigns-c2dc1.firebaseio.com/");
+        DatabaseReference myRef = database.getReferenceFromUrl("https://snapsigns-c2dc1.firebaseio.com/");
 
 
 
@@ -83,7 +81,7 @@ public class MySignsFragment extends BaseFragment {
             Log.i(TAG,"null ref");
         }
 
-        mAdapter = new MySignsAdapter(getActivity(),myImageSigns);
+        mAdapter = new MySignsAdapter((MainActivity) getActivity(),myImageSigns);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setAdapter(mAdapter);
 
@@ -107,7 +105,7 @@ public class MySignsFragment extends BaseFragment {
         });
 
         //on configuration changes (screen rotation) we want fragment member variables to be preserved
-        setRetainInstance(true);
+        //setRetainInstance(true);
 
         return rootView;
     }

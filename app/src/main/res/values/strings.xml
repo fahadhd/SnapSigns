@@ -3,4 +3,7 @@
     <string name="location">Location</string>
     <string name="imageDescrip">"Full screen image of picture taken</string>
     <string name="web_client_id">204547076594-mfqhnpdqkafffjc3kf789arnmrkqatdg.apps.googleusercontent.com</string>
+
+    <!--/////////// My Signs Fragment Strings //////////////-->
+    <string name="my_signs_title">My Signs</string>
 </resources>
