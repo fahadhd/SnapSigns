@@ -16,14 +16,17 @@ import java.util.ArrayList;
 /**
  * Class in charge of storing information for a created sign.
  * Implementing serializable allows it to be passed with intents.
+ *
+ * Do NOT add getter methods to this class
  */
+
 @IgnoreExtraProperties
 public class ImageSign {
-    String userID;
-    String imgURL;
-    ArrayList<Double> location;
-    ArrayList<String> tags;
-    ArrayList<String> comments;
+    public String userID;
+    public String imgURL;
+    public ArrayList<Double> location;
+    public ArrayList<String> tags;
+    public ArrayList<String> comments;
 
     public ImageSign(){
 
@@ -37,7 +40,6 @@ public class ImageSign {
         this.comments = new ArrayList<>();
     }
 
-    public String getImgURL() {
-        return imgURL;
-    }
+
+
 }

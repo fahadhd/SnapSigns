@@ -5,11 +5,13 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -19,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,14 +33,15 @@ public class FireBaseUtility {
     public static final String TAG = FireBaseUtility.class.getSimpleName();
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
-    private MainActivity mActivity;
+    ArrayList<ImageSign> myImageSigns;
+    Context mContext;
 
-    public FireBaseUtility(){
+
+
+    public FireBaseUtility(Context mContext) {
         initFireBase();
-    }
-    public FireBaseUtility(MainActivity activity) {
-        initFireBase();
-        this.mActivity = activity;
+        this.mContext = mContext;
+        this.myImageSigns = ((SnapSigns)mContext.getApplicationContext()).getMyImageSigns();
     }
 
 
@@ -52,28 +56,55 @@ public class FireBaseUtility {
     public void uploadImageToFireBase(File pictureFile) {
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
-        //TODO: Replace placeholders fha423 and img1
-        String storagePath = "signs/fha423/img1";
 
-        StorageReference signsFolder = mStorageRef.child(storagePath);
-        signsFolder.putFile(takenPhoto);
+        //TODO: Replace placeholder username fha423
+        final String userName = "fha423";
+        String fileName = pictureFile.getName();
+
+        String storagePath = "signs/"+userName+"/"+fileName;
+
+        final StorageReference signsFolder = mStorageRef.child(storagePath);
+
+        //Storing image into storage
+        signsFolder.putFile(takenPhoto).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                //Once image is successfully in storage, add it to the database
+                addFileToDatabase(userName,signsFolder.getPath());
+            }
+        });
+
+    }
+
+    /**
+     * Adds uploaded image url and user info in database
+     * @param userName
+     * @param path
+     */
+    private void addFileToDatabase(final String userName, final String path){
+        Log.v(TAG,path);
 
         /** Writing image to FireBase database **/
-        mStorageRef.child(storagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        mStorageRef.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
             @Override
             /**
              *@param uri - Returns the public download url of image that was just stored in bucket.
              */
             public void onSuccess(Uri uri) {
-                String currentUser = "fha423";
+                Log.v(TAG,"Image Successfully Uploaded");
                 String imgURL = uri.toString();
-                ImageSign imageSign = new ImageSign(currentUser, imgURL,getUserLocation(10));
+                ImageSign imageSign = new ImageSign(userName, imgURL,getUserLocation(10));
 
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
+
+                //Storing new image into cache
+                myImageSigns.add(imageSign);
+                
             }
         });
+
     }
 
     //Returns users location in list form [latitude,longitude] using google's api client.
@@ -85,7 +116,7 @@ public class FireBaseUtility {
         }
         ArrayList<Double> coordinates = new ArrayList<>();
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mActivity.mGoogleApiClient);
+                MainActivity.mGoogleApiClient);
 
         if (mLastLocation != null) {
             coordinates.add(mLastLocation.getLatitude());
@@ -98,10 +129,15 @@ public class FireBaseUtility {
         }
     }
 
+    /**
+     * Returns all signs created by the user
+     * @return
+     */
     public ArrayList<ImageSign> getUserSigns(){
+        final String userName = "fha423";
         final ArrayList<ImageSign> myImageSigns = new ArrayList<>();
         if(mDatabase != null) {
-            mDatabase.orderByChild("userID").equalTo("fha423").addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");

@@ -12,6 +12,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.snapsigns.my_signs.MySignsAdapter;
 
 import java.util.ArrayList;
 
@@ -21,14 +22,17 @@ public class SnapSigns extends android.app.Application implements
 
     GoogleApiClient mGoogleApiClient;
     ArrayList<ImageSign> myImageSigns;
+
+
     SignIn signIn;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        FireBaseUtility fireBaseUtility = new FireBaseUtility();
+        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
         myImageSigns = fireBaseUtility.getUserSigns();
+
 
         if (mGoogleApiClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -48,6 +52,7 @@ public class SnapSigns extends android.app.Application implements
         }
 
     }
+
 
     public ArrayList<ImageSign> getMyImageSigns() {
         return myImageSigns;

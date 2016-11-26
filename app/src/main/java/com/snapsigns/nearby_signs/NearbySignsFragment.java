@@ -81,7 +81,7 @@ public class NearbySignsFragment extends BaseFragment {
 
     public void loadIntoImageView(){
         Picasso.with(getContext()).
-                load(mNearbySigns.get(mCurrentSignIndex).getImgURL()).
+                load(mNearbySigns.get(mCurrentSignIndex).imgURL).
                 resize(800,800).
                 into(mCurrentSignView);
     }

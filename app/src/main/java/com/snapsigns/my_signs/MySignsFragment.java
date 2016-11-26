@@ -34,7 +34,6 @@ import java.util.ArrayList;
 public class MySignsFragment extends BaseFragment {
     GridView gridView;
     MySignsAdapter mAdapter;
-    ArrayList<ImageSign> myImageSigns = new ArrayList<>();
 
     private final static String TAG = "My_Signs_Tag";
     public final static String IMAGE_URL_KEY = "img_url";
@@ -47,11 +46,9 @@ public class MySignsFragment extends BaseFragment {
 
         Log.i(TAG,"in onCreateView of MySignsFragment");
         View rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
-
-        myImageSigns = ((SnapSigns)(getActivity().getApplicationContext())).getMyImageSigns();
-
-        mAdapter = new MySignsAdapter((MainActivity) getActivity(),myImageSigns);
+        mAdapter = new MySignsAdapter(getActivity());
         gridView = (GridView) rootView.findViewById(R.id.gridview);
+
         gridView.setAdapter(mAdapter);
 
 
@@ -63,7 +60,7 @@ public class MySignsFragment extends BaseFragment {
                 FullImageFragment fullImageFragment = new FullImageFragment();
                 ImageSign imageSign = (ImageSign) mAdapter.getItem(position);
                 Bundle args = new Bundle();
-                args.putString(IMAGE_URL_KEY,imageSign.getImgURL());
+                args.putString(IMAGE_URL_KEY,imageSign.imgURL);
                 fullImageFragment.setArguments(args);
 
 
@@ -78,4 +75,11 @@ public class MySignsFragment extends BaseFragment {
 
         return rootView;
     }
+
+    //TODO: use broadcast receiver instead
+    public void checkDataChanged(){
+       mAdapter.notifyDataSetChanged();
+    }
+
+
 }

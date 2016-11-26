@@ -41,7 +41,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    GoogleApiClient mGoogleApiClient;
+    public static GoogleApiClient mGoogleApiClient;
     FragmentManager mFragmentManager;
     String mCurrentFragment;
     FrameLayout mCameraFragmentContainer;
@@ -78,12 +78,12 @@ public class MainActivity extends AppCompatActivity implements
         mFragmentManager = getSupportFragmentManager();
         setBottomBarListeners();
 
-        signIn = ((SnapSigns) getApplicationContext()).getSignIn();
-        signIn.setActivity(this);
+       // signIn = ((SnapSigns) getApplicationContext()).getSignIn();
+        //signIn.setActivity(this);
 
-        if (signIn.getCurrentUser() == null) {
-            signIn.signIn();
-        }
+//        if (signIn.getCurrentUser() == null) {
+//            signIn.signIn();
+//        }
 
     }
 
@@ -152,8 +152,10 @@ public class MainActivity extends AppCompatActivity implements
                             mCurrentFragment = MY_SIGNS_FRAGMENT;
                             break;
                     }
-                    if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT))
+                    if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT)){
                         displayFragment(targetFragment);
+                    }
+
                 }
             });
         }
@@ -177,6 +179,16 @@ public class MainActivity extends AppCompatActivity implements
             mFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container,targetFragment,mCurrentFragment)
                     .commit();
+
+            ///////////// Specific Fragment Actions //////////////////////
+            switch (mCurrentFragment){
+                //////////////// Update user signs display when selected /////////////////////
+                case MY_SIGNS_FRAGMENT:
+                    MySignsFragment mySignsFragment = ((MySignsFragment)getSupportFragmentManager()
+                            .findFragmentByTag(MY_SIGNS_FRAGMENT));
+                    if(mySignsFragment != null) mySignsFragment.checkDataChanged();
+                    break;
+            }
         }
 
     }

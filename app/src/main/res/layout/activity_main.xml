@@ -12,9 +12,11 @@
         android:layout_height="wrap_content" />
     <FrameLayout
         android:id="@+id/fragment_container"
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_above="@+id/bottomBar"
+         />
 
     <!--Capture button used by CameraFragment. Only visible when fragment is active-->
     <ImageButton

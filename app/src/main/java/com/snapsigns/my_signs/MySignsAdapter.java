@@ -6,13 +6,16 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
+import com.snapsigns.SnapSigns;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -21,21 +24,19 @@ import java.util.ArrayList;
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
  */
 public class MySignsAdapter extends BaseAdapter {
-    private MainActivity mActivity;
+    private Context mContext;
     private ArrayList<ImageSign> myImageSigns;
     private int gridWidth;
 
-    public MySignsAdapter(MainActivity activity, ArrayList<ImageSign> myImageSigns){
-        this.mActivity = activity;
-        this.myImageSigns = myImageSigns;
-
-        Display display = mActivity.getWindowManager().getDefaultDisplay();
+    public MySignsAdapter(Context context){
+        this.mContext = context;
+        this.myImageSigns = ((SnapSigns)context.getApplicationContext()).getMyImageSigns();
+        Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
 
         //Used to display two ImageSigns per row
         this.gridWidth = size.x/2;
-
     }
 
     @Override
@@ -60,7 +61,7 @@ public class MySignsAdapter extends BaseAdapter {
         View gridItem = convertView;
 
         if(gridItem == null) {
-            LayoutInflater inflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             gridItem = inflater.inflate(R.layout.my_signs_grid_item, parent, false);
 
@@ -71,8 +72,8 @@ public class MySignsAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Picasso.with(mActivity).load(myImageSigns.get(position).getImgURL()).
-                resize(gridWidth,gridWidth).into(viewHolder.gridImage);
+        Glide.with(mContext).load(myImageSigns.get(position).imgURL).
+                override(gridWidth,gridWidth).placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
 
         return gridItem;
     }
@@ -81,9 +82,16 @@ public class MySignsAdapter extends BaseAdapter {
         ImageView gridImage;
 
         ViewHolder(View gridItem){
-            this.gridImage = (ImageView) gridItem.findViewById(R.id.grid_image);
-            this.gridImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            gridImage = (ImageView) gridItem.findViewById(R.id.grid_image);
+            gridImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            gridImage.getLayoutParams().width = gridWidth;
+            gridImage.getLayoutParams().height = gridWidth;
+
         }
 
+    }
+
+    public ArrayList<ImageSign> getMyImageSigns() {
+        return myImageSigns;
     }
 }
