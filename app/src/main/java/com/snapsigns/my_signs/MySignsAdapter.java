@@ -73,7 +73,7 @@ public class MySignsAdapter extends BaseAdapter {
         }
 
         Glide.with(mContext).load(myImageSigns.get(position).imgURL).
-                override(gridWidth,gridWidth).placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
+                placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
 
         return gridItem;
     }
@@ -91,7 +91,4 @@ public class MySignsAdapter extends BaseAdapter {
 
     }
 
-    public ArrayList<ImageSign> getMyImageSigns() {
-        return myImageSigns;
-    }
 }

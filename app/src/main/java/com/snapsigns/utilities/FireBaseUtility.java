@@ -1,19 +1,13 @@
-package com.snapsigns;
+package com.snapsigns.utilities;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,11 +16,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.snapsigns.ImageSign;
+import com.snapsigns.MainActivity;
+import com.snapsigns.SnapSigns;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import static android.location.LocationManager.*;
 
 /** Helper class which executes reading/writing to FireBase backend **/
 public class FireBaseUtility {
@@ -35,6 +30,11 @@ public class FireBaseUtility {
     private DatabaseReference mDatabase;
     ArrayList<ImageSign> myImageSigns;
     Context mContext;
+
+    /**************** Action Intents for Fragment Broadcast Recivers ****************/
+    Intent mySignsIntent = new Intent(Constants.MY_SIGNS.GET_MY_SIGNS);
+
+    /*******************************************************************************/
 
 
 
@@ -101,6 +101,7 @@ public class FireBaseUtility {
 
                 //Storing new image into cache
                 myImageSigns.add(imageSign);
+                mContext.sendBroadcast(mySignsIntent);
                 
             }
         });
@@ -157,6 +158,7 @@ public class FireBaseUtility {
         else{
             Log.i(TAG,"null ref");
         }
+        mContext.sendBroadcast(mySignsIntent);
         return myImageSigns;
     }
 

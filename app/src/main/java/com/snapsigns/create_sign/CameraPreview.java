@@ -3,8 +3,6 @@ package com.snapsigns.create_sign;
 import android.app.Activity;
 import android.content.Intent;
 import android.hardware.Camera;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -12,14 +10,9 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Toast;
 
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.snapsigns.FireBaseUtility;
-import com.snapsigns.ImageSign;
+import com.snapsigns.utilities.FireBaseUtility;
 import com.snapsigns.MainActivity;
-import com.snapsigns.SnapSigns;
 
 import java.io.File;
 import java.io.FileNotFoundException;

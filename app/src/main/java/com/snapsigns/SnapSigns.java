@@ -10,9 +10,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.snapsigns.my_signs.MySignsAdapter;
+import com.snapsigns.utilities.FireBaseUtility;
 
 import java.util.ArrayList;
 

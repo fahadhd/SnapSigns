@@ -1,7 +1,9 @@
 package com.snapsigns.my_signs;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,6 +26,7 @@ import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
+import com.snapsigns.utilities.Constants;
 
 import java.util.ArrayList;
 
@@ -39,6 +42,17 @@ public class MySignsFragment extends BaseFragment {
     public final static String IMAGE_URL_KEY = "img_url";
 
 
+    @Override
+    public void onStart() {
+        registerImageSignReceiver();
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        getActivity().unregisterReceiver(broadcastReceiver);
+        super.onStop();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,10 +90,23 @@ public class MySignsFragment extends BaseFragment {
         return rootView;
     }
 
-    //TODO: use broadcast receiver instead
-    public void checkDataChanged(){
-       mAdapter.notifyDataSetChanged();
-    }
+    /******** Broadcast Receiver in charge of notifying adapter when signs are downloaded *******/
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(Constants.MY_SIGNS.GET_MY_SIGNS)){
+                Log.v(TAG,"Retrieved broadcast to update user signs");
+                mAdapter.notifyDataSetChanged();
+            }
 
+
+        }
+    };
+
+    public void registerImageSignReceiver(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.MY_SIGNS.GET_MY_SIGNS);
+        getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
 
 }
