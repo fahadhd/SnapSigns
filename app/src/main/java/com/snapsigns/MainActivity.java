@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements
     //Displays selected fragment overlaid on top of camera fragment for efficiency
     public void displayFragment(BaseFragment targetFragment){
         if(targetFragment != null) {
-            mCaptureButton.setVisibility(View.GONE);
+            mCaptureButton.setVisibility(View.INVISIBLE);
             mCameraFragmentContainer.setVisibility(View.GONE);
             mFragmentContainer.setVisibility(View.VISIBLE);
             mFragmentManager.beginTransaction()
@@ -325,7 +325,10 @@ public class MainActivity extends AppCompatActivity implements
 
                 //////////////Displaying and hiding original UI elements ////////////////
                 mBottomBar.setVisibility(View.VISIBLE);
-                mCaptureButton.setVisibility(View.VISIBLE);
+
+                //Only display capture button if on camera fragment
+                if(mCurrentFragment.equals(CREATE_SIGN_FRAGMENT))
+                    mCaptureButton.setVisibility(View.VISIBLE);
 
                 mExitPreview.setVisibility(View.INVISIBLE);
                 mSaveSign.setVisibility(View.INVISIBLE);
@@ -335,9 +338,7 @@ public class MainActivity extends AppCompatActivity implements
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
                     mBottomBar.selectTabAtPosition(0);
                 }
-                else{
-                    mCaptureButton.setVisibility(View.VISIBLE);
-                }
+
 
 
             }

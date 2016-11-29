@@ -1,6 +1,7 @@
 package com.snapsigns.nearby_signs;
 
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,68 +24,21 @@ import java.util.ArrayList;
  */
 public class NearbySignsFragment extends BaseFragment {
     ArrayList<ImageSign> mNearbySigns = null;
-    ImageView mCurrentSignView;
-    TextView mSignNumber;
-    int mCurrentSignIndex;
+    private ViewPager mPager;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.nearby_sign_single_view, container, false);
+        View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
+        mPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mPager.setAdapter(new SignPagerAdapter(getActivity()));
 
-        mCurrentSignView = (ImageView) rootView.findViewById(R.id.singleNearby);
-        mSignNumber = (TextView) rootView.findViewById(R.id.nearbyNumber);
-        mNearbySigns = ((SnapSigns)(getActivity().getApplicationContext())).getMyImageSigns();
-
-        ImageButton left = (ImageButton) rootView.findViewById(R.id.left_nearby);
-        left.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incrementLeft();
-            }
-        });
-
-        ImageButton right = (ImageButton) rootView.findViewById(R.id.right_nearby);
-        right.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incrementRight();
-            }
-        });
-
-        if (mNearbySigns != null && mNearbySigns.size() > 0) {
-            loadIntoImageView();
-            mSignNumber.setText(String.valueOf(mCurrentSignIndex + 1));
-        }
 
         return rootView;
     }
 
-    public void incrementRight(){
-        if (mNearbySigns != null  && mNearbySigns.size() > 0 && (mCurrentSignIndex < mNearbySigns.size()-1)){
-            mCurrentSignIndex++;
-            loadIntoImageView();
-            mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
-
-        }
-    }
-
-    public void incrementLeft(){
-        if (mNearbySigns != null  && mNearbySigns.size() > 0 && mCurrentSignIndex > 0){
-            mCurrentSignIndex--;
-            loadIntoImageView();
-            mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
-        }
-    }
-
-    public void loadIntoImageView(){
-        Picasso.with(getContext()).
-                load(mNearbySigns.get(mCurrentSignIndex).imgURL).
-                resize(800,800).
-                into(mCurrentSignView);
-    }
 
 
 }

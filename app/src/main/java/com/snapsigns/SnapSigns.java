@@ -20,6 +20,7 @@ public class SnapSigns extends android.app.Application implements
 
     GoogleApiClient mGoogleApiClient;
     ArrayList<ImageSign> myImageSigns;
+    ArrayList<ImageSign> mNearbySigns;
 
 
     SignIn signIn;
@@ -30,6 +31,8 @@ public class SnapSigns extends android.app.Application implements
 
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
         myImageSigns = fireBaseUtility.getUserSigns();
+        //TODO: Change this to getNearbySigns
+        mNearbySigns = fireBaseUtility.getUserSigns();
 
 
         if (mGoogleApiClient == null) {
@@ -54,6 +57,10 @@ public class SnapSigns extends android.app.Application implements
 
     public ArrayList<ImageSign> getMyImageSigns() {
         return myImageSigns;
+    }
+
+    public ArrayList<ImageSign> getNearbySigns() {
+        return mNearbySigns;
     }
 
     public GoogleApiClient getmGoogleApiClient() {
