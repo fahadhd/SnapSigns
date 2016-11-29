@@ -9,5 +9,5 @@
 
     <!--///////////// Preview Layout Strings ////////////-->
     <string name="location_title">Sign Location</string>
-    <string name="tag_title">Tag It!:</string>
+    <string name="tag_title">Add Tags</string>
 </resources>

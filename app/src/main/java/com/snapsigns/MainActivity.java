@@ -2,6 +2,7 @@ package com.snapsigns;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -9,6 +10,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -16,7 +19,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
     ImageButton mCaptureButton,mSaveSign,mExitPreview;
-    EditText mLocationView;
+    EditText mLocationView,mEnterTag;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
     String mCurrentFragment;
@@ -69,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements
         mSaveSign = (ImageButton) findViewById(R.id.save_sign);
         mLocationDisplay = (LinearLayout) findViewById(R.id.location_display);
         mLocationView = (EditText) findViewById(R.id.location_name);
+        mEnterTag = (EditText)findViewById(R.id.enter_tag);
+
 
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
 
@@ -103,6 +107,12 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        startMainActivityLayout(false);
+        super.onResume();
     }
 
     /**
@@ -224,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements
     private void setPhotoTakeLayoutListeners(){
 
         /*********** Setting up Location View UI *****************/
-        ArrayList<String> nearbyFakeLocations= new ArrayList<String>();
+        ArrayList<String> nearbyFakeLocations= new ArrayList<>();
         nearbyFakeLocations.add(0,"CMSC Building, College Park MD");
         nearbyFakeLocations.add(0,"Some close by building, City/State its in");
         mLocationPicker = new OptionPicker(this, nearbyFakeLocations);
@@ -244,6 +254,12 @@ public class MainActivity extends AppCompatActivity implements
         });
         /*********** Setting up Location View UI End *****************/
 
+        /************** Setting up Tag View UI *******************/
+
+
+
+        /************** Setting up Tag View UI End*******************/
+
 
         mExitPreview.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -258,12 +274,10 @@ public class MainActivity extends AppCompatActivity implements
                 mLocationPicker.show();
             }
         });
-
-
-
-
-
     }
+
+
+
     /**
      * Displays picutre user just took and other options
      * @param pictureFile

@@ -81,7 +81,33 @@
        />
     </LinearLayout>
 
+    <!--/////////////// Tag Views //////////// -->
+    <TextView
+        android:id="@+id/tag_title"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="#fff"
+        android:textSize="16sp"
+        android:text="@string/tag_title"
+        />
 
+    <EditText
+        android:id="@+id/enter_tag"
+        android:visibility="gone"
+        android:layout_below="@+id/exit_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+
+
+
+
+
+
+    <!--/////////////// Confirm and Delete Views//////////// -->
 
     <ImageButton
         android:id="@+id/exit_preview"
