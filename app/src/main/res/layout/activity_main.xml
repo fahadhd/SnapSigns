@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    xmlns:pickerui="http://schemas.android.com/tools">
 
     <!--Main Container used to view fragments-->
     <FrameLayout
@@ -22,7 +23,8 @@
     <ImageButton
         android:id="@+id/button_capture"
         android:visibility="gone"
-        android:background="@drawable/btn_take_picture"
+        android:src="@drawable/btn_capture_selector"
+        android:background="@null"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -31,11 +33,74 @@
         />
     <com.roughike.bottombar.BottomBar
         android:id="@+id/bottomBar"
-        android:background="#432443"
+        android:background="@color/dark_purple"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         app:bb_tabXmlResource="@xml/bottombar_tabs"
         app:bb_behavior="shifting"/>
+
+
+    <!--///////// Sign Taken Layout That Appears when Capture Button Pressed /////////// -->
+
+
+
+    <!--///////// Location Display ////////////////-->
+    <LinearLayout
+        android:id="@+id/location_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible"
+        android:orientation="vertical">
+    <TextView
+        android:id="@+id/location_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/location_title"
+        android:textColor="#fff"
+        android:paddingEnd="30dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        />
+   <EditText
+       android:id="@+id/location_name"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="White House, Washington DC"
+       android:textSize="16sp"
+       android:inputType="none"
+       android:textColor="#fff"
+
+       android:clickable="false"
+       android:cursorVisible="false"
+       android:focusable="false"
+       android:focusableInTouchMode="false"
+       />
+    </LinearLayout>
+
+
+
+    <ImageButton
+        android:id="@+id/exit_preview"
+        android:padding="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/btn_exit_preview"
+        android:background = "@null"
+        android:visibility="invisible"/>
+    <ImageButton
+        android:id="@+id/save_sign"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/btn_save_sign"
+        android:background = "@null"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        />
 
 </RelativeLayout>

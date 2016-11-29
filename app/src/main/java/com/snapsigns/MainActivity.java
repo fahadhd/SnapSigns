@@ -7,12 +7,16 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
@@ -21,22 +25,26 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
-import com.snapsigns.create_sign.PictureTakenActivity;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
+import java.util.ArrayList;
+
+import cn.qqtheme.framework.picker.OptionPicker;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     public static GoogleApiClient mGoogleApiClient;
     FragmentManager mFragmentManager;
+    FrameLayout mCameraFragmentContainer,mFragmentContainer;
+    LinearLayout mLocationDisplay;
+    ImageButton mCaptureButton,mSaveSign,mExitPreview;
+    EditText mLocationView;
+    OptionPicker mLocationPicker;
+    BottomBar mBottomBar;
     String mCurrentFragment;
-    FrameLayout mCameraFragmentContainer;
-    BottomBar bottomBar;
-    ImageButton captureButton;
-    FrameLayout mFragmentContainer;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
@@ -55,7 +63,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        captureButton = (ImageButton) findViewById(R.id.button_capture);
+
+        mCaptureButton = (ImageButton) findViewById(R.id.button_capture);
+        mExitPreview = (ImageButton) findViewById(R.id.exit_preview);
+        mSaveSign = (ImageButton) findViewById(R.id.save_sign);
+        mLocationDisplay = (LinearLayout) findViewById(R.id.location_display);
+        mLocationView = (EditText) findViewById(R.id.location_name);
+
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
 
         //Camera fragment is always active but its view hides if other tab is selected
@@ -66,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements
 
         mFragmentManager = getSupportFragmentManager();
         setBottomBarListeners();
+        setPhotoTakeLayoutListeners();
+
 
        // signIn = ((SnapSigns) getApplicationContext()).getSignIn();
         //signIn.setActivity(this);
@@ -73,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements
 //        if (signIn.getCurrentUser() == null) {
 //            signIn.signIn();
 //        }
+
 
     }
 
@@ -92,19 +109,19 @@ public class MainActivity extends AppCompatActivity implements
      * Initialize bottom-bar tab listeners for fragments
      */
     public void setBottomBarListeners(){
-        bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+        mBottomBar = (BottomBar) findViewById(R.id.bottomBar);
 
-        if(bottomBar != null) {
+        if(mBottomBar != null) {
 
             //Defaults tab position to be "create sign" and starts camera fragment
-            bottomBar.selectTabAtPosition(2);
+            mBottomBar.selectTabAtPosition(2);
 
             mFragmentManager.beginTransaction()
                     .replace(R.id.camera_fragment_container,new CameraFragment(),"camera_fragment")
                     .commit();
 
 
-            bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+            mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
                 /**
                  * Determine which fragment to create based on bottom bar tab id
                  */
@@ -123,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements
                         case R.id.tab_create_sign:
                             mCurrentFragment = CREATE_SIGN_FRAGMENT;
                             mFragmentContainer.setVisibility(View.GONE);
-                            captureButton.setVisibility(View.VISIBLE);
+                            mCaptureButton.setVisibility(View.VISIBLE);
                             mCameraFragmentContainer.setVisibility(View.VISIBLE);
                             break;
 
@@ -150,19 +167,12 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    protected void onResume() {
-        if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT)) {
-            bottomBar.selectTabAtPosition(0);
-        }
 
-        super.onResume();
-    }
 
     //Displays selected fragment overlaid on top of camera fragment for efficiency
     public void displayFragment(BaseFragment targetFragment){
         if(targetFragment != null) {
-            captureButton.setVisibility(View.GONE);
+            mCaptureButton.setVisibility(View.GONE);
             mCameraFragmentContainer.setVisibility(View.GONE);
             mFragmentContainer.setVisibility(View.VISIBLE);
             mFragmentManager.beginTransaction()
@@ -187,16 +197,6 @@ public class MainActivity extends AppCompatActivity implements
                     Toast.makeText(this, "Failed to sign in.", Toast.LENGTH_SHORT).show();
                 }
                 break;
-
-            case PICTURE_TAKEN:
-                if(resultCode == RESULT_OK) {
-                    Log.d("PICTURE TAKEN: ", "onActivityResult was properly reached");
-                    fireBaseUtility = new FireBaseUtility(this);
-                    File pictureFile = (File) data.getSerializableExtra(PictureTakenActivity.PICTURE_KEY);
-                    fireBaseUtility.uploadImageToFireBase(pictureFile);
-                    mCurrentFragment = MY_SIGNS_FRAGMENT;
-                }
-                break;
         }
     }
 
@@ -216,6 +216,118 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    /**************************** Photo Taken Methods *****************************/
+
+
+    private void setPhotoTakeLayoutListeners(){
+
+        /*********** Setting up Location View UI *****************/
+        ArrayList<String> nearbyFakeLocations= new ArrayList<String>();
+        nearbyFakeLocations.add(0,"CMSC Building, College Park MD");
+        nearbyFakeLocations.add(0,"Some close by building, City/State its in");
+        mLocationPicker = new OptionPicker(this, nearbyFakeLocations);
+        mLocationPicker.setOffset(2);
+        mLocationPicker.setSelectedIndex(1);
+        mLocationPicker.setTextSize(13);
+        mLocationPicker.setTitleText("Locations Near You");
+        mLocationPicker.setTitleTextSize(15);
+        mLocationPicker.setCancelTextColor(ContextCompat.getColor(this, R.color.red_900));
+        mLocationPicker.setSubmitTextColor(ContextCompat.getColor(this, R.color.dark_purple));
+        mLocationPicker.setOnOptionPickListener(new OptionPicker.OnOptionPickListener() {
+            @Override
+            public void onOptionPicked(int position, String option) {
+                mLocationView.setText(option);
+            }
+
+        });
+        /*********** Setting up Location View UI End *****************/
+
+
+        mExitPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startMainActivityLayout(false);
+            }
+        });
+
+        mLocationView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mLocationPicker.show();
+            }
+        });
+
+
+
+
+
+    }
+    /**
+     * Displays picutre user just took and other options
+     * @param pictureFile
+     */
+    public void startPhotoTakenLayout(final File pictureFile) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mSaveSign.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        fireBaseUtility = new FireBaseUtility(MainActivity.this);
+                        fireBaseUtility.uploadImageToFireBase(pictureFile);
+                        startMainActivityLayout(true);
+
+                    }
+                });
+                /////// Hides unnecessary UI elements during a taken preview ////////
+                mBottomBar.setVisibility(View.INVISIBLE);
+                mCaptureButton.setVisibility(View.INVISIBLE);
+
+                /////////// Displaying preview taken UI elements ////////////////
+
+                mExitPreview.setVisibility(View.VISIBLE);
+                mSaveSign.setVisibility(View.VISIBLE);
+                mLocationDisplay.setVisibility(View.VISIBLE);
+
+            }
+        });
+
+    }
+
+    /**
+     * Displays the original activity layout once a preview is over.
+     * @param signSaved - If sign was saved, display MySigns Fragment
+     */
+    public void startMainActivityLayout(final boolean signSaved){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //Displaying a new camera preview fragment after taking a picture
+                mFragmentManager.beginTransaction()
+                        .replace(R.id.camera_fragment_container,new CameraFragment(),"camera_fragment")
+                        .commit();
+
+                //////////////Displaying and hiding original UI elements ////////////////
+                mBottomBar.setVisibility(View.VISIBLE);
+                mCaptureButton.setVisibility(View.VISIBLE);
+
+                mExitPreview.setVisibility(View.INVISIBLE);
+                mSaveSign.setVisibility(View.INVISIBLE);
+                mLocationDisplay.setVisibility(View.INVISIBLE);
+
+                if(signSaved){
+                    mCurrentFragment = MY_SIGNS_FRAGMENT;
+                    mBottomBar.selectTabAtPosition(0);
+                }
+                else{
+                    mCaptureButton.setVisibility(View.VISIBLE);
+                }
+
+
+            }
+        });
     }
 
 }

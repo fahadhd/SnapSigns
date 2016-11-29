@@ -284,11 +284,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             Log.d("CAMERA: ", "picture was taken");
             Intent picTakenIntent = new Intent(mActivity, PictureTakenActivity.class);
             picTakenIntent.putExtra(PictureTakenActivity.PICTURE_KEY,pictureFile);
-            mActivity.startActivityForResult(picTakenIntent,MainActivity.PICTURE_TAKEN);
+            //mActivity.startActivityForResult(picTakenIntent,MainActivity.PICTURE_TAKEN);
             //releaseCameraAndPreview();
-
-
            // startCameraPreview();
+
+            mActivity.startPhotoTakenLayout(pictureFile);
         }
     };
 

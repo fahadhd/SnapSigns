@@ -99,8 +99,10 @@ public class FireBaseUtility {
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
 
-                //Storing new image into cache
-                myImageSigns.add(imageSign);
+                //Storing new image into cache at front
+                myImageSigns.add(0,imageSign);
+
+                //Broadcasting result to MySignsFragment
                 mContext.sendBroadcast(mySignsIntent);
                 
             }
@@ -143,7 +145,7 @@ public class FireBaseUtility {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        myImageSigns.add(child.getValue(ImageSign.class));
+                        myImageSigns.add(0,child.getValue(ImageSign.class));
                     }
                     Log.i(TAG, "notifying data changed");
 
@@ -158,7 +160,10 @@ public class FireBaseUtility {
         else{
             Log.i(TAG,"null ref");
         }
+
+        //Broadcasting result to MySignsFragment
         mContext.sendBroadcast(mySignsIntent);
+
         return myImageSigns;
     }
 
