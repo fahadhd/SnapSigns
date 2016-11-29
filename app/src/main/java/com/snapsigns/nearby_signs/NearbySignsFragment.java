@@ -34,49 +34,9 @@ public class NearbySignsFragment extends BaseFragment {
 
         View rootView = inflater.inflate(R.layout.nearby_sign_single_view, container, false);
 
-        mCurrentSignView = (ImageView) rootView.findViewById(R.id.singleNearby);
-        mSignNumber = (TextView) rootView.findViewById(R.id.nearbyNumber);
-        mNearbySigns = ((SnapSigns)(getActivity().getApplicationContext())).getMyImageSigns();
 
-        ImageButton left = (ImageButton) rootView.findViewById(R.id.left_nearby);
-        left.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incrementLeft();
-            }
-        });
-
-        ImageButton right = (ImageButton) rootView.findViewById(R.id.right_nearby);
-        right.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incrementRight();
-            }
-        });
-
-        if (mNearbySigns != null && mNearbySigns.size() > 0) {
-            loadIntoImageView();
-            mSignNumber.setText(String.valueOf(mCurrentSignIndex + 1));
-        }
 
         return rootView;
-    }
-
-    public void incrementRight(){
-        if (mNearbySigns != null  && mNearbySigns.size() > 0 && (mCurrentSignIndex < mNearbySigns.size()-1)){
-            mCurrentSignIndex++;
-            loadIntoImageView();
-            mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
-
-        }
-    }
-
-    public void incrementLeft(){
-        if (mNearbySigns != null  && mNearbySigns.size() > 0 && mCurrentSignIndex > 0){
-            mCurrentSignIndex--;
-            loadIntoImageView();
-            mSignNumber.setText(Integer.toString(mCurrentSignIndex +1));
-        }
     }
 
     public void loadIntoImageView(){

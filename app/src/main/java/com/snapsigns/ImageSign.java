@@ -29,7 +29,6 @@ public class ImageSign {
     public ArrayList<String> comments;
 
     public ImageSign(){
-
     }
 
     public ImageSign(String userID,String imgURL,ArrayList<Double> location){

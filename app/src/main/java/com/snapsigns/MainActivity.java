@@ -87,9 +87,9 @@ public class MainActivity extends AppCompatActivity implements
         setPhotoTakeLayoutListeners();
 
 
-       // signIn = ((SnapSigns) getApplicationContext()).getSignIn();
-        //signIn.setActivity(this);
-
+//        signIn = ((SnapSigns) getApplicationContext()).getSignIn();
+//        signIn.setActivity(this);
+//
 //        if (signIn.getCurrentUser() == null) {
 //            signIn.signIn();
 //        }
