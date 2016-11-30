@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -37,8 +38,10 @@ import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.qqtheme.framework.picker.OptionPicker;
+import co.lujun.androidtagview.TagContainerLayout;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -47,9 +50,11 @@ public class MainActivity extends AppCompatActivity implements
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
     ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText;
-    EditText mLocationView,mEnterTagView,mEnterTextView;
+    EditText mLocationView,mEnterTextView;
+    AutoCompleteTextView mAddTagView;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
+    TagContainerLayout mTagContainerLayout;
     String mCurrentFragment;
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -75,10 +80,13 @@ public class MainActivity extends AppCompatActivity implements
         mExitPreview = (ImageButton) findViewById(R.id.exit_preview);
         mSaveSign = (ImageButton) findViewById(R.id.save_sign);
         mAddText = (ImageButton) findViewById(R.id.btn_add_text) ;
+        mTagContainerLayout = (TagContainerLayout) findViewById(R.id.tag_container);
+        mTagContainerLayout.setTags(new String[]{"Weird Rally","Washington DC"});
+
 
         mLocationView = (EditText) findViewById(R.id.location_name);
-        mEnterTagView = (EditText)findViewById(R.id.enter_tag);
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
+        mAddTagView = (AutoCompleteTextView) findViewById(R.id.enter_tag) ;
 
 
 
@@ -394,9 +402,12 @@ public class MainActivity extends AppCompatActivity implements
                     v.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    mEnterTextView.setCursorVisible(false);
-                    if(mEnterTextView.getText().toString().isEmpty()){
-                        mEnterTextView.setVisibility(View.INVISIBLE);
+
+                    if(v.equals(mEnterTextView)) {
+                        mEnterTextView.setCursorVisible(false);
+                        if (mEnterTextView.getText().toString().isEmpty()) {
+                            mEnterTextView.setVisibility(View.INVISIBLE);
+                        }
                     }
                 }
             }
