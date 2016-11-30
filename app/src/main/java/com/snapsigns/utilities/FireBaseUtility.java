@@ -28,7 +28,7 @@ public class FireBaseUtility {
     public static final String TAG = FireBaseUtility.class.getSimpleName();
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
-    ArrayList<ImageSign> myImageSigns;
+    ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
     Context mContext;
 
     /**************** Action Intents for Fragment Broadcast Recivers ****************/
@@ -41,7 +41,8 @@ public class FireBaseUtility {
     public FireBaseUtility(Context mContext) {
         initFireBase();
         this.mContext = mContext;
-        this.myImageSigns = ((SnapSigns)mContext.getApplicationContext()).getMyImageSigns();
+        this.mMyImageSigns = ((SnapSigns)mContext.getApplicationContext()).getMyImageSigns();
+        this.mNearbySigns = ((SnapSigns)mContext.getApplicationContext()).getNearbySigns();
     }
 
 
@@ -53,7 +54,7 @@ public class FireBaseUtility {
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
-    public void uploadImageToFireBase(File pictureFile) {
+    public void uploadImageToFireBase(File pictureFile, final String message) {
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
 
@@ -70,7 +71,7 @@ public class FireBaseUtility {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 //Once image is successfully in storage, add it to the database
-                addFileToDatabase(userName,signsFolder.getPath());
+                addFileToDatabase(userName,signsFolder.getPath(),message);
             }
         });
 
@@ -81,7 +82,7 @@ public class FireBaseUtility {
      * @param userName
      * @param path
      */
-    private void addFileToDatabase(final String userName, final String path){
+    private void addFileToDatabase(final String userName, final String path, final String message){
         Log.v(TAG,path);
 
         /** Writing image to FireBase database **/
@@ -94,13 +95,13 @@ public class FireBaseUtility {
             public void onSuccess(Uri uri) {
                 Log.v(TAG,"Image Successfully Uploaded");
                 String imgURL = uri.toString();
-                ImageSign imageSign = new ImageSign(userName, imgURL,getUserLocation(10));
+                ImageSign imageSign = new ImageSign(userName, imgURL,message,getUserLocation(10));
 
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
 
                 //Storing new image into cache at front
-                myImageSigns.add(0,imageSign);
+                mMyImageSigns.add(0,imageSign);
 
                 //Broadcasting result to MySignsFragment
                 mContext.sendBroadcast(mySignsIntent);

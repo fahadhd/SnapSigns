@@ -10,8 +10,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.snapsigns.ImageSign;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
@@ -49,7 +54,7 @@ public class SignPagerAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return view == ((FrameLayout) object);
+        return view == ((RelativeLayout) object);
     }
 
     @Override
@@ -57,9 +62,32 @@ public class SignPagerAdapter extends PagerAdapter {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
+        final TextView messageView = (TextView) itemView.findViewById(R.id.message);
 
-        Glide.with(mContext).load(mNearbySigns.get(position).imgURL).
-                placeholder(R.xml.progress_animation).into(imageView);
+        final ImageSign currentSign = mNearbySigns.get(position);
+        Glide.with(mContext).load(currentSign.imgURL).
+                placeholder(R.xml.progress_animation)
+                /*********** Listener  used to display textview when image is done loading *****/
+                .listener(new RequestListener<String, GlideDrawable>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GlideDrawable resource, String model,
+                                           Target<GlideDrawable> target, boolean isFromMemoryCache,
+                                           boolean isFirstResource) {
+                if(currentSign.message != null){
+                    messageView.setVisibility(View.VISIBLE);
+                    messageView.setText(currentSign.message);
+                }
+                return false;
+            } /********************************************************************************/
+
+        }).into(imageView);
+
+
 
         container.addView(itemView);
 
@@ -68,6 +96,6 @@ public class SignPagerAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView((FrameLayout) object);
+        container.removeView((RelativeLayout) object);
     }
 }

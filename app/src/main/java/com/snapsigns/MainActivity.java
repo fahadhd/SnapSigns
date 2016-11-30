@@ -1,8 +1,10 @@
 package com.snapsigns;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -13,7 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -42,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements
     FragmentManager mFragmentManager;
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
-    ImageButton mCaptureButton,mSaveSign,mExitPreview;
-    EditText mLocationView,mEnterTag;
+    ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText;
+    EditText mLocationView,mEnterTagView,mEnterTextView;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
     String mCurrentFragment;
@@ -65,13 +69,17 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mLocationDisplay = (LinearLayout) findViewById(R.id.location_display);
 
         mCaptureButton = (ImageButton) findViewById(R.id.button_capture);
         mExitPreview = (ImageButton) findViewById(R.id.exit_preview);
         mSaveSign = (ImageButton) findViewById(R.id.save_sign);
-        mLocationDisplay = (LinearLayout) findViewById(R.id.location_display);
+        mAddText = (ImageButton) findViewById(R.id.btn_add_text) ;
+
         mLocationView = (EditText) findViewById(R.id.location_name);
-        mEnterTag = (EditText)findViewById(R.id.enter_tag);
+        mEnterTagView = (EditText)findViewById(R.id.enter_tag);
+        mEnterTextView = (EditText) findViewById(R.id.enter_text);
+
 
 
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
@@ -252,13 +260,30 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         });
-        /*********** Setting up Location View UI End *****************/
 
         /************** Setting up Tag View UI *******************/
 
 
 
-        /************** Setting up Tag View UI End*******************/
+
+        /************** Setting up Add Text UI *******************/
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mEnterTextView, InputMethodManager.SHOW_IMPLICIT);
+
+        mAddText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Displaying edit text view
+                mEnterTextView.setVisibility(View.VISIBLE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mEnterTextView, InputMethodManager.SHOW_IMPLICIT);
+                mEnterTextView.setCursorVisible(true);
+            }
+        });
+
+
+
+        /*************Exit Button and Location View UI************/
 
 
         mExitPreview.setOnClickListener(new View.OnClickListener() {
@@ -289,8 +314,12 @@ public class MainActivity extends AppCompatActivity implements
                 mSaveSign.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        String message = null;
+                        if(mEnterTextView.getVisibility() == View.VISIBLE){
+                            message = mEnterTextView.getEditableText().toString();
+                        }
                         fireBaseUtility = new FireBaseUtility(MainActivity.this);
-                        fireBaseUtility.uploadImageToFireBase(pictureFile);
+                        fireBaseUtility.uploadImageToFireBase(pictureFile,message);
                         startMainActivityLayout(true);
 
                     }
@@ -304,6 +333,7 @@ public class MainActivity extends AppCompatActivity implements
                 mExitPreview.setVisibility(View.VISIBLE);
                 mSaveSign.setVisibility(View.VISIBLE);
                 mLocationDisplay.setVisibility(View.VISIBLE);
+                mAddText.setVisibility(View.VISIBLE);
 
             }
         });
@@ -333,6 +363,8 @@ public class MainActivity extends AppCompatActivity implements
                 mExitPreview.setVisibility(View.INVISIBLE);
                 mSaveSign.setVisibility(View.INVISIBLE);
                 mLocationDisplay.setVisibility(View.INVISIBLE);
+                mEnterTextView.setVisibility(View.INVISIBLE);
+                mAddText.setVisibility(View.INVISIBLE);
 
                 if(signSaved){
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
@@ -343,6 +375,33 @@ public class MainActivity extends AppCompatActivity implements
 
             }
         });
+    }
+
+
+    /**
+     * Used to hide keyboard and cursor of edit text view when user taps out of its box
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if ( v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    mEnterTextView.setCursorVisible(false);
+                    if(mEnterTextView.getText().toString().isEmpty()){
+                        mEnterTextView.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent( event );
     }
 
 }

@@ -81,6 +81,30 @@
        />
     </LinearLayout>
 
+    <!--///////////// Add Text Views ////////// -->
+
+    <EditText
+        android:id="@+id/enter_text"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#A6432443"
+
+        android:gravity="center"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        />
+    <ImageButton
+        android:id="@+id/btn_add_text"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/btn_add_text"
+        android:background="@null"
+        android:layout_alignParentRight="true"
+        android:padding="10dp"
+        />
+
     <!--/////////////// Tag Views //////////// -->
     <TextView
         android:id="@+id/tag_title"
@@ -99,9 +123,6 @@
         android:layout_below="@+id/exit_preview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
-
-
 
 
 

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class ImageSign {
     public String userID;
     public String imgURL;
+    public String message;
     public ArrayList<Double> location;
     public ArrayList<String> tags;
     public ArrayList<String> comments;
@@ -32,9 +33,10 @@ public class ImageSign {
 
     }
 
-    public ImageSign(String userID,String imgURL,ArrayList<Double> location){
+    public ImageSign(String userID,String imgURL,String message, ArrayList<Double> location){
         this.userID = userID;
         this.imgURL = imgURL;
+        this.message = message;
         this.tags = new ArrayList<>();
         this.location = location;
         this.comments = new ArrayList<>();
