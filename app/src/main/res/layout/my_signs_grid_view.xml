@@ -31,8 +31,7 @@
         android:layout_gravity="left|top"
         android:numColumns="auto_fit"
         android:layout_below="@+id/my_signs_toolbar"
-       >
-
+        >
     </GridView>
 
 

@@ -10,4 +10,7 @@
     <!--///////////// Preview Layout Strings ////////////-->
     <string name="location_title">Sign Location</string>
     <string name="tag_title">Add Tags</string>
+
+    <!--/////////// Settings Fragment Strings //////////////-->
+    <string name="settings_title"> Settings </string>
 </resources>

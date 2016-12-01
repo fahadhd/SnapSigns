@@ -33,6 +33,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
+import com.snapsigns.settings.SettingsFragment;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
@@ -168,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements
                             break;
 
                         case R.id.tab_settings:
+                            targetFragment = new SettingsFragment();
+                            mCurrentFragment = SETTINGS_FRAGMENT;
                             break;
 
                         //In case no tab is selected, use "my_signs" as default
@@ -370,9 +373,6 @@ public class MainActivity extends AppCompatActivity implements
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
                     mBottomBar.selectTabAtPosition(0);
                 }
-
-
-
             }
         });
     }
