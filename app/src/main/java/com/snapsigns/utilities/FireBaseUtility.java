@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +30,7 @@ public class FireBaseUtility {
     public static final String TAG = FireBaseUtility.class.getSimpleName();
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
+    private String uid;
     ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
     Context mContext;
 
@@ -41,10 +44,22 @@ public class FireBaseUtility {
     public FireBaseUtility(Context mContext) {
         initFireBase();
         this.mContext = mContext;
-        this.mMyImageSigns = ((SnapSigns)mContext.getApplicationContext()).getMyImageSigns();
-        this.mNearbySigns = ((SnapSigns)mContext.getApplicationContext()).getNearbySigns();
-    }
 
+        SnapSigns appContext = (SnapSigns) mContext.getApplicationContext();
+
+        this.mMyImageSigns = appContext.getMyImageSigns();
+        this.mNearbySigns = appContext.getNearbySigns();
+
+        FirebaseAuth auth = appContext.getFirebaseAuth();
+
+        if (auth != null) {
+            FirebaseUser user = auth.getCurrentUser();
+
+            if (user != null) {
+                this.uid = user.getUid();
+            }
+        }
+    }
 
     private void initFireBase(){
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -58,11 +73,9 @@ public class FireBaseUtility {
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
 
-        //TODO: Replace placeholder username fha423
-        final String userName = "fha423";
         String fileName = pictureFile.getName();
 
-        String storagePath = "signs/"+userName+"/"+fileName;
+        String storagePath = "signs/" + uid + "/" + fileName;
 
         final StorageReference signsFolder = mStorageRef.child(storagePath);
 
@@ -71,7 +84,7 @@ public class FireBaseUtility {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 //Once image is successfully in storage, add it to the database
-                addFileToDatabase(userName,signsFolder.getPath(),message);
+                addFileToDatabase(signsFolder.getPath(), message);
             }
         });
 
@@ -79,10 +92,9 @@ public class FireBaseUtility {
 
     /**
      * Adds uploaded image url and user info in database
-     * @param userName
      * @param path
      */
-    private void addFileToDatabase(final String userName, final String path, final String message){
+    private void addFileToDatabase(final String path, final String message){
         Log.v(TAG,path);
 
         /** Writing image to FireBase database **/
@@ -95,7 +107,7 @@ public class FireBaseUtility {
             public void onSuccess(Uri uri) {
                 Log.v(TAG,"Image Successfully Uploaded");
                 String imgURL = uri.toString();
-                ImageSign imageSign = new ImageSign(userName, imgURL,message,getUserLocation(10));
+                ImageSign imageSign = new ImageSign(uid, imgURL, message, getUserLocation(10));
 
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
@@ -127,9 +139,9 @@ public class FireBaseUtility {
             coordinates.add(mLastLocation.getLongitude());
             return coordinates;
         }
-        else{
+        else {
             //Attempt to read location again
-            return getUserLocation(tries-1);
+            return getUserLocation(tries - 1);
         }
     }
 
@@ -138,10 +150,9 @@ public class FireBaseUtility {
      * @return
      */
     public ArrayList<ImageSign> getUserSigns(){
-        final String userName = "fha423";
         final ArrayList<ImageSign> myImageSigns = new ArrayList<>();
         if(mDatabase != null) {
-            mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabase.orderByChild("userID").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");
@@ -167,35 +178,4 @@ public class FireBaseUtility {
 
         return myImageSigns;
     }
-
-    public void deleteUserSigns(){
-        final String userName = "fha423";
-        if(mDatabase != null) {
-            mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Log.i(TAG, "in onDataChange");
-                    for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        child.getRef().removeValue();
-                    }
-                    Log.i(TAG, "notifying data changed");
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.i(TAG, "Failed to read value");
-                }
-            });
-        }
-        else{
-            Log.i(TAG,"null ref");
-        }
-
-        //Broadcasting result to MySignsFragment
-        mMyImageSigns.clear();
-        mContext.sendBroadcast(mySignsIntent);
-    }
-
-
 }

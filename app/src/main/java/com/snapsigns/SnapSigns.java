@@ -10,6 +10,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.util.ArrayList;
@@ -21,9 +22,7 @@ public class SnapSigns extends android.app.Application implements
     GoogleApiClient mGoogleApiClient;
     ArrayList<ImageSign> myImageSigns;
     ArrayList<ImageSign> mNearbySigns;
-
-
-    SignIn signIn;
+    FirebaseAuth mAuth;
 
     @Override
     public void onCreate() {
@@ -48,10 +47,7 @@ public class SnapSigns extends android.app.Application implements
                     .build();
         }
 
-        if (signIn == null) {
-            signIn = new SignIn(mGoogleApiClient);
-        }
-
+        mAuth = FirebaseAuth.getInstance();
     }
 
 
@@ -67,8 +63,8 @@ public class SnapSigns extends android.app.Application implements
         return mGoogleApiClient;
     }
 
-    public SignIn getSignIn() {
-        return signIn;
+    public FirebaseAuth getFirebaseAuth() {
+        return mAuth;
     }
 
     @Override

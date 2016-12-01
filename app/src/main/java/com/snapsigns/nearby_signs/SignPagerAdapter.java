@@ -1,8 +1,8 @@
 package com.snapsigns.nearby_signs;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Point;
+import android.media.Image;
 import android.support.v4.view.PagerAdapter;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -24,6 +23,9 @@ import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by admin on 11/29/2016.
@@ -33,25 +35,44 @@ public class SignPagerAdapter extends PagerAdapter {
     Context mContext;
     LayoutInflater mLayoutInflater;
     ArrayList<ImageSign> mNearbySigns;
+    ArrayList<ImageSign> filteredSigns;
+    ArrayList<String> allTags;
+    private int mSignWidth;
+    private int mSignHeight;
 
-    public SignPagerAdapter(Context context){
+    public SignPagerAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mNearbySigns = ((SnapSigns)mContext.getApplicationContext()).getNearbySigns();
+        mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getNearbySigns();
+        filteredSigns = new ArrayList<ImageSign>(mNearbySigns);
 
-        Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Set<String> seenTags = new HashSet<String>();
+
+        for (ImageSign sign : filteredSigns) {
+            for (String tag : sign.tags) {
+                if (!seenTags.contains(tag)) {
+                    seenTags.add(tag);
+                    allTags.add(tag);
+                }
+            }
+        }
+
+        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
+
+        mSignWidth = size.x;
+        mSignHeight = size.y;
     }
 
     @Override
     public int getCount() {
-        return mNearbySigns.size();
+        return filteredSigns.size();
     }
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return view == object;
+        return view == ((RelativeLayout) object);
     }
 
     @Override
@@ -59,12 +80,9 @@ public class SignPagerAdapter extends PagerAdapter {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
-
-
-
         final TextView messageView = (TextView) itemView.findViewById(R.id.message);
-        final ImageSign currentSign = mNearbySigns.get(position);
 
+        final ImageSign currentSign = filteredSigns.get(position);
         Glide.with(mContext).load(currentSign.imgURL).
                 placeholder(R.xml.progress_animation)
                 /*********** Listener  used to display textview when image is done loading *****/
@@ -87,8 +105,6 @@ public class SignPagerAdapter extends PagerAdapter {
 
         }).into(imageView);
 
-
-
         container.addView(itemView);
 
         return itemView;
@@ -97,5 +113,32 @@ public class SignPagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((RelativeLayout) object);
+    }
+
+    public void filter(List<String> filterTags) {
+        filteredSigns.clear();
+        allTags.clear();
+        Set<String> seenTags = new HashSet<String>();
+
+        for (ImageSign sign : mNearbySigns) {
+            Set<String> toCheck = new HashSet<String>(filterTags);
+
+            for (String tag : sign.tags) {
+                if (toCheck.contains(tag)) {
+                    toCheck.remove(tag);
+
+                    if (toCheck.size() == 0) {
+                        filteredSigns.add(sign);
+                    }
+                }
+
+                if (!seenTags.contains(tag)) {
+                    seenTags.add(tag);
+                    allTags.add(tag);
+                }
+            }
+        }
+
+        notifyDataSetChanged();
     }
 }
