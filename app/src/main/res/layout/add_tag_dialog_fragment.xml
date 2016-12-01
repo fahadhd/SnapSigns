@@ -12,7 +12,7 @@
         android:id="@+id/workout_dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set Tag"
+        android:text="Add Tag"
         android:layout_gravity="center"
         android:gravity="center"
         android:textColor="@color/black"

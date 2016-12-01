@@ -115,7 +115,7 @@
         android:visibility="invisible"
         android:background="@drawable/btn_add_tag"
         android:layout_alignParentRight="true"
-        android:text="Add Tag"
+        android:text="+Tag"
         android:textStyle="bold"
         android:textSize="12sp"
         android:gravity="center"
