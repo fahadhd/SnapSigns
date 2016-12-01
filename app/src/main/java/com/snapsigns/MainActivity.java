@@ -48,10 +48,9 @@ public class MainActivity extends AppCompatActivity implements
     FragmentManager mFragmentManager;
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
-    ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText, mAddTagButton;
+    ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText;
     EditText mLocationView,mEnterTextView;
-    TextView mTagTitle;
-    AutoCompleteTextView mAddTagView;
+    TextView mAddTagButton;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
     TagContainerLayout mTagContainerLayout;
@@ -80,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements
         mExitPreview = (ImageButton) findViewById(R.id.exit_preview);
         mSaveSign = (ImageButton) findViewById(R.id.save_sign);
         mAddText = (ImageButton) findViewById(R.id.btn_add_text) ;
-        mAddTagButton = (ImageButton) findViewById(R.id.btn_add_tag) ;
+        mAddTagButton = (TextView) findViewById(R.id.btn_add_tag) ;
 
         mTagContainerLayout = (TagContainerLayout) findViewById(R.id.tag_container);
         mTagContainerLayout.setTags(new String[]{"Some Event","Washington DC"});
@@ -88,10 +87,6 @@ public class MainActivity extends AppCompatActivity implements
 
         mLocationView = (EditText) findViewById(R.id.location_name);
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
-
-        mTagTitle = (TextView) findViewById(R.id.tag_title);
-
-        mAddTagView = (AutoCompleteTextView) findViewById(R.id.enter_tag) ;
 
 
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
@@ -360,7 +355,6 @@ public class MainActivity extends AppCompatActivity implements
                 mAddText.setVisibility(View.VISIBLE);
 
                 /////////////// Tag View Items ////////////
-                mTagTitle.setVisibility(View.VISIBLE);
                 mAddTagButton.setVisibility(View.VISIBLE);
 
             }
@@ -400,9 +394,7 @@ public class MainActivity extends AppCompatActivity implements
                 mAddText.setVisibility(View.INVISIBLE);
 
                 /////////////// Tag View Items ////////////
-                mTagTitle.setVisibility(View.INVISIBLE);
                 mTagContainerLayout.setVisibility(View.INVISIBLE);
-                mAddTagView.setVisibility(View.INVISIBLE);
                 mAddTagButton.setVisibility(View.INVISIBLE);
 
                 //If the sign was saved then go to MySignsFragment

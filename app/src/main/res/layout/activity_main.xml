@@ -109,38 +109,18 @@
 
     <!--/////////////// Tag Views //////////// -->
     <TextView
-        android:id="@+id/tag_title"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        style="@style/DropShadowTextStyle"
-        android:layout_centerHorizontal="true"
-        android:textColor="#fff"
-        android:textSize="14sp"
-        android:text="@string/tag_title"
-        />
-    <ImageButton
         android:id="@+id/btn_add_tag"
-        android:visibility="invisible"
-        android:src="@drawable/btn_add_tag"
-        android:background="@null"
-        android:layout_marginLeft="5dp"
-        android:layout_alignBottom="@+id/tag_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/tag_title"
-
-        />
-    <AutoCompleteTextView
-        android:id="@+id/enter_tag"
-        android:layout_below="@+id/tag_title"
         android:visibility="invisible"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#fff"
+        android:background="@drawable/btn_add_tag"
+        android:layout_alignParentRight="true"
+        android:text="Add Tag"
+        android:textStyle="bold"
         android:textSize="12sp"
         android:gravity="center"
+        android:textColor="@color/dark_purple"
+        android:layout_alignBottom="@+id/exit_preview"
         />
 
     <co.lujun.androidtagview.TagContainerLayout
@@ -150,7 +130,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
         android:padding="10dp"
-        android:layout_below="@+id/enter_tag"
+        android:layout_below="@+id/btn_add_tag"
         app:tag_border_width = "0.8dp"
         app:container_gravity = "center"
         app:container_enable_drag="false"
@@ -172,8 +152,7 @@
         android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/tag_container"
+        android:layout_marginTop="5dp"
         android:src="@drawable/btn_exit_preview"
         android:background = "@null"
         android:visibility="invisible"/>
