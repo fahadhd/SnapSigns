@@ -178,4 +178,33 @@ public class FireBaseUtility {
 
         return myImageSigns;
     }
+
+    public void deleteUserSigns(){
+        final String userName = "fha423";
+        if(mDatabase != null) {
+            mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.i(TAG, "in onDataChange");
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        child.getRef().removeValue();
+                    }
+                    Log.i(TAG, "notifying data changed");
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "Failed to read value");
+                }
+            });
+        }
+        else{
+            Log.i(TAG,"null ref");
+        }
+
+        //Broadcasting result to MySignsFragment
+        mMyImageSigns.clear();
+        mContext.sendBroadcast(mySignsIntent);
+    }
 }

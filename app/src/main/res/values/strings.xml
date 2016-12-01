@@ -14,4 +14,7 @@
 
     <string name="tag_title">Add Tag</string>
 
+    <!--/////////// Login Strings //////////////-->
+    <string name="google_sign_in_str">Login With Google</string>
+
 </resources>

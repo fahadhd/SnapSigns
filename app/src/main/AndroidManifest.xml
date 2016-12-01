@@ -29,6 +29,8 @@
         </activity>
 
         <activity android:name="com.snapsigns.create_sign.PictureTakenActivity" />
+
+        <activity android:name=".login.SignInActivity" />
     </application>
 
 </manifest>

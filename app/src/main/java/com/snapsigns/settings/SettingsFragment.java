@@ -40,18 +40,15 @@ public class SettingsFragment extends BaseFragment{
             }
         });
 
-
-
-
         return rootView;
     }
 
     private void logout(){
-        ((SnapSigns) getActivity().getApplicationContext()).getSignIn().signOut();
+        ((SnapSigns) getActivity().getApplicationContext()).signOut();
     }
 
     private void deleteMySigns(){
-        new FireBaseUtility(getActivity().getApplicationContext()).deleteUserSigns();
+        new FireBaseUtility(getActivity()).deleteUserSigns();
     }
 
     private void openLink(String url){

@@ -35,8 +35,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
+import com.snapsigns.login.SignInActivity;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
+import com.snapsigns.settings.SettingsFragment;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
     ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText;
-    EditText mLocationView,mEnterTagView,mEnterTextView;
+    EditText mLocationView,mEnterTextView;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
     String mCurrentFragment;
@@ -81,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements
         mAddText = (ImageButton) findViewById(R.id.btn_add_text) ;
 
         mLocationView = (EditText) findViewById(R.id.location_name);
-        mEnterTagView = (EditText)findViewById(R.id.enter_tag);
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
 
         SnapSigns app = (SnapSigns) getApplication();
@@ -170,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements
                             break;
 
                         case R.id.tab_settings:
+                            targetFragment = new SettingsFragment();
+                            mCurrentFragment = SETTINGS_FRAGMENT;
                             break;
 
                         //In case no tab is selected, use "my_signs" as default

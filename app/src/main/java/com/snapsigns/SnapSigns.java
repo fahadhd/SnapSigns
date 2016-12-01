@@ -1,6 +1,7 @@
 package com.snapsigns;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +10,8 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.snapsigns.utilities.FireBaseUtility;
@@ -65,6 +68,21 @@ public class SnapSigns extends android.app.Application implements
 
     public FirebaseAuth getFirebaseAuth() {
         return mAuth;
+    }
+
+    public void signOut() {
+        // FireBase sign out
+        mAuth.signOut();
+
+        // Google sign out
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        startActivity(new Intent(SnapSigns.this,SignIn.class));
+                    }
+                }
+        );
     }
 
     @Override

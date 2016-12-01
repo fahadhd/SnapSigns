@@ -110,19 +110,7 @@ public class SignInActivity extends AppCompatActivity
         }
     }
 
-    public void signOut() {
-        // Firebase sign out
-        mAuth.signOut();
 
-        // Google sign out
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-            new ResultCallback<Status>() {
-                @Override
-                public void onResult(@NonNull Status status) {
-                }
-            }
-        );
-    }
 
     public void revokeAccess() {
         // Firebase sign out
