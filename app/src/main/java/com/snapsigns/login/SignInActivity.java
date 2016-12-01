@@ -89,23 +89,25 @@ public class SignInActivity extends AppCompatActivity
     }
 
     public void signIn() {
-        startActivityForResult(
-            Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient),
-            RC_SIGN_IN
-        );
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-
             if (result.isSuccess()) {
-                Log.d(TAG, "Sign in succeeded.");
-                firebaseAuthWithGoogle(result.getSignInAccount());
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+                firebaseAuthWithGoogle(account);
             } else {
-                Log.w(TAG, "Failed to sign in");
-                Toast.makeText(this, "Failed to sign in.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"LOGIN FAILED",Toast.LENGTH_SHORT).show();
+                // Google Sign In failed, update UI appropriately
+                // ...
             }
         }
     }

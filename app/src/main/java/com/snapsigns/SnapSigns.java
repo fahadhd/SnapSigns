@@ -8,12 +8,14 @@ import android.support.annotation.Nullable;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.SignInAccount;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+import com.snapsigns.login.SignInActivity;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.util.ArrayList;
@@ -79,7 +81,6 @@ public class SnapSigns extends android.app.Application implements
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(@NonNull Status status) {
-                        startActivity(new Intent(SnapSigns.this,SignIn.class));
                     }
                 }
         );
