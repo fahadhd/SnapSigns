@@ -8,5 +8,6 @@
     <color name="dark_purple">#432443</color>
     <color name="red_900">#B71C1C</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 
 </resources>

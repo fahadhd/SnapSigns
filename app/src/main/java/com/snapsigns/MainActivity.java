@@ -3,7 +3,6 @@ package com.snapsigns;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -12,8 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +20,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -35,11 +33,11 @@ import com.snapsigns.create_sign.CameraFragment;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
 import com.snapsigns.settings.SettingsFragment;
+import com.snapsigns.utilities.AddTagDialog;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.qqtheme.framework.picker.OptionPicker;
 import co.lujun.androidtagview.TagContainerLayout;
@@ -50,8 +48,9 @@ public class MainActivity extends AppCompatActivity implements
     FragmentManager mFragmentManager;
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
-    ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText;
+    ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText, mAddTagButton;
     EditText mLocationView,mEnterTextView;
+    TextView mTagTitle;
     AutoCompleteTextView mAddTagView;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
@@ -81,14 +80,18 @@ public class MainActivity extends AppCompatActivity implements
         mExitPreview = (ImageButton) findViewById(R.id.exit_preview);
         mSaveSign = (ImageButton) findViewById(R.id.save_sign);
         mAddText = (ImageButton) findViewById(R.id.btn_add_text) ;
+        mAddTagButton = (ImageButton) findViewById(R.id.btn_add_tag) ;
+
         mTagContainerLayout = (TagContainerLayout) findViewById(R.id.tag_container);
-        mTagContainerLayout.setTags(new String[]{"Weird Rally","Washington DC"});
+        mTagContainerLayout.setTags(new String[]{"Some Event","Washington DC"});
 
 
         mLocationView = (EditText) findViewById(R.id.location_name);
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
-        mAddTagView = (AutoCompleteTextView) findViewById(R.id.enter_tag) ;
 
+        mTagTitle = (TextView) findViewById(R.id.tag_title);
+
+        mAddTagView = (AutoCompleteTextView) findViewById(R.id.enter_tag) ;
 
 
         mGoogleApiClient = ((SnapSigns)getApplicationContext()).getmGoogleApiClient();
@@ -273,6 +276,13 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         /************** Setting up Tag View UI *******************/
+        mAddTagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AddTagDialog tagDialog = new AddTagDialog();
+                tagDialog.show(getFragmentManager(),"Add Tag Dialog");
+            }
+        });
 
 
 
@@ -341,10 +351,17 @@ public class MainActivity extends AppCompatActivity implements
 
                 /////////// Displaying preview taken UI elements ////////////////
 
+                /////// Core Button and Location Items /////////
                 mExitPreview.setVisibility(View.VISIBLE);
                 mSaveSign.setVisibility(View.VISIBLE);
                 mLocationDisplay.setVisibility(View.VISIBLE);
+
+                //////////// Add Text Items /////////////////
                 mAddText.setVisibility(View.VISIBLE);
+
+                /////////////// Tag View Items ////////////
+                mTagTitle.setVisibility(View.VISIBLE);
+                mAddTagButton.setVisibility(View.VISIBLE);
 
             }
         });
@@ -371,12 +388,24 @@ public class MainActivity extends AppCompatActivity implements
                 if(mCurrentFragment.equals(CREATE_SIGN_FRAGMENT))
                     mCaptureButton.setVisibility(View.VISIBLE);
 
+                ///////////// Hiding preview items ////////////////////
+
+                /////// Core Button and Location Items /////////
                 mExitPreview.setVisibility(View.INVISIBLE);
                 mSaveSign.setVisibility(View.INVISIBLE);
                 mLocationDisplay.setVisibility(View.INVISIBLE);
+
+                //////////// Add Text Items /////////////////
                 mEnterTextView.setVisibility(View.INVISIBLE);
                 mAddText.setVisibility(View.INVISIBLE);
 
+                /////////////// Tag View Items ////////////
+                mTagTitle.setVisibility(View.INVISIBLE);
+                mTagContainerLayout.setVisibility(View.INVISIBLE);
+                mAddTagView.setVisibility(View.INVISIBLE);
+                mAddTagButton.setVisibility(View.INVISIBLE);
+
+                //If the sign was saved then go to MySignsFragment
                 if(signSaved){
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
                     mBottomBar.selectTabAtPosition(0);

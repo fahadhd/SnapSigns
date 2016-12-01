@@ -110,17 +110,32 @@
     <!--/////////////// Tag Views //////////// -->
     <TextView
         android:id="@+id/tag_title"
+        android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         style="@style/DropShadowTextStyle"
         android:layout_centerHorizontal="true"
         android:textColor="#fff"
         android:textSize="14sp"
         android:text="@string/tag_title"
         />
+    <ImageButton
+        android:id="@+id/btn_add_tag"
+        android:visibility="invisible"
+        android:src="@drawable/btn_add_tag"
+        android:background="@null"
+        android:layout_marginLeft="5dp"
+        android:layout_alignBottom="@+id/tag_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tag_title"
+
+        />
     <AutoCompleteTextView
         android:id="@+id/enter_tag"
         android:layout_below="@+id/tag_title"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#fff"
@@ -130,6 +145,7 @@
 
     <co.lujun.androidtagview.TagContainerLayout
         android:id="@+id/tag_container"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
@@ -153,7 +169,7 @@
 
     <ImageButton
         android:id="@+id/exit_preview"
-        android:padding="15dp"
+        android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

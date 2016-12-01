@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/workout_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:minHeight="150dp">
+
+    <TextView
+        android:id="@+id/workout_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set Tag"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textSize="14sp"/>
+
+    <AutoCompleteTextView
+        android:id="@+id/enter_tag_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Input Tag Name"
+        android:maxLength="16"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:inputType="textCapWords"
+        android:imeOptions="actionDone"
+        android:cursorVisible="false"
+        android:paddingTop="20dp"
+        />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sets_choice"
+        android:layout_marginTop="35dp"
+        android:orientation="horizontal"
+        >
+        <Button
+            android:id="@+id/dialog_cancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Cancel"/>
+        <Button
+            android:id="@+id/dialog_ok"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="OK"/>
+    </LinearLayout>
+
+
+</LinearLayout>
