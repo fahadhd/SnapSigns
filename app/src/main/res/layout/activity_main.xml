@@ -139,7 +139,8 @@
         app:container_enable_drag="false"
         app:horizontal_interval="8dp"
         app:vertical_interval="50dp"
-        app:container_background_color = "#32E65100"
+        app:container_background_color = "#00000000"
+        app:container_border_color = "#00000000"
         app:tag_text_size = "9sp"
         app:tag_text_color = "#fff"
         app:tag_background_color = "#A6432443"
@@ -154,6 +155,8 @@
         android:padding="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tag_container"
         android:src="@drawable/btn_exit_preview"
         android:background = "@null"
         android:visibility="invisible"/>
