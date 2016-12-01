@@ -33,6 +33,7 @@ dependencies {
     compile 'cn.qqtheme.framework:WheelPicker:latest.release'
     compile 'cn.qqtheme.framework:FilePicker:latest.release'
     compile 'cn.qqtheme.framework:ColorPicker:latest.release'
+    compile 'co.lujun:androidtagview:1.0.5'
 
     compile 'com.roughike:bottom-bar:2.0.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
