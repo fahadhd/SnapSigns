@@ -1,6 +1,7 @@
 package com.snapsigns.nearby_signs;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.support.v4.view.PagerAdapter;
 import android.view.Display;
@@ -12,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -31,8 +33,6 @@ public class SignPagerAdapter extends PagerAdapter {
     Context mContext;
     LayoutInflater mLayoutInflater;
     ArrayList<ImageSign> mNearbySigns;
-    private int mSignWidth;
-    private int mSignHeight;
 
     public SignPagerAdapter(Context context){
         mContext = context;
@@ -42,9 +42,6 @@ public class SignPagerAdapter extends PagerAdapter {
         Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-
-        mSignWidth = size.x;
-        mSignHeight = size.y;
     }
 
     @Override
@@ -54,7 +51,7 @@ public class SignPagerAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return view == ((RelativeLayout) object);
+        return view == object;
     }
 
     @Override
@@ -62,9 +59,12 @@ public class SignPagerAdapter extends PagerAdapter {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
-        final TextView messageView = (TextView) itemView.findViewById(R.id.message);
 
+
+
+        final TextView messageView = (TextView) itemView.findViewById(R.id.message);
         final ImageSign currentSign = mNearbySigns.get(position);
+
         Glide.with(mContext).load(currentSign.imgURL).
                 placeholder(R.xml.progress_animation)
                 /*********** Listener  used to display textview when image is done loading *****/

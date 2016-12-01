@@ -27,10 +27,7 @@ import java.util.ArrayList;
  * Right Left buttons to go through the images.
  */
 public class NearbySignsFragment extends BaseFragment {
-    ArrayList<ImageSign> mNearbySigns = null;
     private ViewPager mPager;
-    RelativeLayout.LayoutParams fragmentContainerLayoutParams;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,18 +36,11 @@ public class NearbySignsFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
         mPager.setAdapter(new SignPagerAdapter(getActivity()));
-//
-//        FrameLayout fragmentContainer = (FrameLayout) getActivity().findViewById(R.id.fragment_container);
-//        fragmentContainerLayoutParams =
-//                (RelativeLayout.LayoutParams)fragmentContainer.getLayoutParams();
-//        fragmentContainerLayoutParams.removeRule(RelativeLayout.ABOVE);
-
         return rootView;
     }
 
     @Override
     public void onDestroy() {
-       // fragmentContainerLayoutParams.addRule(RelativeLayout.ABOVE,R.id.bottomBar);
         super.onDestroy();
     }
 }
