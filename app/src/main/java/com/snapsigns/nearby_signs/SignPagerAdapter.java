@@ -1,6 +1,7 @@
 package com.snapsigns.nearby_signs;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.media.Image;
 import android.support.v4.view.PagerAdapter;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -73,14 +75,36 @@ public class SignPagerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
         final ImageSign currentSign = filteredSigns.get(position);
-
+        final TextView messageView = (TextView) itemView.findViewById(R.id.message);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
         TextView title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
 
-       // title.setText(currentSign.locationName);
-        final TextView messageView = (TextView) itemView.findViewById(R.id.message);
+        ImageButton gridButton = (ImageButton) itemView.findViewById(R.id.grid_activity_button);
+        ImageButton favoriteButton = (ImageButton) itemView.findViewById(R.id.favorite_button);
+
+        title.setText(currentSign.locationName);
+
+        /*************** Setting button Listeners ******************/
+        gridButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mContext.startActivity(new Intent(mContext,NearbySignsGridActivity.class));
+            }
+        });
+
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
 
+        /**********************************************************/
+
+
+
+        /************** Adding image to Image View ****************************/
         Glide.with(mContext).load(currentSign.imgURL).
                 placeholder(R.xml.progress_animation)
                 /*********** Listener  used to display textview when image is done loading *****/
@@ -99,11 +123,12 @@ public class SignPagerAdapter extends PagerAdapter {
                     messageView.setText(currentSign.message);
                 }
                 return false;
-            } /********************************************************************************/
+            }
 
         }).into(imageView);
 
         container.addView(itemView);
+        /*******************************************************************/
 
         return itemView;
     }

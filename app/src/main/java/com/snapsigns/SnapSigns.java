@@ -33,12 +33,6 @@ public class SnapSigns extends android.app.Application implements
     public void onCreate() {
         super.onCreate();
 
-        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
-        myImageSigns = fireBaseUtility.getUserSigns();
-        //TODO: Change this to getNearbySigns
-        mNearbySigns = fireBaseUtility.getUserSigns();
-
-
         if (mGoogleApiClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).
                     requestEmail()
@@ -54,6 +48,11 @@ public class SnapSigns extends android.app.Application implements
         }
 
         mAuth = FirebaseAuth.getInstance();
+
+        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
+        myImageSigns = fireBaseUtility.getUserSigns();
+        //TODO: Change this to getNearbySigns
+        mNearbySigns = fireBaseUtility.getUserSigns();
     }
 
 
@@ -86,6 +85,7 @@ public class SnapSigns extends android.app.Application implements
                 }
         );
     }
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

@@ -6,6 +6,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,6 +31,7 @@ public class FireBaseUtility {
     public static final String TAG = FireBaseUtility.class.getSimpleName();
     private StorageReference mStorageRef;
     private DatabaseReference mDatabase;
+    private GoogleApiClient mGoogleApiClient;
     private String uid;
     ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
     Context mContext;
@@ -49,13 +51,14 @@ public class FireBaseUtility {
 
         this.mMyImageSigns = appContext.getMyImageSigns();
         this.mNearbySigns = appContext.getNearbySigns();
+        this.mGoogleApiClient = appContext.getmGoogleApiClient();
 
         FirebaseAuth auth = appContext.getFirebaseAuth();
 
         if (auth != null) {
             FirebaseUser user = auth.getCurrentUser();
             if (user != null) {
-                this.uid = user.getEmail();
+                this.uid = user.getDisplayName()+"-"+user.getUid();
             }
         }
     }
@@ -109,7 +112,7 @@ public class FireBaseUtility {
                 ArrayList<Double> location = getUserLocation(10);
 
                 //TODO: Change this to actual sign location
-                String locationName = location.get(0)+"-"+location.get(1);
+                String locationName = location.get(0)+","+location.get(1);
                 ImageSign imageSign = new ImageSign(uid, imgURL, message, locationName,location,tags);
 
                 //Pushes a new imagesign object into database
@@ -135,7 +138,7 @@ public class FireBaseUtility {
         }
         ArrayList<Double> coordinates = new ArrayList<>();
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                MainActivity.mGoogleApiClient);
+                mGoogleApiClient);
 
         if (mLastLocation != null) {
             coordinates.add(mLastLocation.getLatitude());
@@ -181,6 +184,50 @@ public class FireBaseUtility {
 
         return myImageSigns;
     }
+
+    public ArrayList<ImageSign> getNearbySigns(){
+        final ArrayList<ImageSign> nearbySigns = new ArrayList<>();
+        ArrayList<Double> currentCoords = getUserLocation(10);
+        final Location currentLocation = new Location("");
+        currentLocation.setLatitude(currentCoords.get(0));
+        currentLocation.setLongitude(currentCoords.get(1));
+
+        if(mDatabase != null) {
+            mDatabase.orderByChild("userID").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.i(TAG, "in onDataChange");
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        Location signLocation = new Location("");
+                        ImageSign currentSign = child.getValue(ImageSign.class);
+                        signLocation.setLatitude(currentSign.location.get(0));
+                        signLocation.setLongitude(currentSign.location.get(1));
+
+                        if(currentLocation.distanceTo(signLocation) < 500){
+                            nearbySigns.add(0,currentSign);
+                        }
+                    }
+                    Log.i(TAG, "notifying data changed");
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "Failed to read value");
+                }
+            });
+        }
+        else{
+            Log.i(TAG,"null ref");
+        }
+
+        //Broadcasting result to MySignsFragment
+        mContext.sendBroadcast(mySignsIntent);
+
+        return nearbySigns;
+    }
+
+
 
     public void deleteUserSigns(){
         final String userName = "fha423";
