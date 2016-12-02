@@ -37,6 +37,7 @@ public class FireBaseUtility {
     private DatabaseReference mDatabase;
     private GoogleApiClient mGoogleApiClient;
     private String uid;
+    FirebaseAuth auth;
     ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
     SnapSigns appContext;
     Context mContext;
@@ -56,6 +57,10 @@ public class FireBaseUtility {
 
         this.mGoogleApiClient = appContext.getmGoogleApiClient();
 
+        auth = appContext.getFirebaseAuth();
+
+        checkUserName();
+
     }
 
     private void initFireBase(){
@@ -69,6 +74,8 @@ public class FireBaseUtility {
     public void uploadImageToFireBase(File pictureFile, final String message, final ArrayList<String> tags) {
         this.mMyImageSigns = appContext.getMyImageSigns();
         this.mNearbySigns = appContext.getNearbySigns();
+
+        checkUserName();
 
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
@@ -98,7 +105,7 @@ public class FireBaseUtility {
         Log.v(TAG,path);
 
         FirebaseAuth auth = appContext.getFirebaseAuth();
-        
+
         if (auth != null) {
             FirebaseUser user = auth.getCurrentUser();
             if (user != null) {
@@ -228,6 +235,8 @@ public class FireBaseUtility {
 
 
     public void deleteUserSigns(){
+        checkUserName();
+        
         final String userName = uid;
         if(mDatabase != null) {
             mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -275,6 +284,15 @@ public class FireBaseUtility {
         else {
             //Attempt to read location again
             return getUserLocation(tries - 1);
+        }
+    }
+
+    public void checkUserName(){
+        if (uid == null && auth != null) {
+            FirebaseUser user = auth.getCurrentUser();
+            if (user != null) {
+                this.uid = user.getDisplayName()+"-"+user.getUid();
+            }
         }
     }
 }
