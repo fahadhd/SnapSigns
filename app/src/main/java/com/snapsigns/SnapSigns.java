@@ -41,6 +41,7 @@ public class SnapSigns extends android.app.Application implements
 
         if (mGoogleApiClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+
                     .requestIdToken(getString(R.string.web_client_id))
                     .build();
 

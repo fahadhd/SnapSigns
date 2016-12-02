@@ -54,7 +54,6 @@ public class FireBaseUtility {
 
         if (auth != null) {
             FirebaseUser user = auth.getCurrentUser();
-
             if (user != null) {
                 this.uid = user.getUid();
             }
@@ -69,7 +68,7 @@ public class FireBaseUtility {
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
-    public void uploadImageToFireBase(File pictureFile, final String message) {
+    public void uploadImageToFireBase(File pictureFile, final String message, final ArrayList<String> tags) {
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
 
@@ -84,7 +83,7 @@ public class FireBaseUtility {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 //Once image is successfully in storage, add it to the database
-                addFileToDatabase(signsFolder.getPath(), message);
+                addFileToDatabase(signsFolder.getPath(), message, tags);
             }
         });
 
@@ -94,7 +93,7 @@ public class FireBaseUtility {
      * Adds uploaded image url and user info in database
      * @param path
      */
-    private void addFileToDatabase(final String path, final String message){
+    private void addFileToDatabase(final String path, final String message, final ArrayList<String> tags){
         Log.v(TAG,path);
 
         /** Writing image to FireBase database **/

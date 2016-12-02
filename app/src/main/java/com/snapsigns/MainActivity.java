@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements
                             message = mEnterTextView.getEditableText().toString();
                         }
                         fireBaseUtility = new FireBaseUtility(MainActivity.this);
-                        fireBaseUtility.uploadImageToFireBase(pictureFile,message);
+                        fireBaseUtility.uploadImageToFireBase(pictureFile,message,(ArrayList<String>) mTagContainerLayout.getTags());
                         startMainActivityLayout(true);
 
                     }
