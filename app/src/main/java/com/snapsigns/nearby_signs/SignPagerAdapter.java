@@ -43,7 +43,9 @@ public class SignPagerAdapter extends PagerAdapter {
     public SignPagerAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns();
+        mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getNearbySigns();
+
+        if(mNearbySigns == null) mNearbySigns = new ArrayList<>();
     }
 
     @Override

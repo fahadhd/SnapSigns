@@ -83,6 +83,8 @@ public class SnapSigns extends android.app.Application implements
     }
 
     public ArrayList<ImageSign> filterNearbySigns(List<String> tags) {
+        if(mNearbySigns == null) mNearbySigns = new ArrayList<>();
+
         filterTags = new ArrayList<String>(tags);
         filteredNearbySigns.clear();
 

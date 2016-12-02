@@ -1,7 +1,10 @@
 package com.snapsigns.nearby_signs;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.FragmentContainer;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,23 +13,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.roughike.bottombar.BottomBar;
 import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
 import com.snapsigns.R;
-import com.snapsigns.SnapSigns;
+import com.snapsigns.utilities.Constants;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Displays Nearby Signs
@@ -35,12 +30,28 @@ import java.util.List;
  */
 public class NearbySignsFragment extends BaseFragment {
     private ViewPager mPager;
-    private SignPagerAdapter mPagerAdapter;
     private SlidingUpPanelLayout mLayout;
+    ListView listView;
+    ArrayAdapter<String> arrayAdapter;
     private String TAG = "nearby_signs_tag";
     private ImageSign mCurrImageSign;
     ArrayList<ImageSign> mNearbySigns;
+    private SignPagerAdapter mSignPageAdapter;
+    EditText addComment;
     ArrayList<String> comments = new ArrayList<>();
+    Button postBtn;
+
+    @Override
+    public void onStart() {
+        registerImageSignReceiver();
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        getActivity().unregisterReceiver(broadcastReceiver);
+        super.onStop();
+    }
 
 
     @Override
@@ -49,24 +60,63 @@ public class NearbySignsFragment extends BaseFragment {
 
         View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
 
-        ListView lv = (ListView) rootView.findViewById(R.id.comment_list);
+        /*********************** ViewPager Views ***************/
+        mSignPageAdapter = new SignPagerAdapter(getActivity());
+        mPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mPager.setAdapter(mSignPageAdapter);
 
+        /**************** Comment Box Views ********************/
+        mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+        listView = (ListView) rootView.findViewById(R.id.comment_list);
         // This is the array adapter, it takes the context of the activity as a
         // first parameter, the type of list view as a second parameter and your
         // array as a third parameter.
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+       arrayAdapter = new ArrayAdapter<String>(
                 getContext(),
                 android.R.layout.simple_list_item_1,
                 comments );
+        listView.setAdapter(arrayAdapter);
 
-        lv.setAdapter(arrayAdapter);
+        addComment = (EditText) rootView.findViewById(R.id.add_comment);
+        postBtn = (Button) rootView.findViewById(R.id.post_button);
+        postBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newComment = addComment.getText().toString();
+                //TODO add comment to imageSign
+                arrayAdapter.add(newComment);
+                arrayAdapter.notifyDataSetChanged();
+                addComment.getText().clear();
+            }
+        });
 
-        mPager = (ViewPager) rootView.findViewById(R.id.pager);
-        mPagerAdapter = new SignPagerAdapter(getActivity());
-        mPager.setAdapter(mPagerAdapter);
+        setupCommentBox();
+
+        return rootView;
+    }
+
+    /******** Broadcast Receiver in charge of notifying adapter when signs are downloaded *******/
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS)){
+                Log.v(TAG,"Retrieved broadcast to update user signs");
+                mSignPageAdapter.notifyDataSetChanged();
+            }
+        }
+    };
+
+    public void registerImageSignReceiver(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS);
+        getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+    /********************************************************************************************/
 
 
-        this.mNearbySigns = mPagerAdapter.mNearbySigns;
+    /****** Setting up comment box *******/
+    public void setupCommentBox(){
+        this.mNearbySigns = mSignPageAdapter.mNearbySigns;
 
         comments.add("First Entry");
 
@@ -89,8 +139,8 @@ public class NearbySignsFragment extends BaseFragment {
             @Override
             public void onPageSelected(int position) {
                 ImageSign imageSign = mNearbySigns.get(position);
-//                arrayAdapter.clear();
                 //TODO: Error found here
+//                arrayAdapter.clear();
 //                arrayAdapter.addAll(imageSign.comments);
 //                arrayAdapter.notifyDataSetChanged();
             }
@@ -100,9 +150,6 @@ public class NearbySignsFragment extends BaseFragment {
 
             }
         });
-
-
-        mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
 
         mLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -122,25 +169,6 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
 
-        final EditText addComment = (EditText) rootView.findViewById(R.id.add_comment);
-        Button postBtn = (Button) rootView.findViewById(R.id.post_button);
-        postBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newComment = addComment.getText().toString();
-                //TODO add comment to imageSign
-                arrayAdapter.add(newComment);
-                arrayAdapter.notifyDataSetChanged();
-                addComment.getText().clear();
-            }
-        });
 
-
-        return rootView;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 }
