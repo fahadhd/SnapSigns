@@ -47,6 +47,7 @@ dependencies {
     compile 'cn.qqtheme.framework:ColorPicker:latest.release'
     compile 'co.lujun:androidtagview:1.0.5'
     compile 'com.roughike:bottom-bar:2.0.2'
+    compile 'com.sothree.slidinguppanel:library:3.3.1'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
