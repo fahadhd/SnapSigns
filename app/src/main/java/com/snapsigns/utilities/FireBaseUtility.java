@@ -88,9 +88,10 @@ public class FireBaseUtility {
 
         //Storing image into storage
         signsFolder.putFile(takenPhoto).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                //Once image is successfully in storage, add it to the database
+                Log.v(TAG,signsFolder.getPath());
                 addFileToDatabase(signsFolder.getPath(), message, tags);
             }
         });
@@ -103,15 +104,6 @@ public class FireBaseUtility {
      */
     private void addFileToDatabase(final String path, final String message, final ArrayList<String> tags){
         Log.v(TAG,path);
-
-        FirebaseAuth auth = appContext.getFirebaseAuth();
-
-        if (auth != null) {
-            FirebaseUser user = auth.getCurrentUser();
-            if (user != null) {
-                this.uid = user.getDisplayName()+"-"+user.getUid();
-            }
-        }
 
         /** Writing image to FireBase database **/
         mStorageRef.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -150,6 +142,7 @@ public class FireBaseUtility {
      * @return
      */
     public ArrayList<ImageSign> getUserSigns(){
+        checkUserName();
         final ArrayList<ImageSign> myImageSigns = new ArrayList<>();
         if(mDatabase != null) {
             mDatabase.orderByChild("userID").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -291,7 +284,7 @@ public class FireBaseUtility {
         if (uid == null && auth != null) {
             FirebaseUser user = auth.getCurrentUser();
             if (user != null) {
-                this.uid = user.getDisplayName()+"-"+user.getUid();
+                this.uid = user.getUid();
             }
         }
     }
