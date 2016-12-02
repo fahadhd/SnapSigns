@@ -39,37 +39,16 @@ public class SignPagerAdapter extends PagerAdapter {
     Context mContext;
     LayoutInflater mLayoutInflater;
     ArrayList<ImageSign> mNearbySigns;
-    ArrayList<ImageSign> filteredSigns;
-    ArrayList<String> allTags;
 
     public SignPagerAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getNearbySigns();
-        if(mNearbySigns == null){
-            mNearbySigns = new ArrayList<>();
-
-        }
-
-        filteredSigns = new ArrayList<ImageSign>(mNearbySigns);
-
-        Set<String> seenTags = new HashSet<String>();
-
-//        for (ImageSign sign : filteredSigns) {
-//            for (String tag : sign.tags) {
-//                if (!seenTags.contains(tag)) {
-//                    seenTags.add(tag);
-//                    allTags.add(tag);
-//                }
-//            }
-//        }
-
+        mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns();
     }
 
     @Override
     public int getCount() {
-        return filteredSigns.size();
+        return mNearbySigns.size();
     }
 
     @Override
@@ -80,9 +59,7 @@ public class SignPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
-        if(mNearbySigns.isEmpty()) return itemView;
-
-        final ImageSign currentSign = filteredSigns.get(position);
+        final ImageSign currentSign = mNearbySigns.get(position);
         final TextView messageView = (TextView) itemView.findViewById(R.id.message);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
         TextView title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
@@ -144,32 +121,5 @@ public class SignPagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((RelativeLayout) object);
-    }
-
-    public void filter(List<String> filterTags) {
-        filteredSigns.clear();
-        allTags.clear();
-        Set<String> seenTags = new HashSet<String>();
-
-        for (ImageSign sign : mNearbySigns) {
-            Set<String> toCheck = new HashSet<String>(filterTags);
-
-            for (String tag : sign.tags) {
-                if (toCheck.contains(tag)) {
-                    toCheck.remove(tag);
-
-                    if (toCheck.size() == 0) {
-                        filteredSigns.add(sign);
-                    }
-                }
-
-                if (!seenTags.contains(tag)) {
-                    seenTags.add(tag);
-                    allTags.add(tag);
-                }
-            }
-        }
-
-        notifyDataSetChanged();
     }
 }

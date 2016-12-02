@@ -16,39 +16,37 @@ import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
  */
 public class NearbySignsGridAdapter extends BaseAdapter {
     private Context mContext;
-    private ArrayList<ImageSign> mNearbySigns;
+    private ArrayList<ImageSign> nearbySigns;
+    private SnapSigns app;
     private int gridWidth;
 
-    public NearbySignsGridAdapter(Context context){
-        this.mContext = context;
-        SnapSigns appContext = (SnapSigns) context.getApplicationContext();
-        this.mNearbySigns = appContext.getNearbySigns();
-        if(mNearbySigns == null){
-            mNearbySigns = new ArrayList<>();
-
-        }
-        Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+    public NearbySignsGridAdapter(Context context) {
+        mContext = context;
+        app = (SnapSigns) context.getApplicationContext();
+        nearbySigns = app.getFilteredNearbySigns();
+        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
 
         //Used to display two ImageSigns per row
-        this.gridWidth = size.x/2;
+        this.gridWidth = size.x / 2;
     }
 
     @Override
     public int getCount() {
-        return mNearbySigns.size();
+        return nearbySigns.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mNearbySigns.get(position);
+        return nearbySigns.get(position);
     }
 
     @Override
@@ -69,29 +67,30 @@ public class NearbySignsGridAdapter extends BaseAdapter {
 
             viewHolder = new ViewHolder(gridItem);
             gridItem.setTag(viewHolder);
-            if(mNearbySigns.isEmpty()) return gridItem;
-        }
-        else{
+        } else {
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Glide.with(mContext).load(mNearbySigns.get(position).imgURL).
+        Glide.with(mContext).load(nearbySigns.get(position).imgURL).
                 placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
 
         return gridItem;
     }
 
-    private class ViewHolder{
+    @Override
+    public void notifyDataSetChanged() {
+        nearbySigns = app.getFilteredNearbySigns();
+        super.notifyDataSetChanged();
+    }
+
+    private class ViewHolder {
         ImageView gridImage;
 
-        ViewHolder(View gridItem){
+        ViewHolder(View gridItem) {
             gridImage = (ImageView) gridItem.findViewById(R.id.grid_image);
             gridImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             gridImage.getLayoutParams().width = gridWidth;
             gridImage.getLayoutParams().height = gridWidth;
-
         }
-
     }
-
 }
