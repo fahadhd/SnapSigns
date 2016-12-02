@@ -40,8 +40,8 @@ public class SnapSigns extends android.app.Application implements
 
 
         if (mGoogleApiClient == null) {
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).
+                    requestEmail()
                     .requestIdToken(getString(R.string.web_client_id))
                     .build();
 
@@ -100,5 +100,11 @@ public class SnapSigns extends android.app.Application implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onTerminate() {
+        signOut();
+        super.onTerminate();
     }
 }

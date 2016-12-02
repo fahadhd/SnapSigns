@@ -22,6 +22,8 @@ import com.snapsigns.ImageSign;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +39,6 @@ public class SignPagerAdapter extends PagerAdapter {
     ArrayList<ImageSign> mNearbySigns;
     ArrayList<ImageSign> filteredSigns;
     ArrayList<String> allTags;
-    private int mSignWidth;
-    private int mSignHeight;
 
     public SignPagerAdapter(Context context) {
         mContext = context;
@@ -48,21 +48,15 @@ public class SignPagerAdapter extends PagerAdapter {
 
         Set<String> seenTags = new HashSet<String>();
 
-        for (ImageSign sign : filteredSigns) {
-            for (String tag : sign.tags) {
-                if (!seenTags.contains(tag)) {
-                    seenTags.add(tag);
-                    allTags.add(tag);
-                }
-            }
-        }
+//        for (ImageSign sign : filteredSigns) {
+//            for (String tag : sign.tags) {
+//                if (!seenTags.contains(tag)) {
+//                    seenTags.add(tag);
+//                    allTags.add(tag);
+//                }
+//            }
+//        }
 
-        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
-        mSignWidth = size.x;
-        mSignHeight = size.y;
     }
 
     @Override
@@ -78,11 +72,15 @@ public class SignPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
+        final ImageSign currentSign = filteredSigns.get(position);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
+        TextView title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
+
+       // title.setText(currentSign.locationName);
         final TextView messageView = (TextView) itemView.findViewById(R.id.message);
 
-        final ImageSign currentSign = filteredSigns.get(position);
+
         Glide.with(mContext).load(currentSign.imgURL).
                 placeholder(R.xml.progress_animation)
                 /*********** Listener  used to display textview when image is done loading *****/

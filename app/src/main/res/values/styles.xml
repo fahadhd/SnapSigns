@@ -22,5 +22,7 @@
         <item name="android:shadowRadius">1.2</item>
     </style>
 
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
 
 </resources>

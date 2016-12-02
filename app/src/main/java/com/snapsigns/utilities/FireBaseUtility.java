@@ -55,7 +55,7 @@ public class FireBaseUtility {
         if (auth != null) {
             FirebaseUser user = auth.getCurrentUser();
             if (user != null) {
-                this.uid = user.getUid();
+                this.uid = user.getEmail();
             }
         }
     }
@@ -106,7 +106,11 @@ public class FireBaseUtility {
             public void onSuccess(Uri uri) {
                 Log.v(TAG,"Image Successfully Uploaded");
                 String imgURL = uri.toString();
-                ImageSign imageSign = new ImageSign(uid, imgURL, message, getUserLocation(10));
+                ArrayList<Double> location = getUserLocation(10);
+
+                //TODO: Change this to actual sign location
+                String locationName = location.get(0)+"-"+location.get(1);
+                ImageSign imageSign = new ImageSign(uid, imgURL, message, locationName,location,tags);
 
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
