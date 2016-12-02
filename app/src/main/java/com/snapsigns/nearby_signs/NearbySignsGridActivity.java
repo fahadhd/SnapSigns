@@ -16,8 +16,8 @@ public class NearbySignsGridActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nearby_signs_grid);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
         gridview.setAdapter(new NearbySignsGridAdapter(this));

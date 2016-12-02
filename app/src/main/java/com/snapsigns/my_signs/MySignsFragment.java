@@ -38,7 +38,7 @@ public class MySignsFragment extends BaseFragment {
     GridView gridView;
     MySignsAdapter mAdapter;
 
-    private final static String TAG = "My_Signs_Tag";
+    private final static String TAG = MySignsFragment.class.getSimpleName();
     public final static String IMAGE_URL_KEY = "img_url";
 
 

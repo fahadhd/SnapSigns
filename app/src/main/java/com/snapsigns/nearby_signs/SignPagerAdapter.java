@@ -45,7 +45,13 @@ public class SignPagerAdapter extends PagerAdapter {
     public SignPagerAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getNearbySigns();
+        if(mNearbySigns == null){
+            mNearbySigns = new ArrayList<>();
+
+        }
+
         filteredSigns = new ArrayList<ImageSign>(mNearbySigns);
 
         Set<String> seenTags = new HashSet<String>();
@@ -74,6 +80,8 @@ public class SignPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
+        if(mNearbySigns.isEmpty()) return itemView;
+
         final ImageSign currentSign = filteredSigns.get(position);
         final TextView messageView = (TextView) itemView.findViewById(R.id.message);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);

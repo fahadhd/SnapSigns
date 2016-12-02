@@ -4,6 +4,7 @@ package com.snapsigns;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -20,7 +21,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.roughike.bottombar.BottomBar;
@@ -39,8 +39,7 @@ import java.util.ArrayList;
 import cn.qqtheme.framework.picker.OptionPicker;
 import co.lujun.androidtagview.TagContainerLayout;
 
-public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,AddTagDialog.Communicator {
+public class MainActivity extends AppCompatActivity implements AddTagDialog.Communicator {
     public static GoogleApiClient mGoogleApiClient;
     FragmentManager mFragmentManager;
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
@@ -85,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements
         mLocationView = (EditText) findViewById(R.id.location_name);
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
 
+        fireBaseUtility = new FireBaseUtility(MainActivity.this);
         SnapSigns app = (SnapSigns) getApplication();
 
         mGoogleApiClient = app.getmGoogleApiClient();
@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements
         if (mAuth.getCurrentUser() == null) {
             startActivityForResult(new Intent(this, SignInActivity.class),
                     SignInActivity.SIGN_IN_REQUEST_CODE);
-
         }
+
     }
 
     @Override
@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements
         startMainActivityLayout(false);
         super.onResume();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -212,22 +213,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
-    /******************* Google API Client Methods ***************************/
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 
     /**************************** Photo Taken Methods *****************************/
 
@@ -320,7 +305,6 @@ public class MainActivity extends AppCompatActivity implements
                         if(mEnterTextView.getVisibility() == View.VISIBLE){
                             message = mEnterTextView.getEditableText().toString();
                         }
-                        fireBaseUtility = new FireBaseUtility(MainActivity.this);
                         fireBaseUtility.uploadImageToFireBase(pictureFile,message,(ArrayList<String>) mTagContainerLayout.getTags());
                         startMainActivityLayout(true);
 
@@ -432,4 +416,5 @@ public class MainActivity extends AppCompatActivity implements
     public void addTag(String tag) {
         mTagContainerLayout.addTag(tag);
     }
+
 }

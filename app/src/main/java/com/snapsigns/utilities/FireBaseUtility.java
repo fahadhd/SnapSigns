@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -34,11 +35,12 @@ public class FireBaseUtility {
     private GoogleApiClient mGoogleApiClient;
     private String uid;
     ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
+    SnapSigns appContext;
     Context mContext;
 
     /**************** Action Intents for Fragment Broadcast Recivers ****************/
     Intent mySignsIntent = new Intent(Constants.MY_SIGNS.GET_MY_SIGNS);
-
+    Intent nearbySignsIntent = new Intent(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS);
     /*******************************************************************************/
 
 
@@ -47,10 +49,8 @@ public class FireBaseUtility {
         initFireBase();
         this.mContext = mContext;
 
-        SnapSigns appContext = (SnapSigns) mContext.getApplicationContext();
+        appContext = (SnapSigns) mContext.getApplicationContext();
 
-        this.mMyImageSigns = appContext.getMyImageSigns();
-        this.mNearbySigns = appContext.getNearbySigns();
         this.mGoogleApiClient = appContext.getmGoogleApiClient();
 
         FirebaseAuth auth = appContext.getFirebaseAuth();
@@ -72,6 +72,9 @@ public class FireBaseUtility {
     }
 
     public void uploadImageToFireBase(File pictureFile, final String message, final ArrayList<String> tags) {
+        this.mMyImageSigns = appContext.getMyImageSigns();
+        this.mNearbySigns = appContext.getNearbySigns();
+
         /** Uploading image to FireBase storage **/
         Uri takenPhoto = Uri.fromFile(pictureFile);
 
@@ -120,36 +123,16 @@ public class FireBaseUtility {
 
                 //Storing new image into cache at front
                 mMyImageSigns.add(0,imageSign);
+                mNearbySigns.add(imageSign);
 
                 //Broadcasting result to MySignsFragment
                 mContext.sendBroadcast(mySignsIntent);
-                
+                mContext.sendBroadcast(nearbySignsIntent);
             }
         });
 
     }
 
-    //Returns users location in list form [latitude,longitude] using google's api client.
-    private ArrayList<Double> getUserLocation(int tries) {
-        if(tries == 0){
-            Log.v(TAG,"Request user location failed");
-            return null;
-
-        }
-        ArrayList<Double> coordinates = new ArrayList<>();
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-
-        if (mLastLocation != null) {
-            coordinates.add(mLastLocation.getLatitude());
-            coordinates.add(mLastLocation.getLongitude());
-            return coordinates;
-        }
-        else {
-            //Attempt to read location again
-            return getUserLocation(tries - 1);
-        }
-    }
 
     /**
      * Returns all signs created by the user
@@ -166,7 +149,6 @@ public class FireBaseUtility {
                         myImageSigns.add(0,child.getValue(ImageSign.class));
                     }
                     Log.i(TAG, "notifying data changed");
-
                 }
 
                 @Override
@@ -189,22 +171,31 @@ public class FireBaseUtility {
         final ArrayList<ImageSign> nearbySigns = new ArrayList<>();
         ArrayList<Double> currentCoords = getUserLocation(10);
         final Location currentLocation = new Location("");
+
+        if(currentCoords == null){
+            Toast.makeText(mContext,"Could not get location",Toast.LENGTH_SHORT).show();
+            return null;
+        }
         currentLocation.setLatitude(currentCoords.get(0));
         currentLocation.setLongitude(currentCoords.get(1));
 
         if(mDatabase != null) {
-            mDatabase.orderByChild("userID").addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         Location signLocation = new Location("");
                         ImageSign currentSign = child.getValue(ImageSign.class);
-                        signLocation.setLatitude(currentSign.location.get(0));
-                        signLocation.setLongitude(currentSign.location.get(1));
 
-                        if(currentLocation.distanceTo(signLocation) < 500){
-                            nearbySigns.add(0,currentSign);
+                        if(currentSign.location != null) {
+                            signLocation.setLatitude(currentSign.location.get(0));
+                            signLocation.setLongitude(currentSign.location.get(1));
+
+                            if(currentLocation.distanceTo(signLocation) < 500){
+                                nearbySigns.add(0,currentSign);
+                                Log.v(TAG,"added nearby sign: distance"+currentLocation.distanceTo(signLocation));
+                            }
                         }
                     }
                     Log.i(TAG, "notifying data changed");
@@ -230,7 +221,7 @@ public class FireBaseUtility {
 
 
     public void deleteUserSigns(){
-        final String userName = "fha423";
+        final String userName = uid;
         if(mDatabase != null) {
             mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -256,5 +247,27 @@ public class FireBaseUtility {
         //Broadcasting result to MySignsFragment
         mMyImageSigns.clear();
         mContext.sendBroadcast(mySignsIntent);
+    }
+
+    //Returns users location in list form [latitude,longitude] using google's api client.
+    private ArrayList<Double> getUserLocation(int tries) {
+        if(tries == 0){
+            Log.v(TAG,"Request user location failed");
+            return null;
+
+        }
+        ArrayList<Double> coordinates = new ArrayList<>();
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+
+        if (mLastLocation != null) {
+            coordinates.add(mLastLocation.getLatitude());
+            coordinates.add(mLastLocation.getLongitude());
+            return coordinates;
+        }
+        else {
+            //Attempt to read location again
+            return getUserLocation(tries - 1);
+        }
     }
 }

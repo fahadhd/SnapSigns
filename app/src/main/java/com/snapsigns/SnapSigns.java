@@ -47,12 +47,10 @@ public class SnapSigns extends android.app.Application implements
                     .build();
         }
 
+        mGoogleApiClient.connect();
+
         mAuth = FirebaseAuth.getInstance();
 
-        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
-        myImageSigns = fireBaseUtility.getUserSigns();
-        //TODO: Change this to getNearbySigns
-        mNearbySigns = fireBaseUtility.getUserSigns();
     }
 
 
@@ -89,7 +87,9 @@ public class SnapSigns extends android.app.Application implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
+        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
+        myImageSigns = fireBaseUtility.getUserSigns();
+        mNearbySigns = fireBaseUtility.getNearbySigns();
     }
 
     @Override

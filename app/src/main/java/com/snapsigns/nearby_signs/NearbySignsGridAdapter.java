@@ -22,12 +22,17 @@ import java.util.ArrayList;
  */
 public class NearbySignsGridAdapter extends BaseAdapter {
     private Context mContext;
-    private ArrayList<ImageSign> nearbySigns;
+    private ArrayList<ImageSign> mNearbySigns;
     private int gridWidth;
 
     public NearbySignsGridAdapter(Context context){
         this.mContext = context;
-        this.nearbySigns = ((SnapSigns)context.getApplicationContext()).getNearbySigns();
+        SnapSigns appContext = (SnapSigns) context.getApplicationContext();
+        this.mNearbySigns = appContext.getNearbySigns();
+        if(mNearbySigns == null){
+            mNearbySigns = new ArrayList<>();
+
+        }
         Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -38,12 +43,12 @@ public class NearbySignsGridAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return nearbySigns.size();
+        return mNearbySigns.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return nearbySigns.get(position);
+        return mNearbySigns.get(position);
     }
 
     @Override
@@ -64,12 +69,13 @@ public class NearbySignsGridAdapter extends BaseAdapter {
 
             viewHolder = new ViewHolder(gridItem);
             gridItem.setTag(viewHolder);
+            if(mNearbySigns.isEmpty()) return gridItem;
         }
         else{
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Glide.with(mContext).load(nearbySigns.get(position).imgURL).
+        Glide.with(mContext).load(mNearbySigns.get(position).imgURL).
                 placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
 
         return gridItem;
