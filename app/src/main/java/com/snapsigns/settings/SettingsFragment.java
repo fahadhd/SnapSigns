@@ -46,8 +46,7 @@ public class SettingsFragment extends BaseFragment{
 
     private void logout(){
         app.signOut();
-        getActivity().finish();
-        startActivity(new Intent(getActivity(), SignInActivity.class));
+        startActivityForResult(new Intent(getActivity(), SignInActivity.class),SignInActivity.SIGN_IN_REQUEST_CODE);
     }
 
     private void deleteMySigns(){

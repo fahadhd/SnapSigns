@@ -21,6 +21,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
@@ -30,6 +31,8 @@ public class SignInActivity extends AppCompatActivity
 
     private static final String TAG = "SignIn";
     public static final int RC_SIGN_IN = 11;
+
+    public static final int SIGN_IN_REQUEST_CODE = 77;
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -68,12 +71,15 @@ public class SignInActivity extends AppCompatActivity
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         user = mAuth.getCurrentUser();
+
                         Log.d(TAG, "Firebase auth success");
                         Toast.makeText(
                                 SignInActivity.this,
                                 "Welcome, " + user.getDisplayName(),
                                 Toast.LENGTH_LONG
                         ).show();
+
+                        setResult(RESULT_OK);
                         finish();
                     } else {
                         Log.w(TAG, "Firebase auth failure", task.getException());

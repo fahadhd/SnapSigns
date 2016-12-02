@@ -3,7 +3,6 @@ package com.snapsigns;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -12,9 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -22,16 +18,11 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
@@ -39,23 +30,27 @@ import com.snapsigns.login.SignInActivity;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
 import com.snapsigns.settings.SettingsFragment;
+import com.snapsigns.utilities.AddTagDialog;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import cn.qqtheme.framework.picker.OptionPicker;
+import co.lujun.androidtagview.TagContainerLayout;
 
 public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,AddTagDialog.Communicator {
     public static GoogleApiClient mGoogleApiClient;
     FragmentManager mFragmentManager;
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
-    ImageButton mCaptureButton,mSaveSign,mExitPreview,mAddText;
+    ImageButton mCaptureButton, mSaveSignButton, mExitPreviewButton, mAddTextButton;
+    TextView mAddTagButton;
     EditText mLocationView,mEnterTextView;
     OptionPicker mLocationPicker;
     BottomBar mBottomBar;
+    TagContainerLayout mTagContainerLayout;
     String mCurrentFragment;
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -64,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements
     private static final String NEARBY_SIGNS_FRAGMENT = "nearby_signs_fragment";
     private static final String FAVORITES_FRAGMENT = "favorites_fragment";
     private static final String SETTINGS_FRAGMENT = "settings_fragment";
+
+    private static final String USER_LOGIN_SUCCESS = "login_success";
 
     public static final int PICTURE_TAKEN = 23;
 
@@ -78,9 +75,12 @@ public class MainActivity extends AppCompatActivity implements
         mLocationDisplay = (LinearLayout) findViewById(R.id.location_display);
 
         mCaptureButton = (ImageButton) findViewById(R.id.button_capture);
-        mExitPreview = (ImageButton) findViewById(R.id.exit_preview);
-        mSaveSign = (ImageButton) findViewById(R.id.save_sign);
-        mAddText = (ImageButton) findViewById(R.id.btn_add_text) ;
+        mExitPreviewButton = (ImageButton) findViewById(R.id.exit_preview);
+        mSaveSignButton = (ImageButton) findViewById(R.id.save_sign);
+        mAddTextButton = (ImageButton) findViewById(R.id.btn_add_text) ;
+        mAddTagButton = (TextView) findViewById(R.id.btn_add_tag) ;
+
+        mTagContainerLayout = (TagContainerLayout) findViewById(R.id.tag_container);
 
         mLocationView = (EditText) findViewById(R.id.location_name);
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
@@ -102,9 +102,9 @@ public class MainActivity extends AppCompatActivity implements
         mAuth = app.getFirebaseAuth();
 
         if (mAuth.getCurrentUser() == null) {
-            startActivity(
-                    new Intent(this, SignInActivity.class)
-            );
+            startActivityForResult(new Intent(this, SignInActivity.class),
+                    SignInActivity.SIGN_IN_REQUEST_CODE);
+
         }
     }
 
@@ -124,6 +124,13 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         startMainActivityLayout(false);
         super.onResume();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK){
+            mBottomBar.selectTabAtPosition(2);
+        }
     }
 
     /**
@@ -248,6 +255,14 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         /************** Setting up Tag View UI *******************/
+        mAddTagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AddTagDialog tagDialog = new AddTagDialog();
+                tagDialog.show(getFragmentManager(),"Add Tag Dialog");
+            }
+        });
+
 
 
 
@@ -256,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(mEnterTextView, InputMethodManager.SHOW_IMPLICIT);
 
-        mAddText.setOnClickListener(new View.OnClickListener() {
+        mAddTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Displaying edit text view
@@ -272,9 +287,10 @@ public class MainActivity extends AppCompatActivity implements
         /*************Exit Button and Location View UI************/
 
 
-        mExitPreview.setOnClickListener(new View.OnClickListener() {
+        mExitPreviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                resetPreviewData();
                 startMainActivityLayout(false);
             }
         });
@@ -297,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mSaveSign.setOnClickListener(new View.OnClickListener() {
+                mSaveSignButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         String message = null;
@@ -305,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements
                             message = mEnterTextView.getEditableText().toString();
                         }
                         fireBaseUtility = new FireBaseUtility(MainActivity.this);
-                        fireBaseUtility.uploadImageToFireBase(pictureFile, message);
+                        fireBaseUtility.uploadImageToFireBase(pictureFile,message);
                         startMainActivityLayout(true);
 
                     }
@@ -316,10 +332,17 @@ public class MainActivity extends AppCompatActivity implements
 
                 /////////// Displaying preview taken UI elements ////////////////
 
-                mExitPreview.setVisibility(View.VISIBLE);
-                mSaveSign.setVisibility(View.VISIBLE);
+                /////// Core Button and Location Items /////////
+                mExitPreviewButton.setVisibility(View.VISIBLE);
+                mSaveSignButton.setVisibility(View.VISIBLE);
                 mLocationDisplay.setVisibility(View.VISIBLE);
-                mAddText.setVisibility(View.VISIBLE);
+
+                //////////// Add Text Items /////////////////
+                mAddTextButton.setVisibility(View.VISIBLE);
+
+                /////////////// Tag View Items ////////////
+                mAddTagButton.setVisibility(View.VISIBLE);
+                mTagContainerLayout.setVisibility(View.VISIBLE);
 
             }
         });
@@ -346,19 +369,26 @@ public class MainActivity extends AppCompatActivity implements
                 if(mCurrentFragment.equals(CREATE_SIGN_FRAGMENT))
                     mCaptureButton.setVisibility(View.VISIBLE);
 
-                mExitPreview.setVisibility(View.INVISIBLE);
-                mSaveSign.setVisibility(View.INVISIBLE);
-                mLocationDisplay.setVisibility(View.INVISIBLE);
-                mEnterTextView.setVisibility(View.INVISIBLE);
-                mAddText.setVisibility(View.INVISIBLE);
+                ///////////// Hiding preview items ////////////////////
 
+                /////// Core Button and Location Items /////////
+                mExitPreviewButton.setVisibility(View.INVISIBLE);
+                mSaveSignButton.setVisibility(View.INVISIBLE);
+                mLocationDisplay.setVisibility(View.INVISIBLE);
+
+                //////////// Add Text Items /////////////////
+                mEnterTextView.setVisibility(View.INVISIBLE);
+                mAddTextButton.setVisibility(View.INVISIBLE);
+
+                /////////////// Tag View Items ////////////
+                mTagContainerLayout.setVisibility(View.INVISIBLE);
+                mAddTagButton.setVisibility(View.INVISIBLE);
+
+                //If the sign was saved then go to MySignsFragment
                 if(signSaved){
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
                     mBottomBar.selectTabAtPosition(0);
                 }
-
-
-
             }
         });
     }
@@ -380,9 +410,12 @@ public class MainActivity extends AppCompatActivity implements
                     v.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    mEnterTextView.setCursorVisible(false);
-                    if(mEnterTextView.getText().toString().isEmpty()){
-                        mEnterTextView.setVisibility(View.INVISIBLE);
+
+                    if(v.equals(mEnterTextView)) {
+                        mEnterTextView.setCursorVisible(false);
+                        if (mEnterTextView.getText().toString().isEmpty()) {
+                            mEnterTextView.setVisibility(View.INVISIBLE);
+                        }
                     }
                 }
             }
@@ -390,4 +423,13 @@ public class MainActivity extends AppCompatActivity implements
         return super.dispatchTouchEvent( event );
     }
 
+    public void resetPreviewData(){
+        mTagContainerLayout.removeAllTags();
+        mEnterTextView.setText(null);
+    }
+
+    @Override
+    public void addTag(String tag) {
+        mTagContainerLayout.addTag(tag);
+    }
 }

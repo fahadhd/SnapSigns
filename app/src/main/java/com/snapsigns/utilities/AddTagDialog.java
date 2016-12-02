@@ -1,13 +1,17 @@
 package com.snapsigns.utilities;
 
 
+import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
@@ -20,7 +24,13 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
     public final String TAG =AddTagDialog.class.getSimpleName();
     Button mCancel, mConfirm;
     AutoCompleteTextView mAddTagView;
+    Communicator communicator;
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,11 +43,22 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
         mAddTagView = (AutoCompleteTextView) rootView.findViewById(R.id.enter_tag_view);
 
 
+        mAddTagView.setFocusableInTouchMode(true);
+        mAddTagView.requestFocus();
+        mAddTagView.setCursorVisible(true);
+
+
         mCancel.setOnClickListener(this);
         mConfirm.setOnClickListener(this);
 
 
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        communicator = (Communicator) activity;
     }
 
 
@@ -47,7 +68,10 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
         Log.v(TAG,v.getId()+"");
         switch (v.getId()) {
             case R.id.dialog_ok :
-                //TODO: Send back tag info
+                if(mAddTagView != null)
+                    communicator.addTag(mAddTagView.getEditableText().toString());
+                dismiss();
+
                 break;
 
             case R.id.dialog_cancel:
@@ -55,6 +79,12 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
                 break;
         }
 
+    }
+
+
+    //Used to send information of a new workout to exercise activity
+    public interface Communicator{
+        void addTag(String tag);
     }
 
 
