@@ -2,8 +2,10 @@ package com.snapsigns.utilities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
+import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
 import java.io.File;
@@ -180,6 +183,9 @@ public class FireBaseUtility {
         currentLocation.setLongitude(currentCoords.get(1));
 
         if(mDatabase != null) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            final int searchRadius = prefs.getInt(mContext.getString(R.string.searchRadiusKey),500);
+
             mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -192,7 +198,7 @@ public class FireBaseUtility {
                             signLocation.setLatitude(currentSign.location.get(0));
                             signLocation.setLongitude(currentSign.location.get(1));
 
-                            if(currentLocation.distanceTo(signLocation) < 500){
+                            if(currentLocation.distanceTo(signLocation) < searchRadius){
                                 nearbySigns.add(0,currentSign);
                                 Log.v(TAG,"added nearby sign: distance"+currentLocation.distanceTo(signLocation));
                             }

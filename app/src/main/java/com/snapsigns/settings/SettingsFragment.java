@@ -1,6 +1,7 @@
 package com.snapsigns.settings;
 
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,6 +42,14 @@ public class SettingsFragment extends BaseFragment{
             }
         });
 
+        Button searchRadiusButton = (Button) rootView.findViewById(R.id.searchRadius);
+        searchRadiusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeSearchRadius();
+            }
+        });
+
         return rootView;
     }
 
@@ -51,6 +60,11 @@ public class SettingsFragment extends BaseFragment{
 
     private void deleteMySigns(){
         new FireBaseUtility(getActivity()).deleteUserSigns();
+    }
+
+    private void changeSearchRadius(){
+        FragmentManager mgr = getActivity().getFragmentManager();
+        new SearchRadiusFragment().show(mgr,"search_radius");
     }
 
 
