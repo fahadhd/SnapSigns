@@ -89,9 +89,10 @@ public class NearbySignsFragment extends BaseFragment {
             @Override
             public void onPageSelected(int position) {
                 ImageSign imageSign = mNearbySigns.get(position);
-                arrayAdapter.clear();
-                arrayAdapter.addAll(imageSign.comments);
-                arrayAdapter.notifyDataSetChanged();
+//                arrayAdapter.clear();
+                //TODO: Error found here
+//                arrayAdapter.addAll(imageSign.comments);
+//                arrayAdapter.notifyDataSetChanged();
             }
 
             @Override

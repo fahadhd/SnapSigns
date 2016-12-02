@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:id="@+id/my_signs_toolbar"
-        android:background="@color/colorPrimary"
+        android:background="@color/dark_purple"
         >
         <RelativeLayout
             android:layout_width="match_parent"
@@ -17,6 +17,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:textSize="22sp"
                 android:text="@string/my_signs_title"
                 android:textColor="#FFF"
                 />
@@ -30,6 +31,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left|top"
         android:numColumns="auto_fit"
+        android:layout_marginTop="5dp"
+        android:horizontalSpacing="10dp"
+        android:verticalSpacing="10dp"
         android:layout_below="@+id/my_signs_toolbar"
         >
     </GridView>
