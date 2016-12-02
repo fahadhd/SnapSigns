@@ -50,16 +50,9 @@ public class SnapSigns extends android.app.Application implements
                     .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                     .build();
         }
-
+        mGoogleApiClient.connect();
         mAuth = FirebaseAuth.getInstance();
 
-        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
-        myImageSigns = fireBaseUtility.getUserSigns();
-        //TODO: Change this to getNearbySigns
-        mNearbySigns = fireBaseUtility.getUserSigns();
-        filteredNearbySigns = new ArrayList<ImageSign>(mNearbySigns);
-        populateAllTags();
-        filterTags = new ArrayList<String>(allTags);
     }
 
 
@@ -86,7 +79,7 @@ public class SnapSigns extends android.app.Application implements
             }
         }
 
-        allTags = new ArrayList<String>(seenTags);
+        allTags = new ArrayList<>(seenTags);
     }
 
     public ArrayList<ImageSign> filterNearbySigns(List<String> tags) {
@@ -136,6 +129,15 @@ public class SnapSigns extends android.app.Application implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
+        myImageSigns = fireBaseUtility.getUserSigns();
+
+        mNearbySigns = fireBaseUtility.getNearbySigns();
+
+        filteredNearbySigns = new ArrayList<>(mNearbySigns);
+        populateAllTags();
+
+        filterTags = new ArrayList<>(allTags);
 
     }
 
