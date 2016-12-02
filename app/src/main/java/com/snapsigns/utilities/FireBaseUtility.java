@@ -56,14 +56,6 @@ public class FireBaseUtility {
 
         this.mGoogleApiClient = appContext.getmGoogleApiClient();
 
-        FirebaseAuth auth = appContext.getFirebaseAuth();
-
-        if (auth != null) {
-            FirebaseUser user = auth.getCurrentUser();
-            if (user != null) {
-                this.uid = user.getDisplayName()+"-"+user.getUid();
-            }
-        }
     }
 
     private void initFireBase(){
@@ -104,6 +96,15 @@ public class FireBaseUtility {
      */
     private void addFileToDatabase(final String path, final String message, final ArrayList<String> tags){
         Log.v(TAG,path);
+
+        FirebaseAuth auth = appContext.getFirebaseAuth();
+        
+        if (auth != null) {
+            FirebaseUser user = auth.getCurrentUser();
+            if (user != null) {
+                this.uid = user.getDisplayName()+"-"+user.getUid();
+            }
+        }
 
         /** Writing image to FireBase database **/
         mStorageRef.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
