@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+
+
     <application
         android:name=".SnapSigns"
         android:allowBackup="true"
@@ -27,11 +29,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".create_sign.PictureTakenActivity" />
+        <activity android:name="com.snapsigns.my_signs.FullSignActivity"/>
         <activity android:name=".login.SignInActivity" />
         <activity
             android:name=".nearby_signs.NearbySignsGridActivity"
             android:label="@string/title_activity_nearby_signs_grid"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

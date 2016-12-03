@@ -71,15 +71,8 @@ public class MySignsFragment extends BaseFragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                FullImageFragment fullImageFragment = new FullImageFragment();
-                ImageSign imageSign = (ImageSign) mAdapter.getItem(position);
-                Bundle args = new Bundle();
-                args.putString(IMAGE_URL_KEY,imageSign.imgURL);
-                fullImageFragment.setArguments(args);
-
-
-                getFragmentManager().beginTransaction()
-                        .add(fullImageFragment,"full_image_fragment").commit();
+                startActivity(new Intent(getActivity(),FullSignActivity.class).
+                        putExtra(MySignsFragment.IMAGE_URL_KEY,(ImageSign)mAdapter.getItem(position)));
 
             }
         });

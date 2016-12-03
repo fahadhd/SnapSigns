@@ -1,6 +1,7 @@
 package com.snapsigns;
 
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.snapsigns.utilities.FireBaseUtility;
@@ -23,9 +26,16 @@ import java.util.TreeSet;
 
 
 public class SnapSigns extends android.app.Application implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleApiClient mGoogleApiClient;
+
+    private LocationRequest mLocationRequest;
+    public Location mLocation;
+
+    private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
+    private long FASTEST_INTERVAL = 2000; /* 2 sec */
+
     private ArrayList<ImageSign> myImageSigns;
     private ArrayList<ImageSign> mNearbySigns;
     private ArrayList<ImageSign> filteredNearbySigns;
@@ -36,6 +46,8 @@ public class SnapSigns extends android.app.Application implements
     @Override
     public void onCreate() {
         super.onCreate();
+        mNearbySigns = new ArrayList<>();
+        myImageSigns = new ArrayList<>();
 
         if (mGoogleApiClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).
@@ -133,14 +145,9 @@ public class SnapSigns extends android.app.Application implements
     public void onConnected(@Nullable Bundle bundle) {
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
         myImageSigns = fireBaseUtility.getUserSigns();
+        sendBroadcast(fireBaseUtility.mySignsIntent);
 
-        mNearbySigns = fireBaseUtility.getNearbySigns();
-
-        filteredNearbySigns = new ArrayList<>(mNearbySigns);
-        populateAllTags();
-
-        filterTags = new ArrayList<>(allTags);
-
+        startLocationUpdates();
     }
 
     @Override
@@ -148,14 +155,42 @@ public class SnapSigns extends android.app.Application implements
 
     }
 
+    // Trigger new location updates at interval
+    protected void startLocationUpdates() {
+        // Create the location request
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL);
+
+        // Request location updates
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest, this);
+    }
+
+
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 
-    @Override
-    public void onTerminate() {
-        signOut();
-        super.onTerminate();
+
+    public void onLocationChanged(Location location) {
+        mLocation = location;
+        FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
+        mNearbySigns = fireBaseUtility.getNearbySigns(location);
+        sendBroadcast(fireBaseUtility.nearbySignsIntent);
+
+//        filteredNearbySigns = new ArrayList<>(mNearbySigns);
+//        populateAllTags();
+//        filterTags = new ArrayList<>(allTags);
+    }
+
+    public void removeLocationUpdates(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }
+
+    public Location getLocation() {
+        return mLocation;
     }
 }

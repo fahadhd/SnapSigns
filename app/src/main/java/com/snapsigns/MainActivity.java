@@ -40,7 +40,8 @@ import cn.qqtheme.framework.picker.OptionPicker;
 import co.lujun.androidtagview.TagContainerLayout;
 
 public class MainActivity extends AppCompatActivity implements AddTagDialog.Communicator {
-    public static GoogleApiClient mGoogleApiClient;
+    GoogleApiClient mGoogleApiClient;
+    SnapSigns app;
     FragmentManager mFragmentManager;
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mEnterTextView = (EditText) findViewById(R.id.enter_text);
 
         fireBaseUtility = new FireBaseUtility(MainActivity.this);
-        SnapSigns app = (SnapSigns) getApplication();
+        app = (SnapSigns) getApplication();
 
         mGoogleApiClient = app.getmGoogleApiClient();
 
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     @Override
     protected void onStop() {
+        app.removeLocationUpdates();
         mGoogleApiClient.disconnect();
         super.onStop();
     }
@@ -415,6 +417,18 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     @Override
     public void addTag(String tag) {
         mTagContainerLayout.addTag(tag);
+    }
+
+
+    /****************** View Pager Helper Methods **********************/
+    public void startFullScreenViewPager(){
+        if(mBottomBar.getVisibility() == View.GONE) return;
+
+        mBottomBar.setVisibility(View.GONE);
+
+    }
+    public void restoreMainFromFullScreenViewPager(){
+        mBottomBar.setVisibility(View.VISIBLE);
     }
 
 }

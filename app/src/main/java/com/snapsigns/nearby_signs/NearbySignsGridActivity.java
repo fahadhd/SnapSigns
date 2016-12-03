@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.GridView;
 
 import com.snapsigns.R;
@@ -24,6 +25,7 @@ public class NearbySignsGridActivity extends AppCompatActivity {
         GridView gridview = (GridView) findViewById(R.id.gridview);
         mAdapter = new NearbySignsGridAdapter(this);
         gridview.setAdapter(mAdapter);
+
     }
 
     @Override

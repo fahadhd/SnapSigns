@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 
 @IgnoreExtraProperties
-public class ImageSign {
+public class ImageSign implements Serializable {
     public String userID;
     public String imgURL;
     public String message;

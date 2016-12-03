@@ -17,6 +17,7 @@ import android.widget.ListView;
 
 import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
+import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.utilities.Constants;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -61,7 +62,7 @@ public class NearbySignsFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
 
         /*********************** ViewPager Views ***************/
-        mSignPageAdapter = new SignPagerAdapter(getActivity());
+        mSignPageAdapter = new SignPagerAdapter((MainActivity) getActivity());
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
         mPager.setAdapter(mSignPageAdapter);
 
@@ -90,7 +91,7 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
 
-        setupCommentBox();
+       // setupCommentBox();
 
         return rootView;
     }

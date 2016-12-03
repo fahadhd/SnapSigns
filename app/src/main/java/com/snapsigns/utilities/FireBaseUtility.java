@@ -43,8 +43,8 @@ public class FireBaseUtility {
     Context mContext;
 
     /**************** Action Intents for Fragment Broadcast Recivers ****************/
-    Intent mySignsIntent = new Intent(Constants.MY_SIGNS.GET_MY_SIGNS);
-    Intent nearbySignsIntent = new Intent(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS);
+    public  Intent mySignsIntent = new Intent(Constants.MY_SIGNS.GET_MY_SIGNS);
+    public  Intent nearbySignsIntent = new Intent(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS);
     /*******************************************************************************/
 
 
@@ -167,21 +167,18 @@ public class FireBaseUtility {
 
         //Broadcasting result to MySignsFragment
         mContext.sendBroadcast(mySignsIntent);
+        mContext.sendBroadcast(nearbySignsIntent);
 
         return myImageSigns;
     }
 
-    public ArrayList<ImageSign> getNearbySigns(){
+    public ArrayList<ImageSign> getNearbySigns(final Location currentLocation){
         final ArrayList<ImageSign> nearbySigns = new ArrayList<>();
-        ArrayList<Double> currentCoords = getUserLocation(10);
-        final Location currentLocation = new Location("");
 
-        if(currentCoords == null){
-            Toast.makeText(mContext,"Could not get location",Toast.LENGTH_SHORT).show();
-            return null;
+        if(currentLocation == null){
+            Toast.makeText(mContext,"Unable to get location",Toast.LENGTH_SHORT).show();
+            return nearbySigns;
         }
-        currentLocation.setLatitude(currentCoords.get(0));
-        currentLocation.setLongitude(currentCoords.get(1));
 
         if(mDatabase != null) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
