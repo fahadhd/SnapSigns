@@ -18,6 +18,7 @@ import com.snapsigns.utilities.FireBaseUtility;
 
 public class SettingsFragment extends BaseFragment{
     SnapSigns app;
+    FragmentManager mgr;
 
 
     @Override
@@ -25,6 +26,7 @@ public class SettingsFragment extends BaseFragment{
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.settings_frag, container, false);
         app = (SnapSigns) getActivity().getApplicationContext();
+        mgr = getActivity().getFragmentManager();
 
         Button logoutButton = (Button) rootView.findViewById(R.id.logout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -59,12 +61,13 @@ public class SettingsFragment extends BaseFragment{
     }
 
     private void deleteMySigns(){
-        new FireBaseUtility(getActivity()).deleteUserSigns();
+        mgr = getActivity().getFragmentManager();
+        new DeleteSignsDialog().show(mgr,"delete_dialog");
     }
 
     private void changeSearchRadius(){
-        FragmentManager mgr = getActivity().getFragmentManager();
-        new SearchRadiusFragment().show(mgr,"search_radius");
+        mgr = getActivity().getFragmentManager();
+        new SearchRadiusFragment().show(mgr,"search_radius_dialog");
     }
 
 
