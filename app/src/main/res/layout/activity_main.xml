@@ -20,6 +20,15 @@
         android:visibility="gone"
          />
 
+    <app.dinus.com.loadingdrawable.LoadingView
+        android:id="@+id/loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/camera_fragment_container"
+        android:visibility="gone"
+        android:background="#ff071c28"
+        app:loading_renderer="DayNightLoadingRenderer" />
+
     <!--Capture button used by CameraFragment. Only visible when fragment is active-->
     <ImageButton
         android:id="@+id/button_capture"

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
  */
 public class NearbySignsFragment extends BaseFragment {
     private ViewPager mPager;
+    MainActivity mActivity;
     private SlidingUpPanelLayout mLayout;
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
@@ -38,6 +40,7 @@ public class NearbySignsFragment extends BaseFragment {
     private ImageSign mCurrImageSign;
     ArrayList<ImageSign> mNearbySigns;
     private SignPagerAdapter mSignPageAdapter;
+    ViewTreeObserver viewTreeObserver;
     EditText addComment;
     ArrayList<String> comments = new ArrayList<>();
     Button postBtn;
@@ -61,10 +64,10 @@ public class NearbySignsFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
-
+        mActivity = (MainActivity) getActivity();
         /*********************** ViewPager Views ***************/
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
-        mSignPageAdapter = new SignPagerAdapter((MainActivity) getActivity(),mPager);
+        mSignPageAdapter = new SignPagerAdapter(mActivity,mPager);
         mPager.setAdapter(mSignPageAdapter);
 
         /**************** Comment Box Views ********************/
@@ -105,6 +108,17 @@ public class NearbySignsFragment extends BaseFragment {
                 Log.v(TAG,"Retrieved broadcast to update user signs");
                 mSignPageAdapter.updateSize();
                 mSignPageAdapter.notifyDataSetChanged();
+
+                viewTreeObserver = mPager.getViewTreeObserver();
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if(mActivity != null) {
+                            mActivity.hideLoadingView();
+                            mPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                    }
+                });
             }
         }
     };

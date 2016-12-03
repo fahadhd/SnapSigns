@@ -39,6 +39,7 @@ public class MySignsAdapter extends BaseAdapter {
         this.gridWidth = size.x/2;
     }
 
+
     @Override
     public int getCount() {
         return myImageSigns.size();

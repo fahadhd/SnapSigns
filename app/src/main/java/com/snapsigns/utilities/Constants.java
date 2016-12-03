@@ -13,5 +13,10 @@ public class Constants {
         public static final String GET_NEARBY_SIGNS = "com.snapsigns.action.get_nearby_signs";
     }
 
+    public interface LOADING_SIGNS {
+        public static final String START_LOADING = "com.snapsigns.action.start_loading_signs";
+        public static final String STOP_LOADING = "com.snapsigns.action.start_loading_signs";
+    }
+
 
 }

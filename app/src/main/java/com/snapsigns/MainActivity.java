@@ -1,17 +1,17 @@
 package com.snapsigns;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,11 +31,13 @@ import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
 import com.snapsigns.settings.SettingsFragment;
 import com.snapsigns.utilities.AddTagDialog;
+import com.snapsigns.utilities.Constants;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.io.File;
 import java.util.ArrayList;
 
+import app.dinus.com.loadingdrawable.LoadingView;
 import cn.qqtheme.framework.picker.OptionPicker;
 import co.lujun.androidtagview.TagContainerLayout;
 
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     BottomBar mBottomBar;
     TagContainerLayout mTagContainerLayout;
     String mCurrentFragment;
+    LoadingView mLoadingView;
+    boolean signJustSaved;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
@@ -79,6 +83,9 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mSaveSignButton = (ImageButton) findViewById(R.id.save_sign);
         mAddTextButton = (ImageButton) findViewById(R.id.btn_add_text) ;
         mAddTagButton = (TextView) findViewById(R.id.btn_add_tag) ;
+        mLoadingView = (LoadingView) findViewById(R.id.loading_view);
+        mBottomBar = (BottomBar) findViewById(R.id.bottomBar);
+        signJustSaved = false;
 
         mTagContainerLayout = (TagContainerLayout) findViewById(R.id.tag_container);
 
@@ -112,12 +119,14 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     @Override
     protected void onStart() {
         if(!mGoogleApiClient.isConnected()) mGoogleApiClient.connect();
+        registerImageSignReceiver();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
         app.removeLocationUpdates();
+        unregisterReceiver(broadcastReceiver);
         if(mGoogleApiClient.isConnected()) mGoogleApiClient.disconnect();
         super.onStop();
     }
@@ -140,8 +149,6 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
      * Initialize bottom-bar tab listeners for fragments
      */
     public void setBottomBarListeners(){
-        mBottomBar = (BottomBar) findViewById(R.id.bottomBar);
-
         if(mBottomBar != null) {
 
             //Defaults tab position to be "create sign" and starts camera fragment
@@ -171,8 +178,9 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                         case R.id.tab_create_sign:
                             mCurrentFragment = CREATE_SIGN_FRAGMENT;
                             mFragmentContainer.setVisibility(View.GONE);
-                            mCaptureButton.setVisibility(View.VISIBLE);
                             mCameraFragmentContainer.setVisibility(View.VISIBLE);
+                            mCaptureButton.setVisibility(View.VISIBLE);
+                            mLoadingView.setVisibility(View.INVISIBLE);
                             break;
 
                         case R.id.tab_nearby_signs:
@@ -183,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                         case R.id.tab_settings:
                             targetFragment = new SettingsFragment();
                             mCurrentFragment = SETTINGS_FRAGMENT;
+                            mLoadingView.setVisibility(View.INVISIBLE);
                             break;
 
                         //In case no tab is selected, use "my_signs" as default
@@ -192,6 +201,10 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                             break;
                     }
                     if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT)){
+                        if(mCurrentFragment.equals(NEARBY_SIGNS_FRAGMENT) &&
+                                app.getNearbySigns().isEmpty()){
+                           showLoadingView();
+                        }
                         displayFragment(targetFragment);
                     }
 
@@ -309,6 +322,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                         }
                         fireBaseUtility.uploadImageToFireBase(pictureFile,message,(ArrayList<String>) mTagContainerLayout.getTags());
                         startMainActivityLayout(true);
+                        signJustSaved = true;
                         resetPreviewData();
                     }
                 });
@@ -373,6 +387,8 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                 //If the sign was saved then go to MySignsFragment
                 if(signSaved){
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
+                    mLoadingView.setVisibility(View.VISIBLE);
+                    showLoadingView();
                     mBottomBar.selectTabAtPosition(0);
                 }
             }
@@ -427,8 +443,40 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mBottomBar.setVisibility(View.GONE);
 
     }
+
+
     public void restoreMainFromFullScreenViewPager(){
         mBottomBar.setVisibility(View.VISIBLE);
+    }
+
+
+    /******** Broadcast Receiver in charge of notifying adapter when signs are downloaded *******/
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(Constants.LOADING_SIGNS.STOP_LOADING)){
+                mLoadingView.setVisibility(View.GONE);
+                Log.v(TAG,"Retrieved broadcast to stop loading screen");
+            }
+            if(intent.getAction().equals(Constants.LOADING_SIGNS.START_LOADING)){
+                mFragmentContainer.setVisibility(View.VISIBLE);
+                mLoadingView.setVisibility(View.GONE);
+                Log.v(TAG,"Retrieved broadcast to start loading screen");
+            }
+        }
+    };
+    public void registerImageSignReceiver(){
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.LOADING_SIGNS.START_LOADING);
+        intentFilter.addAction(Constants.LOADING_SIGNS.STOP_LOADING);
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    public void hideLoadingView(){
+        mLoadingView.setVisibility(View.GONE);
+    }
+    public void showLoadingView(){
+        mLoadingView.setVisibility(View.VISIBLE);
     }
 
 }

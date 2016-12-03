@@ -113,9 +113,9 @@ public class SignPagerAdapter extends PagerAdapter {
             }
         });
 
-        viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+        viewHolder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View view) {
+            public boolean onLongClick(View view) {
                 if(!isFullScreen){
                     setUpFullScreen(viewHolder);
                     mPager.setAdapter(SignPagerAdapter.this);
@@ -126,6 +126,7 @@ public class SignPagerAdapter extends PagerAdapter {
                     mPager.setAdapter(SignPagerAdapter.this);
                     mPager.setCurrentItem(position);
                 }
+                return false;
             }
         });
 

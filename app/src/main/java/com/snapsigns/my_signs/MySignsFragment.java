@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 public class MySignsFragment extends BaseFragment {
     GridView gridView;
     MySignsAdapter mAdapter;
+    ViewTreeObserver viewTreeObserver;
+    MainActivity mActivity;
 
     private final static String TAG = MySignsFragment.class.getSimpleName();
     public final static String IMAGE_URL_KEY = "img_url";
@@ -60,10 +63,15 @@ public class MySignsFragment extends BaseFragment {
 
         Log.i(TAG,"in onCreateView of MySignsFragment");
         View rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
-        mAdapter = new MySignsAdapter(getActivity());
+
+
+        mActivity = (MainActivity) getActivity();
+        mAdapter = new MySignsAdapter(mActivity);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
 
         gridView.setAdapter(mAdapter);
+
+
 
 
         /* TODO: When an image is selected it will open up a new view with just that image
@@ -90,6 +98,17 @@ public class MySignsFragment extends BaseFragment {
             if(intent.getAction().equals(Constants.MY_SIGNS.GET_MY_SIGNS)){
                 Log.v(TAG,"Retrieved broadcast to update user signs");
                 mAdapter.notifyDataSetChanged();
+
+                viewTreeObserver = gridView.getViewTreeObserver();
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                       if(mActivity != null) {
+                           mActivity.hideLoadingView();
+                           gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                       }
+                    }
+                });
             }
 
 

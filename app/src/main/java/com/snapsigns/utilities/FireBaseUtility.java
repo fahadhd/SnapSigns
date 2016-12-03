@@ -48,6 +48,8 @@ public class FireBaseUtility {
     /**************** Action Intents for Fragment Broadcast Recivers ****************/
     public  Intent mySignsIntent = new Intent(Constants.MY_SIGNS.GET_MY_SIGNS);
     public  Intent nearbySignsIntent = new Intent(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS);
+
+    public  Intent startLoadingIntent = new Intent(Constants.LOADING_SIGNS.START_LOADING);
     /*******************************************************************************/
 
 
@@ -118,11 +120,18 @@ public class FireBaseUtility {
             public void onSuccess(Uri uri) {
                 Log.v(TAG,"Image Successfully Uploaded");
                 String imgURL = uri.toString();
-                ArrayList<Double> location = getUserLocation(10);
+                Location currentLocation = appContext.getLocation();
+                if(currentLocation == null){
+                    Toast.makeText(mContext,"Failed to get location",Toast.LENGTH_SHORT).show();;
+                    return;
+                }
+                ArrayList<Double> locationCoords = new ArrayList<>();
+                locationCoords.add(currentLocation.getLatitude());
+                locationCoords.add(currentLocation.getLongitude());
 
-                //TODO: Change this to actual sign location
-                String locationName = location.get(0)+","+location.get(1);
-                ImageSign imageSign = new ImageSign(uid, imgURL, message, locationName,location,tags);
+                String locationName = currentLocation.getLatitude()+","+currentLocation.getLongitude();
+
+                ImageSign imageSign = new ImageSign(uid, imgURL, message, locationName,locationCoords,tags);
 
                 //Pushes a new imagesign object into database
                 mDatabase.getRef().push().setValue(imageSign);
@@ -157,6 +166,8 @@ public class FireBaseUtility {
                         mMyImageSigns.add(0,currentSign);
                     }
                     Log.i(TAG, "notifying data changed");
+                    //Broadcasting result to MySignsFragment
+                    mContext.sendBroadcast(mySignsIntent);
                 }
 
                 @Override
@@ -168,9 +179,6 @@ public class FireBaseUtility {
         else{
             Log.i(TAG,"null ref");
         }
-
-        //Broadcasting result to MySignsFragment
-        mContext.sendBroadcast(mySignsIntent);
     }
 
     public void deleteUserSigns(){
@@ -186,6 +194,9 @@ public class FireBaseUtility {
                         child.getRef().removeValue();
                     }
                     Log.i(TAG, "notifying data changed");
+                    //Broadcasting result to MySignsFragment
+                    mMyImageSigns.clear();
+                    mContext.sendBroadcast(mySignsIntent);
 
                 }
 
@@ -199,9 +210,6 @@ public class FireBaseUtility {
             Log.i(TAG,"null ref");
         }
 
-        //Broadcasting result to MySignsFragment
-        mMyImageSigns.clear();
-        mContext.sendBroadcast(mySignsIntent);
     }
 
     //Returns users location in list form [latitude,longitude] using google's api client.
@@ -238,7 +246,7 @@ public class FireBaseUtility {
 
 
     public void checkNearbySigns(final Location currentLocation){
-        int originalSize = mNearbySigns.size();
+        final int originalSize = mNearbySigns.size();
         if(currentLocation == null){
             Toast.makeText(mContext,"Unable to get location",Toast.LENGTH_SHORT).show();
             return;
@@ -272,6 +280,8 @@ public class FireBaseUtility {
                             }
                         }
                     }
+                    if(originalSize != mNearbySigns.size())
+                        mContext.sendBroadcast(nearbySignsIntent);
                     Log.i(TAG, "notifying data changed");
                 }
 
@@ -284,9 +294,6 @@ public class FireBaseUtility {
         else{
             Log.i(TAG,"null ref");
         }
-
-        if(originalSize != mNearbySigns.size())
-            mContext.sendBroadcast(nearbySignsIntent);
     }
 
     private boolean hasSign(ImageSign imageSign, ArrayList<ImageSign> signList){
