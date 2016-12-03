@@ -144,9 +144,7 @@ public class SnapSigns extends android.app.Application implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
-        myImageSigns = fireBaseUtility.getUserSigns();
-        sendBroadcast(fireBaseUtility.mySignsIntent);
-
+        if(myImageSigns.isEmpty()) fireBaseUtility.getUserSigns();
         startLocationUpdates();
     }
 
@@ -178,8 +176,7 @@ public class SnapSigns extends android.app.Application implements
     public void onLocationChanged(Location location) {
         mLocation = location;
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
-        mNearbySigns = fireBaseUtility.getNearbySigns(location);
-        sendBroadcast(fireBaseUtility.nearbySignsIntent);
+        fireBaseUtility.checkNearbySigns(location);
 
 //        filteredNearbySigns = new ArrayList<>(mNearbySigns);
 //        populateAllTags();
@@ -187,7 +184,8 @@ public class SnapSigns extends android.app.Application implements
     }
 
     public void removeLocationUpdates(){
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if(mGoogleApiClient.isConnected())
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     public Location getLocation() {

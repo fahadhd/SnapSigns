@@ -111,14 +111,14 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     @Override
     protected void onStart() {
-        mGoogleApiClient.connect();
+        if(!mGoogleApiClient.isConnected()) mGoogleApiClient.connect();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
         app.removeLocationUpdates();
-        mGoogleApiClient.disconnect();
+        if(mGoogleApiClient.isConnected()) mGoogleApiClient.disconnect();
         super.onStop();
     }
 

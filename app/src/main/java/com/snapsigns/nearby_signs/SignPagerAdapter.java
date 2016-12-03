@@ -31,19 +31,28 @@ public class SignPagerAdapter extends PagerAdapter {
     MainActivity mActivity;
     LayoutInflater mLayoutInflater;
     ArrayList<ImageSign> mNearbySigns;
+    private int numViews;
 
     public SignPagerAdapter(MainActivity activity) {
         mActivity = activity;
         mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getNearbySigns();
+        numViews = mNearbySigns.size();
 
         if(mNearbySigns == null) mNearbySigns = new ArrayList<>();
     }
 
+
+    public void updateSize(){
+        numViews = mNearbySigns.size();
+    }
+
     @Override
     public int getCount() {
-        return mNearbySigns.size();
+        return numViews;
     }
+
+
 
     @Override
     public boolean isViewFromObject(View view, Object object) {

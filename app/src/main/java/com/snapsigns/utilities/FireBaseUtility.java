@@ -58,6 +58,8 @@ public class FireBaseUtility {
         this.mGoogleApiClient = appContext.getmGoogleApiClient();
 
         auth = appContext.getFirebaseAuth();
+        mNearbySigns = appContext.getNearbySigns();
+        mMyImageSigns = appContext.getMyImageSigns();
 
         checkUserName();
 
@@ -72,9 +74,6 @@ public class FireBaseUtility {
     }
 
     public void uploadImageToFireBase(File pictureFile, final String message, final ArrayList<String> tags) {
-        this.mMyImageSigns = appContext.getMyImageSigns();
-        this.mNearbySigns = appContext.getNearbySigns();
-
         checkUserName();
 
         /** Uploading image to FireBase storage **/
@@ -126,9 +125,9 @@ public class FireBaseUtility {
 
                 //Storing new image into cache at front
                 mMyImageSigns.add(0,imageSign);
-                mNearbySigns.add(imageSign);
+                mNearbySigns.add(0,imageSign);
 
-                //Broadcasting result to MySignsFragment
+                //Broadcasting result to MySignsFragment and NearbySignsFragment
                 mContext.sendBroadcast(mySignsIntent);
                 mContext.sendBroadcast(nearbySignsIntent);
             }
@@ -141,69 +140,20 @@ public class FireBaseUtility {
      * Returns all signs created by the user
      * @return
      */
-    public ArrayList<ImageSign> getUserSigns(){
+    public void getUserSigns(){
         checkUserName();
-        final ArrayList<ImageSign> myImageSigns = new ArrayList<>();
         if(mDatabase != null) {
             mDatabase.orderByChild("userID").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        myImageSigns.add(0,child.getValue(ImageSign.class));
-                    }
-                    Log.i(TAG, "notifying data changed");
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.i(TAG, "Failed to read value");
-                }
-            });
-        }
-        else{
-            Log.i(TAG,"null ref");
-        }
-
-        //Broadcasting result to MySignsFragment
-        mContext.sendBroadcast(mySignsIntent);
-        mContext.sendBroadcast(nearbySignsIntent);
-
-        return myImageSigns;
-    }
-
-    public ArrayList<ImageSign> getNearbySigns(final Location currentLocation){
-        final ArrayList<ImageSign> nearbySigns = new ArrayList<>();
-
-        if(currentLocation == null){
-            Toast.makeText(mContext,"Unable to get location",Toast.LENGTH_SHORT).show();
-            return nearbySigns;
-        }
-
-        if(mDatabase != null) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-            final int searchRadius = prefs.getInt(mContext.getString(R.string.searchRadiusKey),500);
-
-            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Log.i(TAG, "in onDataChange");
-                    for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        Location signLocation = new Location("");
                         ImageSign currentSign = child.getValue(ImageSign.class);
-
-                        if(currentSign.location != null) {
-                            signLocation.setLatitude(currentSign.location.get(0));
-                            signLocation.setLongitude(currentSign.location.get(1));
-
-                            if(currentLocation.distanceTo(signLocation) < searchRadius){
-                                nearbySigns.add(0,currentSign);
-                                Log.v(TAG,"added nearby sign: distance"+currentLocation.distanceTo(signLocation));
-                            }
+                        if(!hasSign(currentSign,mMyImageSigns)){
+                            mMyImageSigns.add(0,currentSign);
                         }
                     }
                     Log.i(TAG, "notifying data changed");
-
                 }
 
                 @Override
@@ -218,11 +168,7 @@ public class FireBaseUtility {
 
         //Broadcasting result to MySignsFragment
         mContext.sendBroadcast(mySignsIntent);
-
-        return nearbySigns;
     }
-
-
 
     public void deleteUserSigns(){
         checkUserName();
@@ -284,5 +230,63 @@ public class FireBaseUtility {
                 this.uid = user.getUid();
             }
         }
+    }
+
+
+
+    public void checkNearbySigns(final Location currentLocation){
+        if(currentLocation == null){
+            Toast.makeText(mContext,"Unable to get location",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(mDatabase != null) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+            final int searchRadius = prefs.getInt(mContext.getString(R.string.searchRadiusKey),500);
+
+            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.i(TAG, "in onDataChange");
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        Location signLocation = new Location("");
+                        ImageSign currentSign = child.getValue(ImageSign.class);
+
+                        if(hasSign(currentSign,mNearbySigns)) return;
+
+
+                        if(currentSign.location != null) {
+                            signLocation.setLatitude(currentSign.location.get(0));
+                            signLocation.setLongitude(currentSign.location.get(1));
+
+                            if(currentLocation.distanceTo(signLocation) < searchRadius){
+                                mNearbySigns.add(0,currentSign);
+                                Log.v(TAG,"added nearby sign: distance"+currentLocation.distanceTo(signLocation));
+                            }
+                        }
+                    }
+                    Log.i(TAG, "notifying data changed");
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "Failed to read value");
+                }
+            });
+        }
+        else{
+            Log.i(TAG,"null ref");
+        }
+        mContext.sendBroadcast(nearbySignsIntent);
+    }
+
+    private boolean hasSign(ImageSign imageSign, ArrayList<ImageSign> signList){
+        if(imageSign == null) return false;
+        for(ImageSign sign: signList){
+            if(sign.imgURL == null || imageSign.imgURL == null) continue;
+            if(sign.imgURL.equals(imageSign.imgURL))
+                return true;
+        }
+        return false;
     }
 }

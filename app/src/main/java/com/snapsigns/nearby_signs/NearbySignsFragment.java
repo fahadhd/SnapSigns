@@ -102,6 +102,7 @@ public class NearbySignsFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS)){
                 Log.v(TAG,"Retrieved broadcast to update user signs");
+                mSignPageAdapter.updateSize();
                 mSignPageAdapter.notifyDataSetChanged();
             }
         }

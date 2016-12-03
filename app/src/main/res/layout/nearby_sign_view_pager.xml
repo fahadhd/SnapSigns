@@ -11,6 +11,7 @@
     sothree:umanoParallaxOffset="100dp"
     sothree:umanoDragView="@+id/dragView"
     sothree:umanoOverlay="true"
+    android:background="@color/bb_darkBackgroundColor"
     sothree:umanoScrollableView="@+id/comment_list">
 
     <RelativeLayout
