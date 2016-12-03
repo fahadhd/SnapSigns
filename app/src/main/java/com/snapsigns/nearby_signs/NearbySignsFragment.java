@@ -20,10 +20,12 @@ import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
+import com.snapsigns.SnapSigns;
 import com.snapsigns.utilities.Constants;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Displays Nearby Signs
@@ -38,7 +40,7 @@ public class NearbySignsFragment extends BaseFragment {
     ArrayAdapter<String> arrayAdapter;
     private String TAG = "nearby_signs_tag";
     private ImageSign mCurrImageSign;
-    ArrayList<ImageSign> mNearbySigns;
+    List<ImageSign> mNearbySigns;
     private SignPagerAdapter mSignPageAdapter;
     ViewTreeObserver viewTreeObserver;
     EditText addComment;
@@ -108,6 +110,7 @@ public class NearbySignsFragment extends BaseFragment {
                 Log.v(TAG,"Retrieved broadcast to update user signs");
                 mSignPageAdapter.updateSize();
                 mSignPageAdapter.notifyDataSetChanged();
+                ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
 
                 viewTreeObserver = mPager.getViewTreeObserver();
                 viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {

@@ -30,8 +30,8 @@ public class MySignsAdapter extends BaseAdapter {
     private int gridWidth;
 
     public MySignsAdapter(Context context){
-        mContext = context;
-        myImageSigns = ((SnapSigns) context.getApplicationContext()).getMyImageSigns();
+        this.mContext = context;
+        this.myImageSigns = ((SnapSigns)context.getApplicationContext()).getMyImageSigns();
         Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -39,6 +39,7 @@ public class MySignsAdapter extends BaseAdapter {
         //Used to display two ImageSigns per row
         this.gridWidth = size.x/2;
     }
+
 
     @Override
     public int getCount() {
