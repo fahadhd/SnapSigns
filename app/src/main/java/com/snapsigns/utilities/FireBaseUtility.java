@@ -130,6 +130,7 @@ public class FireBaseUtility {
                 //Storing new image into cache at front
                 mMyImageSigns.add(0,imageSign);
                 mNearbySigns.add(0,imageSign);
+                mNearbySignsMap.put(imageSign.imgURL,imageSign);
 
                 //Broadcasting result to MySignsFragment and NearbySignsFragment
                 mContext.sendBroadcast(mySignsIntent);
@@ -237,6 +238,7 @@ public class FireBaseUtility {
 
 
     public void checkNearbySigns(final Location currentLocation){
+        int originalSize = mNearbySigns.size();
         if(currentLocation == null){
             Toast.makeText(mContext,"Unable to get location",Toast.LENGTH_SHORT).show();
             return;
@@ -282,7 +284,9 @@ public class FireBaseUtility {
         else{
             Log.i(TAG,"null ref");
         }
-        mContext.sendBroadcast(nearbySignsIntent);
+
+        if(originalSize != mNearbySigns.size())
+            mContext.sendBroadcast(nearbySignsIntent);
     }
 
     private boolean hasSign(ImageSign imageSign, ArrayList<ImageSign> signList){

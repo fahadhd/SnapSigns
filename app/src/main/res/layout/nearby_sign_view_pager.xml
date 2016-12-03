@@ -14,7 +14,7 @@
     android:background="@color/bb_darkBackgroundColor"
     sothree:umanoScrollableView="@+id/comment_list">
 
-    
+
 
     <RelativeLayout
         android:layout_width="match_parent"
