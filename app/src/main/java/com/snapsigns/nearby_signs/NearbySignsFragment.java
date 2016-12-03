@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,12 +18,12 @@ import android.widget.ListView;
 
 import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
+import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.utilities.Constants;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Displays Nearby Signs
@@ -31,16 +32,19 @@ import java.util.List;
  */
 public class NearbySignsFragment extends BaseFragment {
     private ViewPager mPager;
+    MainActivity mActivity;
     private SlidingUpPanelLayout mLayout;
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
     private String TAG = "nearby_signs_tag";
     private ImageSign mCurrImageSign;
-    List<ImageSign> mNearbySigns;
+    ArrayList<ImageSign> mNearbySigns;
     private SignPagerAdapter mSignPageAdapter;
+    ViewTreeObserver viewTreeObserver;
     EditText addComment;
-    List<String> comments = new ArrayList<>();
+    ArrayList<String> comments = new ArrayList<>();
     Button postBtn;
+    public static boolean isFullScreen = false;
 
     @Override
     public void onStart() {
@@ -60,10 +64,10 @@ public class NearbySignsFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
-
+        mActivity = (MainActivity) getActivity();
         /*********************** ViewPager Views ***************/
-        mSignPageAdapter = new SignPagerAdapter(getActivity());
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mSignPageAdapter = new SignPagerAdapter(mActivity,mPager);
         mPager.setAdapter(mSignPageAdapter);
 
         /**************** Comment Box Views ********************/
@@ -91,7 +95,7 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
 
-        setupCommentBox();
+       // setupCommentBox();
 
         return rootView;
     }
@@ -102,11 +106,19 @@ public class NearbySignsFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS)){
                 Log.v(TAG,"Retrieved broadcast to update user signs");
-                mSignPageAdapter.updateDataSet();
+                mSignPageAdapter.updateSize();
+                mSignPageAdapter.notifyDataSetChanged();
 
-                if (mNearbySigns.size() != 0) {
-                    mPager.setCurrentItem(0);
-                }
+                viewTreeObserver = mPager.getViewTreeObserver();
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if(mActivity != null) {
+                            mActivity.hideLoadingView();
+                            mPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                    }
+                });
             }
         }
     };
@@ -121,7 +133,7 @@ public class NearbySignsFragment extends BaseFragment {
 
     /****** Setting up comment box *******/
     public void setupCommentBox(){
-        mNearbySigns = mSignPageAdapter.mNearbySigns;
+        this.mNearbySigns = mSignPageAdapter.mNearbySigns;
 
         comments.add("First Entry");
 
@@ -145,9 +157,9 @@ public class NearbySignsFragment extends BaseFragment {
             public void onPageSelected(int position) {
                 ImageSign imageSign = mNearbySigns.get(position);
                 //TODO: Error found here
-                //arrayAdapter.clear();
-                //arrayAdapter.addAll(imageSign.comments);
-                //arrayAdapter.notifyDataSetChanged();
+//                arrayAdapter.clear();
+//                arrayAdapter.addAll(imageSign.comments);
+//                arrayAdapter.notifyDataSetChanged();
             }
 
             @Override
