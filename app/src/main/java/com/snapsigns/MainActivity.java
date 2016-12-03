@@ -309,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                         }
                         fireBaseUtility.uploadImageToFireBase(pictureFile,message,(ArrayList<String>) mTagContainerLayout.getTags());
                         startMainActivityLayout(true);
-
+                        resetPreviewData();
                     }
                 });
                 /////// Hides unnecessary UI elements during a taken preview ////////
