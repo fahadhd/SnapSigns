@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'snapSignsKey'
             keyPassword 'keypass'
-            storeFile file('C:/Users/admin/AndroidStudioProjects/SnapSigns/android.jks')
+            storeFile file('android.jks')
             storePassword 'storepass'
         }
     }
@@ -53,7 +53,6 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.0.0'
     testCompile 'junit:junit:4.12'
-
     compile project(':library')
 }
 
