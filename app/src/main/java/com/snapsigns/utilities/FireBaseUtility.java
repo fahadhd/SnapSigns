@@ -29,6 +29,7 @@ import com.snapsigns.SnapSigns;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /** Helper class which executes reading/writing to FireBase backend **/
 public class FireBaseUtility {
@@ -39,6 +40,8 @@ public class FireBaseUtility {
     private String uid;
     FirebaseAuth auth;
     ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
+    HashMap<String,ImageSign> mNearbySignsMap;
+
     SnapSigns appContext;
     Context mContext;
 
@@ -60,6 +63,7 @@ public class FireBaseUtility {
         auth = appContext.getFirebaseAuth();
         mNearbySigns = appContext.getNearbySigns();
         mMyImageSigns = appContext.getMyImageSigns();
+        mNearbySignsMap = appContext.getNearbySignsMap();
 
         checkUserName();
 
@@ -149,9 +153,7 @@ public class FireBaseUtility {
                     Log.i(TAG, "in onDataChange");
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         ImageSign currentSign = child.getValue(ImageSign.class);
-                        if(!hasSign(currentSign,mMyImageSigns)){
-                            mMyImageSigns.add(0,currentSign);
-                        }
+                        mMyImageSigns.add(0,currentSign);
                     }
                     Log.i(TAG, "notifying data changed");
                 }
@@ -252,8 +254,10 @@ public class FireBaseUtility {
                         Location signLocation = new Location("");
                         ImageSign currentSign = child.getValue(ImageSign.class);
 
-                        if(hasSign(currentSign,mNearbySigns)) return;
-
+                        if(mNearbySignsMap.get(currentSign.imgURL) != null){
+                            //ImageSign is in cache, keep looking
+                            continue;
+                        }
 
                         if(currentSign.location != null) {
                             signLocation.setLatitude(currentSign.location.get(0));
@@ -261,6 +265,7 @@ public class FireBaseUtility {
 
                             if(currentLocation.distanceTo(signLocation) < searchRadius){
                                 mNearbySigns.add(0,currentSign);
+                                mNearbySignsMap.put(currentSign.imgURL,currentSign);
                                 Log.v(TAG,"added nearby sign: distance"+currentLocation.distanceTo(signLocation));
                             }
                         }

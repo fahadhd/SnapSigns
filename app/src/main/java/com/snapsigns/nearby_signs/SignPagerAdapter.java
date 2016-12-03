@@ -24,6 +24,7 @@ import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by admin on 11/29/2016.
@@ -40,8 +41,10 @@ public class SignPagerAdapter extends PagerAdapter {
     public SignPagerAdapter(MainActivity activity, ViewPager pager) {
         mActivity = activity;
         mPager = pager;
+        SnapSigns appContex = (SnapSigns) mActivity.getApplicationContext();
+
         mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getNearbySigns();
+        mNearbySigns = appContex.getNearbySigns();
         numViews = mNearbySigns.size();
         isFullScreen = NearbySignsFragment.isFullScreen;
     }
@@ -176,7 +179,6 @@ public class SignPagerAdapter extends PagerAdapter {
         viewHolder.toolbar.setVisibility(View.VISIBLE);
         viewHolder.title.setVisibility(View.VISIBLE);
         viewHolder.gridButton.setVisibility(View.VISIBLE);
-        if(currentSign.message != null) viewHolder.messageView.setVisibility(View.VISIBLE);
         viewHolder.favoriteButton.setVisibility(View.VISIBLE);
         mActivity.restoreMainFromFullScreenViewPager();
         isFullScreen = false;

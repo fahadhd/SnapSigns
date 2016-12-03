@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,9 @@ public class SnapSigns extends android.app.Application implements
 
     private ArrayList<ImageSign> myImageSigns;
     private ArrayList<ImageSign> mNearbySigns;
+    /********** Used to check values faster for cached items****************/
+    private HashMap<String,ImageSign> mNearbySignsMap;
+    /*************************/
     private ArrayList<ImageSign> filteredNearbySigns;
     private ArrayList<String> allTags;
     private ArrayList<String> filterTags;
@@ -48,6 +52,8 @@ public class SnapSigns extends android.app.Application implements
         super.onCreate();
         mNearbySigns = new ArrayList<>();
         myImageSigns = new ArrayList<>();
+
+        mNearbySignsMap  = new HashMap<>();
 
         if (mGoogleApiClient == null) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).
@@ -75,6 +81,11 @@ public class SnapSigns extends android.app.Application implements
     public ArrayList<ImageSign> getNearbySigns() {
         return mNearbySigns;
     }
+
+    public HashMap<String,ImageSign> getNearbySignsMap() {
+        return mNearbySignsMap;
+    }
+
 
     public ArrayList<ImageSign> getFilteredNearbySigns() {return filteredNearbySigns;}
 
@@ -144,6 +155,7 @@ public class SnapSigns extends android.app.Application implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
+        //Retrieve user signs at start up, ie when this list is empty
         if(myImageSigns.isEmpty()) fireBaseUtility.getUserSigns();
         startLocationUpdates();
     }

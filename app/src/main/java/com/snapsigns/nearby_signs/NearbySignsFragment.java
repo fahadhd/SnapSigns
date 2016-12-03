@@ -41,7 +41,6 @@ public class NearbySignsFragment extends BaseFragment {
     EditText addComment;
     ArrayList<String> comments = new ArrayList<>();
     Button postBtn;
-
     public static boolean isFullScreen = false;
 
     @Override
