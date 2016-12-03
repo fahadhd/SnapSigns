@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     TagContainerLayout mTagContainerLayout;
     String mCurrentFragment;
     LoadingView mLoadingView;
-    boolean signJustSaved;
+    public boolean signJustSaved = false;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
@@ -201,10 +201,6 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                             break;
                     }
                     if(!mCurrentFragment.equals(CREATE_SIGN_FRAGMENT)){
-                        if(mCurrentFragment.equals(NEARBY_SIGNS_FRAGMENT) &&
-                                app.getNearbySigns().isEmpty()){
-                           showLoadingView();
-                        }
                         displayFragment(targetFragment);
                     }
 
@@ -218,12 +214,13 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     //Displays selected fragment overlaid on top of camera fragment for efficiency
     public void displayFragment(BaseFragment targetFragment){
         if(targetFragment != null) {
-            mCaptureButton.setVisibility(View.INVISIBLE);
-            mCameraFragmentContainer.setVisibility(View.GONE);
-            mFragmentContainer.setVisibility(View.VISIBLE);
             mFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container,targetFragment,mCurrentFragment)
                     .commit();
+            mLoadingView.setVisibility(View.INVISIBLE);
+            mCaptureButton.setVisibility(View.INVISIBLE);
+            mCameraFragmentContainer.setVisibility(View.GONE);
+            mFragmentContainer.setVisibility(View.VISIBLE);
         }
 
     }
@@ -387,8 +384,6 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                 //If the sign was saved then go to MySignsFragment
                 if(signSaved){
                     mCurrentFragment = MY_SIGNS_FRAGMENT;
-                    mLoadingView.setVisibility(View.VISIBLE);
-                    showLoadingView();
                     mBottomBar.selectTabAtPosition(0);
                 }
             }
@@ -474,9 +469,11 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     public void hideLoadingView(){
         mLoadingView.setVisibility(View.GONE);
+        signJustSaved = false;
     }
     public void showLoadingView(){
         mLoadingView.setVisibility(View.VISIBLE);
     }
+
 
 }

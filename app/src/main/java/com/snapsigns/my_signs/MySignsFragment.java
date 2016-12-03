@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,10 +37,13 @@ import java.util.ArrayList;
  * opens the activity SignDetail which displays a full screen view on the sign.
  */
 public class MySignsFragment extends BaseFragment {
+    SnapSigns appContext;
     GridView gridView;
+    View rootView;
     MySignsAdapter mAdapter;
     ViewTreeObserver viewTreeObserver;
     MainActivity mActivity;
+    TextView emptySignMessage;
 
     private final static String TAG = MySignsFragment.class.getSimpleName();
     public final static String IMAGE_URL_KEY = "img_url";
@@ -62,13 +66,14 @@ public class MySignsFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         Log.i(TAG,"in onCreateView of MySignsFragment");
-        View rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
+        rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
 
 
         mActivity = (MainActivity) getActivity();
+        appContext = (SnapSigns)mActivity.getApplicationContext();
+        emptySignMessage = (TextView) rootView.findViewById(R.id.empty_message);
         mAdapter = new MySignsAdapter(mActivity);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
-
         gridView.setAdapter(mAdapter);
 
 
@@ -88,6 +93,15 @@ public class MySignsFragment extends BaseFragment {
         //on configuration changes (screen rotation) we want fragment member variables to be preserved
         //setRetainInstance(true);
 
+        if(mActivity.signJustSaved){
+            gridView.setVisibility(View.INVISIBLE);
+            mActivity.showLoadingView();
+        }
+
+        if(appContext.getMyImageSigns().isEmpty()){
+            emptySignMessage.setVisibility(View.VISIBLE);
+        }
+
         return rootView;
     }
 
@@ -99,12 +113,16 @@ public class MySignsFragment extends BaseFragment {
                 Log.v(TAG,"Retrieved broadcast to update user signs");
                 mAdapter.notifyDataSetChanged();
 
+                if(!appContext.getMyImageSigns().isEmpty())
+                    emptySignMessage.setVisibility(View.INVISIBLE);
+
                 viewTreeObserver = gridView.getViewTreeObserver();
                 viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
                        if(mActivity != null) {
                            mActivity.hideLoadingView();
+                           gridView.setVisibility(View.VISIBLE);
                            gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                        }
                     }

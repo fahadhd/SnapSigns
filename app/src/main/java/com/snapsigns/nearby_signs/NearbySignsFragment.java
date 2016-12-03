@@ -4,7 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
@@ -34,7 +38,9 @@ import java.util.List;
  */
 public class NearbySignsFragment extends BaseFragment {
     private ViewPager mPager;
+    View rootView;
     MainActivity mActivity;
+    SnapSigns appContext;
     private SlidingUpPanelLayout mLayout;
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
@@ -65,8 +71,10 @@ public class NearbySignsFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
+        rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
         mActivity = (MainActivity) getActivity();
+        appContext = (SnapSigns)mActivity.getApplicationContext();
+        mNearbySigns = appContext.getNearbySigns();
         /*********************** ViewPager Views ***************/
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
         mSignPageAdapter = new SignPagerAdapter(mActivity,mPager);
@@ -99,6 +107,18 @@ public class NearbySignsFragment extends BaseFragment {
 
        // setupCommentBox();
 
+        if(mNearbySigns.isEmpty()) {
+            rootView.setVisibility(View.INVISIBLE);
+            mActivity.showLoadingView();
+            Snackbar snackbar = Snackbar.make(mActivity.findViewById(android.R.id.content), "Searching for nearby signs....", Snackbar.LENGTH_LONG);
+            Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snackbar.getView();
+            ViewGroup.LayoutParams params= layout.getLayoutParams();
+            params.height = 220;
+            layout.setLayoutParams(params);
+            snackbar.show();
+            layout.setBackgroundColor(ContextCompat.getColor(mActivity,R.color.orange_900));
+        }
+
         return rootView;
     }
 
@@ -116,6 +136,7 @@ public class NearbySignsFragment extends BaseFragment {
                     @Override
                     public void onGlobalLayout() {
                         if(mActivity != null) {
+                            rootView.setVisibility(View.VISIBLE);
                             mActivity.hideLoadingView();
                             mPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         }
