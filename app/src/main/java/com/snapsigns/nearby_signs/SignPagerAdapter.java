@@ -103,6 +103,7 @@ public class SignPagerAdapter extends PagerAdapter {
         viewHolder.gridButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
                 mActivity.startActivity(new Intent(mActivity,NearbySignsGridActivity.class));
             }
         });

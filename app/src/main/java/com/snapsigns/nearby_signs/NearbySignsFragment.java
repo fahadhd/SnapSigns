@@ -110,7 +110,6 @@ public class NearbySignsFragment extends BaseFragment {
                 Log.v(TAG,"Retrieved broadcast to update user signs");
                 mSignPageAdapter.updateSize();
                 mSignPageAdapter.notifyDataSetChanged();
-                ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
 
                 viewTreeObserver = mPager.getViewTreeObserver();
                 viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
