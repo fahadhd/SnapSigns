@@ -19,18 +19,19 @@ import com.snapsigns.SnapSigns;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
  */
 public class MySignsAdapter extends BaseAdapter {
     private Context mContext;
-    private ArrayList<ImageSign> myImageSigns;
+    private List<ImageSign> myImageSigns;
     private int gridWidth;
 
     public MySignsAdapter(Context context){
-        this.mContext = context;
-        this.myImageSigns = ((SnapSigns)context.getApplicationContext()).getMyImageSigns();
+        mContext = context;
+        myImageSigns = ((SnapSigns) context.getApplicationContext()).getMyImageSigns();
         Display display = ((WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -38,7 +39,6 @@ public class MySignsAdapter extends BaseAdapter {
         //Used to display two ImageSigns per row
         this.gridWidth = size.x/2;
     }
-
 
     @Override
     public int getCount() {

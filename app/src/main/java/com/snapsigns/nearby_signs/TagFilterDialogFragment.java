@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 
@@ -11,6 +12,7 @@ import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -22,35 +24,48 @@ public class TagFilterDialogFragment extends DialogFragment {
     private NearbySignsGridActivity mActivity;
     private SnapSigns app;
     private Set<Integer> selectedTags;
+    private int colorSelected, colorUnselected;
 
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         mActivity = (NearbySignsGridActivity) getActivity();
         app = (SnapSigns) mActivity.getApplication();
 
+        Resources res = getResources();
+        colorSelected = res.getColor(R.color.orange_900);
+        colorUnselected = res.getColor(R.color.dark_purple);
+
         View layout = mActivity.getLayoutInflater().inflate(R.layout.tag_filter_dialog, null);
 
         final TagContainerLayout mTagContainerLayout = (TagContainerLayout) layout.findViewById(R.id.tag_container);
-        mTagContainerLayout.setTags(app.getFilterTags());
+        mTagContainerLayout.setTags(app.getAllTags());
+        List<String> filterTags = app.getFilterTags();
 
         selectedTags = new TreeSet<Integer>();
 
         for (int i = 0; i < mTagContainerLayout.getChildCount(); i++) {
-            selectedTags.add(i);
+            TagView tag = (TagView) mTagContainerLayout.getChildAt(i);
+
+            if (filterTags.contains(tag.getText())) {
+                selectedTags.add(i);
+                tag.setTagBackgroundColor(colorSelected);
+            } else {
+                tag.setTagBackgroundColor(colorUnselected);
+            }
         }
 
         mTagContainerLayout.setOnTagClickListener(
                 new TagView.OnTagClickListener() {
                     @Override
                     public void onTagClick(int position, String text) {
-                        TagView tag = ((TagView) mTagContainerLayout.getChildAt(position));
+                        TagView tag = (TagView) mTagContainerLayout.getChildAt(position);
 
                         if (selectedTags.contains(position)) {
                             selectedTags.remove(position);
-                            tag.setTagBackgroundColor(R.color.dark_purple);
+                            tag.setTagBackgroundColor(colorUnselected);
                         } else {
                             selectedTags.add(position);
-                            tag.setTagBackgroundColor(R.color.orange_900);
+                            tag.setTagBackgroundColor(colorSelected);
                         }
                     }
 
@@ -73,8 +88,10 @@ public class TagFilterDialogFragment extends DialogFragment {
                         for (int i = 0; i < mTagContainerLayout.getChildCount(); i++) {
                             if (!selectedTags.contains(i)) {
                                 selectedTags.add(i);
-                                ((TagView) mTagContainerLayout.getChildAt(i))
-                                        .setTagBackgroundColor(R.color.orange_900);
+
+                                TagView tag = (TagView) mTagContainerLayout.getChildAt(i);
+                                tag.setTagBackgroundColor(colorSelected);
+                                tag.invalidate();
                             }
                         }
                     }
@@ -90,11 +107,13 @@ public class TagFilterDialogFragment extends DialogFragment {
 
                             if (selectedTags.contains(i)) {
                                 selectedTags.remove(i);
-                                tag.setTagBackgroundColor(R.color.dark_purple);
+                                tag.setTagBackgroundColor(colorUnselected);
                             } else {
                                 selectedTags.add(i);
-                                tag.setTagBackgroundColor(R.color.orange_900);
+                                tag.setTagBackgroundColor(colorSelected);
                             }
+
+                            tag.invalidate();
                         }
                     }
                 }
@@ -104,16 +123,17 @@ public class TagFilterDialogFragment extends DialogFragment {
                 .setView(layout)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ArrayList<String> filterTags = new ArrayList<String>();
+                        List<String> filterTags = new ArrayList<String>();
 
                         for (int i : selectedTags) {
                             filterTags.add(
-                                    ((TagView) mTagContainerLayout.getChildAt(i)).getText()
+                                    mTagContainerLayout.getTagText(i)
                             );
                         }
 
-                        app.filterNearbySigns(filterTags);
-                        mActivity.getAdapter().notifyDataSetChanged();
+                        app.setUseFilter(true);
+                        app.setFilterTags(filterTags);
+                        mActivity.getAdapter().updateDataSet();
                         mActivity.setDataSetChanged(true);
 
                         dialog.dismiss();

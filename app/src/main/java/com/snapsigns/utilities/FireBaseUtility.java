@@ -30,6 +30,7 @@ import com.snapsigns.SnapSigns;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /** Helper class which executes reading/writing to FireBase backend **/
 public class FireBaseUtility {
@@ -39,7 +40,7 @@ public class FireBaseUtility {
     private GoogleApiClient mGoogleApiClient;
     private String uid;
     FirebaseAuth auth;
-    ArrayList<ImageSign> mMyImageSigns, mNearbySigns;
+    List<ImageSign> mMyImageSigns, mNearbySigns;
     HashMap<String,ImageSign> mNearbySignsMap;
 
     SnapSigns appContext;
@@ -183,7 +184,7 @@ public class FireBaseUtility {
 
     public void deleteUserSigns(){
         checkUserName();
-        
+
         final String userName = uid;
         if(mDatabase != null) {
             mDatabase.orderByChild("userID").equalTo(userName).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -283,6 +284,8 @@ public class FireBaseUtility {
                     if(originalSize != mNearbySigns.size())
                         mContext.sendBroadcast(nearbySignsIntent);
                     Log.i(TAG, "notifying data changed");
+
+                    appContext.populateAllTags();
                 }
 
                 @Override

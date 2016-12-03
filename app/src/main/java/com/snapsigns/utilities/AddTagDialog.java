@@ -12,11 +12,15 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
 
 import com.snapsigns.R;
+import com.snapsigns.SnapSigns;
+
+import java.util.ArrayList;
 
 //Dialog to add a workout to a current session. Sends resulting data to ExerciseActivity.
 
@@ -25,6 +29,7 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
     Button mCancel, mConfirm;
     AutoCompleteTextView mAddTagView;
     Communicator communicator;
+    ArrayAdapter<String> suggestions;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -46,6 +51,14 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
         mAddTagView.setFocusableInTouchMode(true);
         mAddTagView.requestFocus();
         mAddTagView.setCursorVisible(true);
+
+        Activity mActivity = getActivity();
+        suggestions = new ArrayAdapter<String>(
+                mActivity,
+                R.layout.tag_suggestion,
+                new ArrayList<String>(((SnapSigns) mActivity.getApplication()).getAllTags())
+        );
+        mAddTagView.setAdapter(suggestions);
 
 
         mCancel.setOnClickListener(this);
@@ -86,8 +99,4 @@ public class AddTagDialog extends DialogFragment implements View.OnClickListener
     public interface Communicator{
         void addTag(String tag);
     }
-
-
-
-
 }

@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.snapsigns.utilities.FireBaseUtility;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,21 +38,23 @@ public class SnapSigns extends android.app.Application implements
     private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
-    private ArrayList<ImageSign> myImageSigns;
-    private ArrayList<ImageSign> mNearbySigns;
+    private List<ImageSign> myImageSigns;
+    private List<ImageSign> mNearbySigns;
     /********** Used to check values faster for cached items****************/
     private HashMap<String,ImageSign> mNearbySignsMap;
     /*************************/
-    private ArrayList<ImageSign> filteredNearbySigns;
-    private ArrayList<String> allTags;
-    private ArrayList<String> filterTags;
+    private List<String> allTags;
+    private List<String> filterTags;
     private FirebaseAuth mAuth;
+    private boolean useFilter = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mNearbySigns = new ArrayList<>();
         myImageSigns = new ArrayList<>();
+        filterTags = new ArrayList<>();
+        allTags = new ArrayList<>();
 
         mNearbySignsMap  = new HashMap<>();
 
@@ -74,11 +77,12 @@ public class SnapSigns extends android.app.Application implements
     }
 
 
-    public ArrayList<ImageSign> getMyImageSigns() {
+    public List<ImageSign> getMyImageSigns() {
         return myImageSigns;
     }
 
-    public ArrayList<ImageSign> getNearbySigns() {
+
+    public List<ImageSign> getNearbySigns() {
         return mNearbySigns;
     }
 
@@ -86,47 +90,61 @@ public class SnapSigns extends android.app.Application implements
         return mNearbySignsMap;
     }
 
+    public List<String> getAllTags() {return allTags;}
 
-    public ArrayList<ImageSign> getFilteredNearbySigns() {return filteredNearbySigns;}
-
-    public ArrayList<String> getAllTags() {return allTags;}
-
-    public ArrayList<String> getFilterTags() {return filterTags;}
+    public List<String> getFilterTags() {return filterTags;}
 
     public void populateAllTags() {
-        TreeSet<String> seenTags = new TreeSet<String>();
+        Set<String> seenTags = new TreeSet<String>();
 
         for (ImageSign sign : mNearbySigns) {
-            for (String tag : sign.tags) {
-                seenTags.add(tag);
+            if (sign.tags != null) {
+                for (String tag : sign.tags) {
+                    seenTags.add(tag);
+                }
             }
         }
 
         allTags = new ArrayList<>(seenTags);
     }
 
-    public ArrayList<ImageSign> filterNearbySigns(List<String> tags) {
-        if(mNearbySigns == null) mNearbySigns = new ArrayList<>();
+    public List<ImageSign> getFilteredNearbySigns() {
+        if(mNearbySigns == null)
+            mNearbySigns = new ArrayList<>();
 
-        filterTags = new ArrayList<String>(tags);
-        filteredNearbySigns.clear();
+        if (!useFilter)
+            return new ArrayList<>(mNearbySigns);
+
+        List<ImageSign> filteredNearbySigns = new ArrayList<>();
 
         for (ImageSign sign : mNearbySigns) {
-            Set<String> toCheck = new HashSet<String>(tags);
+            Set<String> toCheck = new HashSet<String>(filterTags);
 
-            for (String tag : sign.tags) {
-                if (toCheck.contains(tag)) {
-                    toCheck.remove(tag);
+            if (sign.tags != null) {
+                for (String tag : sign.tags) {
+                    if (toCheck.contains(tag)) {
+                        toCheck.remove(tag);
 
-                    if (toCheck.size() == 0) {
-                        filteredNearbySigns.add(sign);
-                        break;
+                        if (toCheck.size() == 0) {
+                            filteredNearbySigns.add(sign);
+                            break;
+                        }
                     }
                 }
             }
         }
 
         return filteredNearbySigns;
+    }
+
+    public void setUseFilter(boolean use) {
+        useFilter = use;
+
+        if (!useFilter)
+            filterTags.clear();
+    }
+    public void setFilterTags(List<String> tags) {
+        filterTags = tags;
     }
 
     public GoogleApiClient getmGoogleApiClient() {
@@ -190,9 +208,6 @@ public class SnapSigns extends android.app.Application implements
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
         fireBaseUtility.checkNearbySigns(location);
 
-//        filteredNearbySigns = new ArrayList<>(mNearbySigns);
-//        populateAllTags();
-//        filterTags = new ArrayList<>(allTags);
     }
 
     public void removeLocationUpdates(){

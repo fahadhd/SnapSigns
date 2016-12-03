@@ -16,8 +16,7 @@
         app:container_enable_drag="false"
         app:horizontal_interval="10dp"
         app:vertical_interval="10dp"
-        app:tag_clickable="true"
-        app:tag_theme="pure_teal" />
+        app:tag_clickable="true" />
 
     <Button
         android:id="@+id/select_all_btn"
@@ -30,6 +29,7 @@
         android:id="@+id/invert_selection_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/tag_container"
         android:layout_toEndOf="@id/select_all_btn"
         android:text="Invert Selection"/>
 

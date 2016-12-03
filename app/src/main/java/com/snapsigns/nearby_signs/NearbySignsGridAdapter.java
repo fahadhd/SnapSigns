@@ -23,14 +23,12 @@ import java.util.List;
  */
 public class NearbySignsGridAdapter extends BaseAdapter {
     private Context mContext;
-    private ArrayList<ImageSign> nearbySigns;
-    private SnapSigns app;
+    private List<ImageSign> nearbySigns;
     private int gridWidth;
 
     public NearbySignsGridAdapter(Context context) {
         mContext = context;
-        app = (SnapSigns) context.getApplicationContext();
-        nearbySigns = app.getNearbySigns();
+        nearbySigns = ((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns();
         Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -60,18 +58,10 @@ public class NearbySignsGridAdapter extends BaseAdapter {
         ViewHolder viewHolder;
         View gridItem = convertView;
 
-
         if(gridItem == null) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             gridItem = inflater.inflate(R.layout.my_signs_grid_item, parent, false);
-
-            gridItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                 //TODO: Finish activity here and return to view pager with selected item
-                }
-            });
 
             viewHolder = new ViewHolder(gridItem);
             gridItem.setTag(viewHolder);
@@ -85,10 +75,10 @@ public class NearbySignsGridAdapter extends BaseAdapter {
         return gridItem;
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-        nearbySigns = app.getFilteredNearbySigns();
-        super.notifyDataSetChanged();
+    public void updateDataSet() {
+        nearbySigns.clear();
+        nearbySigns.addAll(((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns());
+        notifyDataSetChanged();
     }
 
     private class ViewHolder {

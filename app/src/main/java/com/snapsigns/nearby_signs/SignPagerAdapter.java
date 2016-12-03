@@ -2,137 +2,100 @@ package com.snapsigns.nearby_signs;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
+import android.media.Image;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.support.v7.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.snapsigns.ImageSign;
-import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by admin on 11/29/2016.
  */
 
 public class SignPagerAdapter extends PagerAdapter {
-    MainActivity mActivity;
+    Context mContext;
     LayoutInflater mLayoutInflater;
-    ArrayList<ImageSign> mNearbySigns;
-    ViewPager mPager;
-    boolean isFullScreen;
-    private int numViews;
+    List<ImageSign> mNearbySigns;
 
-    public SignPagerAdapter(MainActivity activity, ViewPager pager) {
-        mActivity = activity;
-        mPager = pager;
-        SnapSigns appContex = (SnapSigns) mActivity.getApplicationContext();
+    public SignPagerAdapter(Context context) {
+        mContext = context;
+        mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mNearbySigns = ((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns();
 
-        mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mNearbySigns = appContex.getNearbySigns();
-        numViews = mNearbySigns.size();
-        isFullScreen = NearbySignsFragment.isFullScreen;
-    }
-
-
-    public void updateSize(){
-        numViews = mNearbySigns.size();
+        if(mNearbySigns == null)
+            mNearbySigns = new ArrayList<>();
     }
 
     @Override
     public int getCount() {
-        return numViews;
+        return mNearbySigns.size();
     }
-
-
-
-
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == ((RelativeLayout) object);
     }
 
-    private class ViewHolder{
-        Toolbar toolbar;
-        TextView messageView;
-        ImageView imageView;
-        TextView title;
-        ImageButton gridButton;
-        ImageButton favoriteButton;
-
-        public ViewHolder(View itemView){
-            toolbar = (Toolbar) itemView.findViewById(R.id.toolbar);
-            messageView = (TextView) itemView.findViewById(R.id.message);
-            imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
-            title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
-            gridButton = (ImageButton) itemView.findViewById(R.id.grid_activity_button);
-            favoriteButton = (ImageButton) itemView.findViewById(R.id.favorite_button);
-        }
-    }
-
     @Override
-    public Object instantiateItem(ViewGroup container, final int position) {
+    public Object instantiateItem(ViewGroup container, int position) {
         View itemView = mLayoutInflater.inflate(R.layout.nearby_sign_pager_item, container, false);
-        Log.v("SignPagerAdapter","Is Full Screen option true?: "+isFullScreen);
-
-        final ViewHolder viewHolder = new ViewHolder(itemView);
         final ImageSign currentSign = mNearbySigns.get(position);
+        final TextView messageView = (TextView) itemView.findViewById(R.id.message);
+        ImageView imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
+        TextView title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
 
-        if(isFullScreen) setUpFullScreen(viewHolder);
-        else cancelFullScreen(viewHolder,currentSign);
+        ImageButton gridButton = (ImageButton) itemView.findViewById(R.id.grid_activity_button);
+        ImageButton favoriteButton = (ImageButton) itemView.findViewById(R.id.favorite_button);
 
-        viewHolder.title.setText(currentSign.locationName);
+        title.setText(currentSign.locationName);
 
         /*************** Setting button Listeners ******************/
-        viewHolder.gridButton.setOnClickListener(new View.OnClickListener() {
+        gridButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mActivity.startActivity(new Intent(mActivity,NearbySignsGridActivity.class));
-            }
-        });
-        viewHolder.favoriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: Finish favorite button
+                mContext.startActivity(new Intent(mContext,NearbySignsGridActivity.class));
             }
         });
 
-        viewHolder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View view) {
-                if(!isFullScreen){
-                    setUpFullScreen(viewHolder);
-                    mPager.setAdapter(SignPagerAdapter.this);
-                    mPager.setCurrentItem(position);
-                }
-                else{
-                    cancelFullScreen(viewHolder,currentSign);
-                    mPager.setAdapter(SignPagerAdapter.this);
-                    mPager.setCurrentItem(position);
-                }
-                return false;
+            public void onClick(View view) {
+
             }
         });
+
+
+        /**********************************************************/
+
+
 
         /************** Adding image to Image View ****************************/
-        Glide.with(mActivity).load(currentSign.imgURL).
-                placeholder(R.xml.progress_animation)
+        Glide.with(mContext).load(currentSign.imgURL)
+                .placeholder(R.xml.progress_animation)
                 /*********** Listener  used to display textview when image is done loading *****/
                 .listener(new RequestListener<String, GlideDrawable>() {
             @Override
@@ -145,13 +108,13 @@ public class SignPagerAdapter extends PagerAdapter {
                                            Target<GlideDrawable> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
                 if(currentSign.message != null){
-                    viewHolder.messageView.setVisibility(View.VISIBLE);
-                    viewHolder.messageView.setText(currentSign.message);
+                    messageView.setVisibility(View.VISIBLE);
+                    messageView.setText(currentSign.message);
                 }
                 return false;
             }
 
-        }).into(viewHolder.imageView);
+        }).into(imageView);
 
         container.addView(itemView);
         /*******************************************************************/
@@ -164,25 +127,14 @@ public class SignPagerAdapter extends PagerAdapter {
         container.removeView((RelativeLayout) object);
     }
 
-
-    private void setUpFullScreen(ViewHolder viewHolder){
-        viewHolder.toolbar.setVisibility(View.GONE);
-        viewHolder.title.setVisibility(View.INVISIBLE);
-        viewHolder.gridButton.setVisibility(View.INVISIBLE);
-        viewHolder.messageView.setVisibility(View.INVISIBLE);
-        viewHolder.favoriteButton.setVisibility(View.INVISIBLE);
-        viewHolder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mActivity.startFullScreenViewPager();
-        isFullScreen = true;
+    @Override
+    public int getItemPosition(Object object){
+        return PagerAdapter.POSITION_NONE;
     }
 
-    private void cancelFullScreen(ViewHolder viewHolder, ImageSign currentSign){
-        viewHolder.toolbar.setVisibility(View.VISIBLE);
-        viewHolder.title.setVisibility(View.VISIBLE);
-        viewHolder.gridButton.setVisibility(View.VISIBLE);
-        viewHolder.favoriteButton.setVisibility(View.VISIBLE);
-        mActivity.restoreMainFromFullScreenViewPager();
-        isFullScreen = false;
+    public void updateDataSet() {
+        mNearbySigns.clear();
+        mNearbySigns.addAll(((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns());
+        notifyDataSetChanged();
     }
-
 }
