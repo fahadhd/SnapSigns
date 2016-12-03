@@ -42,6 +42,8 @@ public class NearbySignsFragment extends BaseFragment {
     ArrayList<String> comments = new ArrayList<>();
     Button postBtn;
 
+    public static boolean isFullScreen = false;
+
     @Override
     public void onStart() {
         registerImageSignReceiver();
@@ -62,8 +64,8 @@ public class NearbySignsFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
 
         /*********************** ViewPager Views ***************/
-        mSignPageAdapter = new SignPagerAdapter((MainActivity) getActivity());
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mSignPageAdapter = new SignPagerAdapter((MainActivity) getActivity(),mPager);
         mPager.setAdapter(mSignPageAdapter);
 
         /**************** Comment Box Views ********************/
