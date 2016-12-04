@@ -57,7 +57,7 @@ public class NearbySignsFragment extends BaseFragment {
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
     Button postBtn;
-    ImageButton commentsButton;
+    ImageButton commentsButton, hideCommentBox;
     EditText addComment;
 
     ImageSign mCurrImageSign;
@@ -220,6 +220,8 @@ public class NearbySignsFragment extends BaseFragment {
         addComment = (EditText) rootView.findViewById(R.id.add_comment);
         listView = (ListView) rootView.findViewById(R.id.comment_list);
         postBtn = (Button) rootView.findViewById(R.id.post_button);
+        hideCommentBox = (ImageButton) rootView.findViewById(R.id.slide_down_button);
+
         commentsButton = (ImageButton) rootView.findViewById(R.id.comments_button);
 
         arrayAdapter = new ArrayAdapter<>(
@@ -239,6 +241,12 @@ public class NearbySignsFragment extends BaseFragment {
 //        } else {
 //            Log.i(TAG,"no nearby signs");
 //        }
+        hideCommentBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            }
+        });
 
         commentsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -249,9 +257,7 @@ public class NearbySignsFragment extends BaseFragment {
                         Log.i(TAG, "changing button to show");
                         commentsButton.setImageResource(R.drawable.btn_show_comments);
                     } else {
-                        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                        Log.i(TAG, "changing button to hide");
-                        commentsButton.setImageResource(R.drawable.btn_hide_comments);
+                        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                     }
                 }
             }
@@ -272,13 +278,15 @@ public class NearbySignsFragment extends BaseFragment {
 
                 currentSign.comments.add(commentMessage);
 
-               
+
                 arrayAdapter.notifyDataSetChanged();
                 addComment.getText().clear();
 
+                if(mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
+                    mLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                }
+
                 fireBaseUtility.updateImageSign(currentSign);
-
-
             }
         });
 

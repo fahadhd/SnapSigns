@@ -112,6 +112,7 @@
             android:layout_height="wrap_content"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <EditText
@@ -124,12 +125,22 @@
                 android:layout_weight="1"/>
 
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="68dp"
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="40dp"
                 android:id="@+id/post_button"
                 android:text="Post"
                 android:textAllCaps="false"/>
 
+            <ImageButton
+                android:id="@+id/slide_down_button"
+                android:layout_width="0dp"
+                android:layout_weight="0.25"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_hide_comment_box"
+                android:background="@null"
+                android:text="V"
+                android:textAllCaps="false"/>
         </LinearLayout>
 
 
