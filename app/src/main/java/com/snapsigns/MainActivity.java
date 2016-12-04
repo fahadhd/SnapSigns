@@ -475,5 +475,13 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mLoadingView.setVisibility(View.VISIBLE);
     }
 
+    public void hideBottomBar(){
+        mBottomBar.setVisibility(View.GONE);
+    }
+
+    public void showBottomBar(){
+        mBottomBar.setVisibility(View.VISIBLE);
+    }
+
 
 }

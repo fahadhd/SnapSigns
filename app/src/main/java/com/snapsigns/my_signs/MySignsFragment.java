@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentContainer;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +17,14 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,6 +38,7 @@ import com.snapsigns.SnapSigns;
 import com.snapsigns.utilities.Constants;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates a list view of past signs taken. When user clicks on an item in list view it
@@ -39,11 +47,15 @@ import java.util.ArrayList;
 public class MySignsFragment extends BaseFragment {
     SnapSigns appContext;
     GridView gridView;
-    View rootView;
+    ImageView fullScreenContainer;
+    Toolbar toolbar;
+    ImageButton exitFullScreenButton;
     MySignsAdapter mAdapter;
+    List<ImageSign> myImageSigns;
     ViewTreeObserver viewTreeObserver;
     MainActivity mActivity;
     TextView emptySignMessage;
+    TextView message;
 
     private final static String TAG = MySignsFragment.class.getSimpleName();
     public final static String IMAGE_URL_KEY = "img_url";
@@ -66,27 +78,36 @@ public class MySignsFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         Log.i(TAG,"in onCreateView of MySignsFragment");
-        rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
+        View rootView = inflater.inflate(R.layout.my_signs_grid_view, container, false);
 
 
         mActivity = (MainActivity) getActivity();
         appContext = (SnapSigns)mActivity.getApplicationContext();
+        myImageSigns = appContext.getMyImageSigns();
+
+        toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
         emptySignMessage = (TextView) rootView.findViewById(R.id.empty_message);
-        mAdapter = new MySignsAdapter(mActivity);
+        message = (TextView) rootView.findViewById(R.id.message);
+        fullScreenContainer = (ImageView) rootView.findViewById(R.id.fullscreen_container);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
+        exitFullScreenButton = (ImageButton) rootView.findViewById(R.id.exit_fullscreen);
+
+        mAdapter = new MySignsAdapter(mActivity);
         gridView.setAdapter(mAdapter);
-
-
-
 
         /* TODO: When an image is selected it will open up a new view with just that image
          * with it's other data  */
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                startActivity(new Intent(getActivity(),FullSignActivity.class).
-                        putExtra(MySignsFragment.IMAGE_URL_KEY,(ImageSign)mAdapter.getItem(position)));
+                showFullScreenImage(position);
+            }
+        });
 
+        exitFullScreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finishFullScreen();
             }
         });
 
@@ -98,7 +119,7 @@ public class MySignsFragment extends BaseFragment {
             mActivity.showLoadingView();
         }
 
-        if(appContext.getMyImageSigns().isEmpty()){
+        if(myImageSigns.isEmpty()){
             emptySignMessage.setVisibility(View.VISIBLE);
         }
 
@@ -113,7 +134,7 @@ public class MySignsFragment extends BaseFragment {
                 Log.v(TAG,"Retrieved broadcast to update user signs");
                 mAdapter.notifyDataSetChanged();
 
-                if(!appContext.getMyImageSigns().isEmpty())
+                if(!myImageSigns.isEmpty())
                     emptySignMessage.setVisibility(View.INVISIBLE);
 
                 viewTreeObserver = gridView.getViewTreeObserver();
@@ -137,6 +158,47 @@ public class MySignsFragment extends BaseFragment {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.MY_SIGNS.GET_MY_SIGNS);
         getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    private void showFullScreenImage(final int position){
+        Glide.with(mActivity).load(myImageSigns.get(position).imgURL).listener(new RequestListener<String, GlideDrawable>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GlideDrawable resource, String model,
+                                           Target<GlideDrawable> target, boolean isFromMemoryCache,
+                                           boolean isFirstResource) {
+                if(myImageSigns.get(position).message != null){
+                    message.setVisibility(View.VISIBLE);
+                    message.setText(myImageSigns.get(position).message);
+                }
+                return false;
+            }
+
+        }).placeholder(R.xml.progress_animation).into(fullScreenContainer);
+
+        fullScreenContainer.setVisibility(View.VISIBLE);
+        exitFullScreenButton.setVisibility(View.VISIBLE);
+
+        gridView.setVisibility(View.INVISIBLE);
+        toolbar.setVisibility(View.INVISIBLE);
+
+
+        mActivity.hideBottomBar();
+    }
+
+    public void finishFullScreen(){
+        toolbar.setVisibility(View.VISIBLE);
+        gridView.setVisibility(View.VISIBLE);
+        mActivity.showBottomBar();
+        exitFullScreenButton.setVisibility(View.INVISIBLE);
+        fullScreenContainer.setVisibility(View.INVISIBLE);
+        message.setVisibility(View.INVISIBLE);
+
+
     }
 
 }

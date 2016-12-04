@@ -6,12 +6,38 @@
     android:background="@color/bb_darkBackgroundColor">
 
 
+    <ImageView
+        android:id="@+id/fullscreen_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        />
+
+    <ImageButton
+        android:id="@+id/exit_fullscreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/btn_exit_preview"
+        android:padding="10dp"
+        android:background="@null"
+        />
+
+    <TextView
+        android:id="@+id/message"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#A6432443"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        />
 
     <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:id="@+id/my_signs_toolbar"
         android:background="@color/dark_purple"
         >
         <RelativeLayout
@@ -37,6 +63,7 @@
         android:layout_centerInParent="true"
         android:text="You have no image signs!"
         android:textColor="@color/orange_900"
+        android:visibility="invisible"
         android:textSize="22sp"
         />
 
@@ -49,7 +76,7 @@
         android:layout_marginTop="5dp"
         android:horizontalSpacing="10dp"
         android:verticalSpacing="10dp"
-        android:layout_below="@+id/my_signs_toolbar"
+        android:layout_below="@+id/toolbar"
         >
     </GridView>
 
