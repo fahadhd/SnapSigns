@@ -30,6 +30,8 @@
         app:loading_renderer="SwapLoadingRenderer" />
 
 
+
+
     <!--Capture button used by CameraFragment. Only visible when fragment is active-->
     <ImageButton
         android:id="@+id/button_capture"
@@ -51,6 +53,22 @@
         app:bb_tabXmlResource="@xml/bottombar_tabs"
         app:bb_behavior="shifting"
         app:bb_showShadow="false"/>
+    <TextView
+        android:id="@+id/place_picker"
+        android:visibility="gone"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:hint="Choose a location..."
+        android:gravity="center"
+        android:ellipsize="end"
+        android:textColorHint="#fff"
+        android:textSize="12sp"
+        android:background="@drawable/btn_location_picker"
+        android:maxLines="1"
+        android:textColor="#fff"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        />
 
     <!--///////// Sign Taken Layout That Appears when Capture Button Pressed /////////// -->
 
@@ -80,7 +98,8 @@
        android:id="@+id/location_name"
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
-       android:text="White House, Washington DC"
+       android:hint="Choose a location..."
+       android:textColorHint="#fff"
        android:textSize="16sp"
        android:inputType="none"
        android:textColor="#fff"

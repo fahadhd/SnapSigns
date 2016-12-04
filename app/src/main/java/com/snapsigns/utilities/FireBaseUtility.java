@@ -81,7 +81,7 @@ public class FireBaseUtility {
         this.mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
-    public void uploadImageToFireBase(File pictureFile, final String message, final ArrayList<String> tags) {
+    public void uploadImageToFireBase(File pictureFile, final String locationName, final String message, final ArrayList<String> tags) {
         checkUserName();
 
         /** Uploading image to FireBase storage **/
@@ -99,7 +99,7 @@ public class FireBaseUtility {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.v(TAG,signsFolder.getPath());
-                addFileToDatabase(signsFolder.getPath(), message, tags);
+                addFileToDatabase(signsFolder.getPath(), locationName, message, tags);
             }
         });
 
@@ -109,7 +109,7 @@ public class FireBaseUtility {
      * Adds uploaded image url and user info in database
      * @param path
      */
-    private void addFileToDatabase(final String path, final String message, final ArrayList<String> tags){
+    private void addFileToDatabase(final String path, final String locationName, final String message, final ArrayList<String> tags){
         Log.v(TAG,path);
 
         /** Writing image to FireBase database **/
@@ -130,12 +130,15 @@ public class FireBaseUtility {
                 ArrayList<Double> locationCoords = new ArrayList<>();
                 locationCoords.add(currentLocation.getLatitude());
                 locationCoords.add(currentLocation.getLongitude());
+                String finalName = locationName;
+                if(finalName == null){
+                    finalName = currentLocation.getLatitude()+","+currentLocation.getLongitude();
+                }
 
-                String locationName = currentLocation.getLatitude()+","+currentLocation.getLongitude();
 
                 //Pushes a new imagesign object into database
                 DatabaseReference pushedPostRef = mDatabase.getRef().push();
-                ImageSign imageSign = new ImageSign(pushedPostRef.getKey(),uid, imgURL, message, locationName,locationCoords,tags);
+                ImageSign imageSign = new ImageSign(pushedPostRef.getKey(),uid, imgURL, message, finalName,locationCoords,tags);
                 pushedPostRef.setValue(imageSign);
 
 

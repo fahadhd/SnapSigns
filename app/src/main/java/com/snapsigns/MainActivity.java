@@ -3,10 +3,14 @@ package com.snapsigns;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -21,11 +25,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
+import com.snapsigns.create_sign.PictureTakenActivity;
 import com.snapsigns.login.SignInActivity;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
@@ -33,13 +40,29 @@ import com.snapsigns.settings.SettingsFragment;
 import com.snapsigns.utilities.AddTagDialog;
 import com.snapsigns.utilities.Constants;
 import com.snapsigns.utilities.FireBaseUtility;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import app.dinus.com.loadingdrawable.LoadingView;
 import cn.qqtheme.framework.picker.OptionPicker;
 import co.lujun.androidtagview.TagContainerLayout;
+
+import static android.app.Activity.RESULT_OK;
 
 public class MainActivity extends AppCompatActivity implements AddTagDialog.Communicator {
     GoogleApiClient mGoogleApiClient;
@@ -48,14 +71,19 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     FrameLayout mCameraFragmentContainer,mFragmentContainer;
     LinearLayout mLocationDisplay;
     ImageButton mCaptureButton, mSaveSignButton, mExitPreviewButton, mAddTextButton;
-    TextView mAddTagButton;
+    TextView mAddTagButton,mPlacePickerButton;
     EditText mLocationView,mEnterTextView;
     OptionPicker mLocationPicker;
+
     BottomBar mBottomBar;
     TagContainerLayout mTagContainerLayout;
     String mCurrentFragment;
+
+
     LoadingView mLoadingView;
     public boolean signJustSaved = false;
+    ArrayList<String> mNearbyLocations = new ArrayList<>();
+    ArrayList<String> nearbyFakeLocations= new ArrayList<>();
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
@@ -67,9 +95,14 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     private static final String USER_LOGIN_SUCCESS = "login_success";
 
     public static final int PICTURE_TAKEN = 23;
+    public static final int PLACE_PICKER_REQUEST = 40;
 
     private FireBaseUtility fireBaseUtility;
     private FirebaseAuth mAuth;
+
+    private File mPictureFile;
+    private boolean mDoneWithPicture = true;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mLocationDisplay = (LinearLayout) findViewById(R.id.location_display);
 
         mCaptureButton = (ImageButton) findViewById(R.id.button_capture);
+        mPlacePickerButton = (TextView) findViewById(R.id.place_picker);
         mExitPreviewButton = (ImageButton) findViewById(R.id.exit_preview);
         mSaveSignButton = (ImageButton) findViewById(R.id.save_sign);
         mAddTextButton = (ImageButton) findViewById(R.id.btn_add_text) ;
@@ -114,6 +148,25 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                     SignInActivity.SIGN_IN_REQUEST_CODE);
         }
 
+        //used by OptionPicker for when there are no nearby locations
+        nearbyFakeLocations.add(0,"No nearby locations");
+
+        /* Starts a place picker map activity */
+        mPlacePickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                try {
+
+                    startActivityForResult(builder.build(MainActivity.this), PLACE_PICKER_REQUEST);
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    Log.e(TAG,"GooglePlayServicesNotAvailableException");
+                } catch(GooglePlayServicesRepairableException e) {
+                    Log.e(TAG,"GooglePlayServicesRepairableException");
+                }
+            }
+        });
+
     }
 
     @Override
@@ -132,16 +185,47 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     }
 
     @Override
-    protected void onResume() {
-        startMainActivityLayout(false);
-        super.onResume();
+    protected void onDestroy() {
+        Log.i(TAG,"in onDestroy");
+        super.onDestroy();
     }
 
+    @Override
+    protected void onPause() {
+        Log.i(TAG,"in onPause");
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"in onResume");
+        //startMainActivityLayout(false);
+    }
+
+    /* Need to commit FragmentTransactions after the Activity's state has been restored
+    to its original state (onPostResume() is guaranteed to be called after the Activity's state
+    has been restored) --> otherwise throws IllegalStateException */
+    @Override
+    protected void onPostResume() {
+        Log.i(TAG,"in onPostResume");
+        super.onPostResume();
+        startMainActivityLayout(false);
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == SignInActivity.SIGN_IN_REQUEST_CODE && resultCode == RESULT_OK){
             mBottomBar.selectTabAtPosition(2);
+        } else if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+            Place place = PlacePicker.getPlace(this,data);
+            String placeName = place.getName().toString();
+            mPlacePickerButton.setText(placeName);
+
+            mLocationView.setText(place.getName());
+            mNearbyLocations.add(placeName);
+            Log.i(TAG,"Selected Place: "+place.getName());
         }
     }
 
@@ -180,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                             mFragmentContainer.setVisibility(View.INVISIBLE);
                             mCameraFragmentContainer.setVisibility(View.VISIBLE);
                             mCaptureButton.setVisibility(View.VISIBLE);
+                            mPlacePickerButton.setVisibility(View.VISIBLE);
                             mLoadingView.setVisibility(View.INVISIBLE);
                             break;
 
@@ -219,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                     .commit();
             mLoadingView.setVisibility(View.INVISIBLE);
             mCaptureButton.setVisibility(View.INVISIBLE);
+            mPlacePickerButton.setVisibility(View.INVISIBLE);
             mCameraFragmentContainer.setVisibility(View.GONE);
             mFragmentContainer.setVisibility(View.VISIBLE);
         }
@@ -229,16 +315,10 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     /**************************** Photo Taken Methods *****************************/
 
 
-    private void setPhotoTakeLayoutListeners(){
-
-        /*********** Setting up Location View UI *****************/
-        ArrayList<String> nearbyFakeLocations= new ArrayList<>();
-        nearbyFakeLocations.add(0,"CMSC Building, College Park MD");
-        nearbyFakeLocations.add(0,"Some close by building, City/State its in");
-
-        mLocationPicker = new OptionPicker(this, nearbyFakeLocations);
+    /* Called whenever a new LocationPicker is created from a new location */
+    private void setLocationPickerOptions() {
         mLocationPicker.setOffset(2);
-        mLocationPicker.setSelectedIndex(1);
+       // mLocationPicker.setSelectedIndex(1);
         mLocationPicker.setTextSize(13);
         mLocationPicker.setTitleText("Locations Near You");
         mLocationPicker.setTitleTextSize(15);
@@ -247,10 +327,38 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mLocationPicker.setOnOptionPickListener(new OptionPicker.OnOptionPickListener() {
             @Override
             public void onOptionPicked(int position, String option) {
+                Log.i(TAG,"option picked");
                 mLocationView.setText(option);
+                mLocationPicker.dismiss();
             }
 
         });
+        mLocationPicker.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Log.i(TAG,"option dismissed");
+                mLocationPicker.dismiss();
+            }
+        });
+    }
+
+    private void setPhotoTakeLayoutListeners(){
+
+
+        /*********** Setting up Location View UI *****************/
+
+        Location currLocation = app.getLocation();
+        if(currLocation != null) {
+            Log.i(TAG,"setPhotoTaken currLocation not null");
+            new getNearbyLocations().execute(currLocation.getLatitude(), currLocation.getLongitude());
+        }
+        if(mNearbyLocations == null || mNearbyLocations.isEmpty()) {
+            mLocationPicker = new OptionPicker(this, nearbyFakeLocations);
+        } else {
+            mLocationPicker = new OptionPicker(this, mNearbyLocations);
+        }
+
+        setLocationPickerOptions();
 
         /************** Setting up Tag View UI *******************/
         mAddTagButton.setOnClickListener(new View.OnClickListener() {
@@ -296,21 +404,39 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mLocationView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(mNearbyLocations != null && !mNearbyLocations.isEmpty()) {
+                    mLocationPicker = new OptionPicker(MainActivity.this, mNearbyLocations);
+                    setLocationPickerOptions();
+                } else {
+                    mLocationPicker = new OptionPicker(MainActivity.this, nearbyFakeLocations);
+                    setLocationPickerOptions();
+                }
+                Log.i(TAG,"location picker");
                 mLocationPicker.show();
             }
         });
     }
 
+    public void updateLocationPicker() {
+        Location currLocation = app.getLocation();
+        if(currLocation != null) {
+            Log.i(TAG,"currLocation not null");
+            new getNearbyLocations().execute(currLocation.getLatitude(), currLocation.getLongitude());
+        }
 
+
+    }
 
     /**
-     * Displays picutre user just took and other options
+     * Displays picture user just took and other options
      * @param pictureFile
      */
     public void startPhotoTakenLayout(final File pictureFile) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.i(TAG,"in startPhotoTakenLayout with pictureFile:" +pictureFile);
+                mPictureFile = pictureFile;
                 mSaveSignButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -318,7 +444,12 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                         if(mEnterTextView.getVisibility() == View.VISIBLE){
                             message = mEnterTextView.getEditableText().toString();
                         }
-                        fireBaseUtility.uploadImageToFireBase(pictureFile,message,(ArrayList<String>) mTagContainerLayout.getTags());
+                        String locationName = mPlacePickerButton.getText().toString();
+                        String locationViewName = mLocationView.getText().toString();
+                        if(!locationViewName.equals(locationName)){
+                            locationName = mLocationView.getEditableText().toString();
+                        }
+                        fireBaseUtility.uploadImageToFireBase(pictureFile,locationName,message,(ArrayList<String>) mTagContainerLayout.getTags());
                         startMainActivityLayout(true);
                         signJustSaved = true;
                         resetPreviewData();
@@ -327,6 +458,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                 /////// Hides unnecessary UI elements during a taken preview ////////
                 mBottomBar.setVisibility(View.INVISIBLE);
                 mCaptureButton.setVisibility(View.INVISIBLE);
+                mPlacePickerButton.setVisibility(View.INVISIBLE);
 
                 /////////// Displaying preview taken UI elements ////////////////
 
@@ -363,9 +495,11 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                 //////////////Displaying and hiding original UI elements ////////////////
                 mBottomBar.setVisibility(View.VISIBLE);
 
-                //Only display capture button if on camera fragment
-                if(mCurrentFragment.equals(CREATE_SIGN_FRAGMENT))
+                //Only display capture button and place picker if on camera fragment
+                if(mCurrentFragment.equals(CREATE_SIGN_FRAGMENT)) {
                     mCaptureButton.setVisibility(View.VISIBLE);
+                    mPlacePickerButton.setVisibility(View.VISIBLE);
+                }
 
                 ///////////// Hiding preview items ////////////////////
 
@@ -424,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     public void resetPreviewData(){
         mTagContainerLayout.removeAllTags();
         mEnterTextView.setText(null);
+        mLocationView.setText(null);
     }
 
     @Override
@@ -484,5 +619,73 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         mBottomBar.setVisibility(View.VISIBLE);
     }
 
+    /******** Background Thread to retrieve nearby location names *******/
+
+    class getNearbyLocations extends AsyncTask<Double,Integer,ArrayList<String>> {
+        HttpURLConnection httpURLConnection = null;
+        String stream = null;
+
+        @Override
+        protected ArrayList<String> doInBackground(Double... params) {
+            ArrayList<String> nearbyLocations = new ArrayList<>();
+            Double lat = params[0];
+            Double lon = params[1];
+
+            String nearbySearchRequestURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+
+                    lat+","+lon+"&radius=500&key=AIzaSyBs-rk7XwonUuPuy20g5LDXBOgrwQ6KV04";
+
+            /*************** Connect to google api url ********************/
+            try {
+                httpURLConnection = (HttpURLConnection) new URL(nearbySearchRequestURL).openConnection();
+                InputStream in = new BufferedInputStream(httpURLConnection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+                /* putting resulting input stream in one string */
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                stream = sb.toString();
+                httpURLConnection.disconnect();
+
+            } catch (MalformedURLException e) {
+                Log.e(TAG,"malformedURLException");
+                e.printStackTrace();
+            } catch (IOException e) {
+                Log.e(TAG,"IOException");
+                e.printStackTrace();
+            }
+
+            /* Parsing JSON result*/
+            if(stream != null) {
+                try {
+                    JSONObject reader = new JSONObject(stream);
+
+                    JSONArray results = reader.getJSONArray("results");
+
+                    for(int i = 0; i < results.length();i++) {
+                        String place = results.getJSONObject(i).getString("name");
+                        nearbyLocations.add(place);
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG,"JSONException");
+                    e.printStackTrace();
+                }
+
+            }
+
+            return nearbyLocations;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> strings) {
+            Log.i(TAG,"in onPostExecute with results:"+ strings+", length: "+strings.size());
+            mNearbyLocations.clear();
+            mNearbyLocations.addAll(strings);
+            super.onPostExecute(strings);
+        }
+    }
 
 }
