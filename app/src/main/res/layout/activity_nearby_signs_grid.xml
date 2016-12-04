@@ -58,13 +58,21 @@
     </android.support.v7.widget.Toolbar>
 
 
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/loading_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/orange_loading"
+        android:background="@null"
+        android:visibility="invisible"
+        />
 
 
     <GridView
         android:id="@+id/gridview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:numColumns="auto_fit"
         android:layout_below="@+id/toolbar"
         android:horizontalSpacing="10dp"

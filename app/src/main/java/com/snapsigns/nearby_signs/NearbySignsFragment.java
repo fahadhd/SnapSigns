@@ -10,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,6 +88,7 @@ public class NearbySignsFragment extends BaseFragment {
         mNearbySigns = appContext.getNearbySigns();
 
         /************************ Toolbar Views ****************/
+        final Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
         ImageButton gridButton = (ImageButton) rootView.findViewById(R.id.grid_activity_button);
         gridButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +114,32 @@ public class NearbySignsFragment extends BaseFragment {
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
         mSignPageAdapter = new SignPagerAdapter(mActivity,rootView);
         mPager.setAdapter(mSignPageAdapter);
+
+
+        /******************* FullScreen Buttons ******************/
+        final ImageButton showFullScreen = (ImageButton) rootView.findViewById(R.id.show_fullscreen_button);
+        final ImageButton hideFullScreen = (ImageButton) rootView.findViewById(R.id.hide_fullscreen_button);
+
+
+        showFullScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toolbar.setVisibility(View.GONE);
+                mActivity.hideBottomBar();
+                showFullScreen.setVisibility(View.INVISIBLE);
+                hideFullScreen.setVisibility(View.VISIBLE);
+            }
+        });
+
+        hideFullScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toolbar.setVisibility(View.VISIBLE);
+                mActivity.showBottomBar();
+                hideFullScreen.setVisibility(View.INVISIBLE);
+                showFullScreen.setVisibility(View.VISIBLE);
+            }
+        });
 
         /**************** Comment Box Views ********************/
         mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);

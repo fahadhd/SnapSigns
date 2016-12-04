@@ -45,7 +45,6 @@ public class SignPagerAdapter extends PagerAdapter {
         mActivity = activity;
         mRootView = rootView;
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
-        SnapSigns appContex = (SnapSigns) mActivity.getApplicationContext();
 
         mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getFilteredNearbySigns();
@@ -74,11 +73,9 @@ public class SignPagerAdapter extends PagerAdapter {
 
     private class ViewHolder{
         Toolbar toolbar;
-        TextView messageView;
+        TextView messageView,title;
         ImageView imageView;
-        TextView title;
-        ImageButton gridButton;
-        ImageButton favoriteButton;
+        ImageButton gridButton,favoriteButton;
         GifImageView loadingView;
 
         public ViewHolder(View itemView){
@@ -101,29 +98,7 @@ public class SignPagerAdapter extends PagerAdapter {
         final ViewHolder viewHolder = new ViewHolder(itemView);
         final ImageSign currentSign = mNearbySigns.get(position);
 
-        if(isFullScreen) setUpFullScreen(viewHolder);
-        else cancelFullScreen(viewHolder,currentSign);
-
         viewHolder.title.setText(currentSign.locationName);
-
-        /*************** Setting button Listeners ******************/
-
-        viewHolder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                if(!isFullScreen){
-                    setUpFullScreen(viewHolder);
-                    mPager.setAdapter(SignPagerAdapter.this);
-                    mPager.setCurrentItem(position);
-                }
-                else{
-                    cancelFullScreen(viewHolder,currentSign);
-                    mPager.setAdapter(SignPagerAdapter.this);
-                    mPager.setCurrentItem(position);
-                }
-                return false;
-            }
-        });
 
         /************** Adding image to Image View ****************************/
         viewHolder.loadingView.setVisibility(View.VISIBLE);
@@ -158,27 +133,6 @@ public class SignPagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((RelativeLayout) object);
-    }
-
-
-    private void setUpFullScreen(ViewHolder viewHolder){
-        viewHolder.toolbar.setVisibility(View.GONE);
-        viewHolder.title.setVisibility(View.INVISIBLE);
-        viewHolder.gridButton.setVisibility(View.INVISIBLE);
-        viewHolder.messageView.setVisibility(View.INVISIBLE);
-        viewHolder.favoriteButton.setVisibility(View.INVISIBLE);
-        viewHolder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mActivity.startFullScreenViewPager();
-        isFullScreen = true;
-    }
-
-    private void cancelFullScreen(ViewHolder viewHolder, ImageSign currentSign){
-        viewHolder.toolbar.setVisibility(View.VISIBLE);
-        viewHolder.title.setVisibility(View.VISIBLE);
-        viewHolder.gridButton.setVisibility(View.VISIBLE);
-        viewHolder.favoriteButton.setVisibility(View.VISIBLE);
-        mActivity.restoreMainFromFullScreenViewPager();
-        isFullScreen = false;
     }
 
 }
