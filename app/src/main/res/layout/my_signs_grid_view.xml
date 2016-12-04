@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
+        android:visibility="invisible"
         />
+
 
     <ImageButton
         android:id="@+id/exit_fullscreen"
@@ -31,6 +33,15 @@
         android:gravity="center"
         android:textColor="#fff"
         android:layout_centerInParent="true"
+        />
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/orange_loading"
+        android:background="@drawable/orange_loading"
+        android:visibility="invisible"
         />
 
     <android.support.v7.widget.Toolbar

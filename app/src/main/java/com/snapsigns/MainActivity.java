@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
                         case R.id.tab_create_sign:
                             mCurrentFragment = CREATE_SIGN_FRAGMENT;
-                            mFragmentContainer.setVisibility(View.GONE);
+                            mFragmentContainer.setVisibility(View.INVISIBLE);
                             mCameraFragmentContainer.setVisibility(View.VISIBLE);
                             mCaptureButton.setVisibility(View.VISIBLE);
                             mLoadingView.setVisibility(View.INVISIBLE);

@@ -40,6 +40,8 @@ import com.snapsigns.utilities.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  * Creates a list view of past signs taken. When user clicks on an item in list view it
  * opens the activity SignDetail which displays a full screen view on the sign.
@@ -48,6 +50,7 @@ public class MySignsFragment extends BaseFragment {
     SnapSigns appContext;
     GridView gridView;
     ImageView fullScreenContainer;
+    GifImageView loadingView;
     Toolbar toolbar;
     ImageButton exitFullScreenButton;
     MySignsAdapter mAdapter;
@@ -91,6 +94,7 @@ public class MySignsFragment extends BaseFragment {
         fullScreenContainer = (ImageView) rootView.findViewById(R.id.fullscreen_container);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
         exitFullScreenButton = (ImageButton) rootView.findViewById(R.id.exit_fullscreen);
+        loadingView = (GifImageView)rootView.findViewById(R.id.loading_view);
 
         mAdapter = new MySignsAdapter(mActivity);
         gridView.setAdapter(mAdapter);
@@ -161,6 +165,8 @@ public class MySignsFragment extends BaseFragment {
     }
 
     private void showFullScreenImage(final int position){
+        loadingView.setVisibility(View.VISIBLE);
+
         Glide.with(mActivity).load(myImageSigns.get(position).imgURL).listener(new RequestListener<String, GlideDrawable>() {
             @Override
             public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -171,16 +177,17 @@ public class MySignsFragment extends BaseFragment {
             public boolean onResourceReady(GlideDrawable resource, String model,
                                            Target<GlideDrawable> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
+                fullScreenContainer.setVisibility(View.VISIBLE);
                 if(myImageSigns.get(position).message != null){
                     message.setVisibility(View.VISIBLE);
                     message.setText(myImageSigns.get(position).message);
                 }
+                loadingView.setVisibility(View.INVISIBLE);
                 return false;
             }
 
-        }).placeholder(R.xml.progress_animation).into(fullScreenContainer);
+        }).into(fullScreenContainer);
 
-        fullScreenContainer.setVisibility(View.VISIBLE);
         exitFullScreenButton.setVisibility(View.VISIBLE);
 
         gridView.setVisibility(View.INVISIBLE);

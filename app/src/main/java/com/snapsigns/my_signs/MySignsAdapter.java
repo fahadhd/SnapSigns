@@ -74,7 +74,7 @@ public class MySignsAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Glide.with(mContext).load(myImageSigns.get(position).imgURL).
+        Glide.with(mContext).load(myImageSigns.get(position).imgURL).fitCenter().
                 placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
 
         return gridItem;
