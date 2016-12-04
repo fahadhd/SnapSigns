@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -53,8 +54,8 @@ public class NearbySignsFragment extends BaseFragment {
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
     Button postBtn;
+    ImageButton commentsButton;
     EditText addComment;
-    ArrayList<String> comments = new ArrayList<>();
 
     ImageSign mCurrImageSign;
     List<ImageSign> mNearbySigns;
@@ -147,30 +148,6 @@ public class NearbySignsFragment extends BaseFragment {
         /**************** Comment Box Views ********************/
         mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
 
-        listView = (ListView) rootView.findViewById(R.id.comment_list);
-        // This is the array adapter, it takes the context of the activity as a
-        // first parameter, the type of list view as a second parameter and your
-        // array as a third parameter.
-        arrayAdapter = new ArrayAdapter<String>(
-                getContext(),
-                android.R.layout.simple_list_item_1,
-                comments );
-        listView.setAdapter(arrayAdapter);
-
-        addComment = (EditText) rootView.findViewById(R.id.add_comment);
-
-        postBtn = (Button) rootView.findViewById(R.id.post_button);
-        postBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newComment = addComment.getText().toString();
-                //TODO add comment to imageSign
-                arrayAdapter.add(newComment);
-                arrayAdapter.notifyDataSetChanged();
-                addComment.getText().clear();
-            }
-        });
-
         if(mNearbySigns.isEmpty()) {
             mPager.setVisibility(View.INVISIBLE);
             mActivity.showLoadingView();
@@ -223,43 +200,64 @@ public class NearbySignsFragment extends BaseFragment {
 
     /****** Setting up comment box *******/
     public void setupCommentBox(){
+        /**************** Setting default options ******************/
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        addComment.clearFocus();
+        ArrayList<String> comments = new ArrayList<>();
 
-        this.mNearbySigns = mSignPageAdapter.mNearbySigns;
-        this.commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);
+        /********** Setting up Views ***************/
+        commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);
+        addComment = (EditText) rootView.findViewById(R.id.add_comment);
+        listView = (ListView) rootView.findViewById(R.id.comment_list);
+        postBtn = (Button) rootView.findViewById(R.id.post_button);
+        commentsButton = (ImageButton) rootView.findViewById(R.id.comments_button);
 
-        comments.add("First Entry");
+        arrayAdapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_list_item_1,
+                comments );
 
-        if(!mNearbySigns.isEmpty()) {
-            Log.i(TAG,"should have nearby signs");
-            mCurrImageSign = mNearbySigns.get(0);
-            if(mCurrImageSign.comments != null)
-                comments.addAll(mCurrImageSign.comments);
-        } else {
-            Log.i(TAG,"no nearby signs");
-        }
+        listView.setAdapter(arrayAdapter);
 
-        /**************** Setting up comment button listeners *****************/
-        final ImageButton commentsButton = (ImageButton) rootView.findViewById(R.id.comments_button);
+        /************* Setting Comment Button Listeners *********************/
+
+//        if(!mNearbySigns.isEmpty()) {
+//            Log.i(TAG,"should have nearby signs");
+//            mCurrImageSign = mNearbySigns.get(0);
+//            if(mCurrImageSign.comments != null)
+//                comments.addAll(mCurrImageSign.comments);
+//        } else {
+//            Log.i(TAG,"no nearby signs");
+//        }
 
         commentsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if (mLayout != null) {
                     if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
                         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                         Log.i(TAG, "changing button to show");
                         commentsButton.setImageResource(R.drawable.btn_show_comments);
-                        isHideComments = false;
                     } else {
                         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                         Log.i(TAG, "changing button to hide");
                         commentsButton.setImageResource(R.drawable.btn_hide_comments);
-                        isHideComments = true;
                     }
                 }
+            }
+        });
+
+        postBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mNearbySigns = mSignPageAdapter.mNearbySigns;
+                ImageSign currentSign = mNearbySigns.get(mPager.getCurrentItem());
+                if(currentSign.comments == null) currentSign.comments = new ArrayList<String>();
+                String newComment = addComment.getText().toString();
+                currentSign.comments.add(newComment);
+
+                arrayAdapter.add(newComment);
+                arrayAdapter.notifyDataSetChanged();
+                addComment.getText().clear();
             }
         });
 
@@ -272,14 +270,18 @@ public class NearbySignsFragment extends BaseFragment {
 
             @Override
             public void onPageSelected(int position) {
-                ImageSign imageSign = mNearbySigns.get(position);
-                //TODO: Error found here
+                mNearbySigns = mSignPageAdapter.mNearbySigns;
+                final ImageSign currentSign = mNearbySigns.get(position);
                 arrayAdapter.clear();
-                if(imageSign.comments == null){
-                    imageSign.comments = new ArrayList<String>();
+
+                if(currentSign.comments == null){
+                    currentSign.comments = new ArrayList<>();
                 }
-                arrayAdapter.addAll(imageSign.comments);
+                arrayAdapter.addAll(currentSign.comments);
                 arrayAdapter.notifyDataSetChanged();
+
+                /********* Setting post button listener to current sign *************/
+                /********************************************************************/
             }
 
             @Override

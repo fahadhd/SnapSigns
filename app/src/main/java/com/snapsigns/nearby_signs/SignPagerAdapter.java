@@ -64,9 +64,6 @@ public class SignPagerAdapter extends PagerAdapter {
     }
 
 
-
-
-
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == ((RelativeLayout) object);
@@ -135,5 +132,7 @@ public class SignPagerAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((RelativeLayout) object);
     }
+
+
 
 }
