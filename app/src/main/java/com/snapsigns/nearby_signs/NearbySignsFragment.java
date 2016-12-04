@@ -51,6 +51,7 @@ public class NearbySignsFragment extends BaseFragment {
     MainActivity mActivity;
     SnapSigns appContext;
     FireBaseUtility fireBaseUtility;
+    Toolbar toolbar;
 
     SlidingUpPanelLayout mLayout;
     LinearLayout commentView;
@@ -64,6 +65,7 @@ public class NearbySignsFragment extends BaseFragment {
     List<ImageSign> mNearbySigns;
     SignPagerAdapter mSignPageAdapter;
     ViewTreeObserver viewTreeObserver;
+    TextView title;
 
 
     public static boolean isFullScreen = false;
@@ -96,7 +98,8 @@ public class NearbySignsFragment extends BaseFragment {
         mNearbySigns = appContext.getNearbySigns();
 
         /************************ Toolbar Views ****************/
-        final Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        title = (TextView) rootView.findViewById(R.id.nearby_signs_toolbar_title);
         ImageButton gridButton = (ImageButton) rootView.findViewById(R.id.grid_activity_button);
         gridButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,6 +166,9 @@ public class NearbySignsFragment extends BaseFragment {
             layout.setLayoutParams(params);
             snackbar.show();
             layout.setBackgroundColor(ContextCompat.getColor(mActivity,R.color.dark_purple));
+        }
+        else{
+            title.setText(mNearbySigns.get(0).locationName);
         }
 
         setupCommentBox();
@@ -308,6 +314,9 @@ public class NearbySignsFragment extends BaseFragment {
                 }
                 arrayAdapter.addAll(currentSign.comments);
                 arrayAdapter.notifyDataSetChanged();
+                title.setText(mNearbySigns.get(position).locationName);
+
+
 
                 /********* Setting post button listener to current sign *************/
                 /********************************************************************/

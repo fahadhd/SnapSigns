@@ -77,7 +77,7 @@ public class SignPagerAdapter extends PagerAdapter {
             loadingView = (GifImageView) itemView.findViewById(R.id.loading_view);
 
             toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
-            title = (TextView) mRootView.findViewById(R.id.nearby_signs_toolbar_title);
+           // title = (TextView) mRootView.findViewById(R.id.nearby_signs_toolbar_title);
             gridButton = (ImageButton) mRootView.findViewById(R.id.grid_activity_button);
             favoriteButton = (ImageButton) mRootView.findViewById(R.id.favorite_button);
         }
@@ -91,7 +91,7 @@ public class SignPagerAdapter extends PagerAdapter {
         final ViewHolder viewHolder = new ViewHolder(itemView);
         final ImageSign currentSign = mNearbySigns.get(position);
 
-        viewHolder.title.setText(currentSign.locationName);
+        //viewHolder.title.setText(currentSign.locationName);
 
         /************** Adding image to Image View ****************************/
         viewHolder.loadingView.setVisibility(View.VISIBLE);
