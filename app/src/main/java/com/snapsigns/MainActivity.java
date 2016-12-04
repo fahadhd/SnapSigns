@@ -235,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         ArrayList<String> nearbyFakeLocations= new ArrayList<>();
         nearbyFakeLocations.add(0,"CMSC Building, College Park MD");
         nearbyFakeLocations.add(0,"Some close by building, City/State its in");
+
         mLocationPicker = new OptionPicker(this, nearbyFakeLocations);
         mLocationPicker.setOffset(2);
         mLocationPicker.setSelectedIndex(1);
