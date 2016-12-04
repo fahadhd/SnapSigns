@@ -26,8 +26,8 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/camera_fragment_container"
         android:visibility="gone"
-        android:background="#ff071c28"
-        app:loading_renderer="DayNightLoadingRenderer" />
+        android:background="@color/orange_900"
+        app:loading_renderer="SwapLoadingRenderer" />
 
 
     <!--Capture button used by CameraFragment. Only visible when fragment is active-->

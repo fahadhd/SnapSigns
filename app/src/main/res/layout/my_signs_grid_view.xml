@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/orange_loading"
-        android:background="@drawable/orange_loading"
+        android:background="@null"
         android:visibility="invisible"
         />
 

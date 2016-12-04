@@ -12,6 +12,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
@@ -20,6 +23,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pl.droidsonroids.gif.GifImageView;
 
 /**
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
@@ -59,7 +64,7 @@ public class MySignsAdapter extends BaseAdapter {
     //In charge of populating each grid item with a view.
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         View gridItem = convertView;
 
         if(gridItem == null) {
@@ -74,20 +79,44 @@ public class MySignsAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) gridItem.getTag();
         }
 
-        Glide.with(mContext).load(myImageSigns.get(position).imgURL).fitCenter().
-                placeholder(R.xml.progress_animation).into(viewHolder.gridImage);
+        viewHolder.loadingView.setVisibility(View.VISIBLE);
+
+        Glide.with(mContext).load(myImageSigns.get(position).imgURL).fitCenter().listener(new RequestListener<String, GlideDrawable>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(GlideDrawable resource, String model,
+                                           Target<GlideDrawable> target, boolean isFromMemoryCache,
+                                           boolean isFirstResource) {
+                viewHolder.loadingView.setVisibility(View.INVISIBLE);
+                return false;
+            }
+
+        }).into(viewHolder.gridImage);
 
         return gridItem;
     }
 
     private class ViewHolder{
         ImageView gridImage;
+        GifImageView loadingView;
 
         ViewHolder(View gridItem){
             gridImage = (ImageView) gridItem.findViewById(R.id.grid_image);
+            loadingView = (GifImageView) gridItem.findViewById(R.id.loading_view);
+
             gridImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             gridImage.getLayoutParams().width = gridWidth;
             gridImage.getLayoutParams().height = gridWidth;
+
+
+            loadingView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            loadingView.getLayoutParams().width = gridWidth;
+            loadingView.getLayoutParams().height = gridWidth;
+
 
         }
 

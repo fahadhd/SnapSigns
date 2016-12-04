@@ -26,6 +26,8 @@ import com.snapsigns.SnapSigns;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.droidsonroids.gif.GifImageView;
+
 /**
  * Created by admin on 11/29/2016.
  */
@@ -75,6 +77,7 @@ public class SignPagerAdapter extends PagerAdapter {
         TextView title;
         ImageButton gridButton;
         ImageButton favoriteButton;
+        GifImageView loadingView;
 
         public ViewHolder(View itemView){
             toolbar = (Toolbar) itemView.findViewById(R.id.toolbar);
@@ -83,6 +86,7 @@ public class SignPagerAdapter extends PagerAdapter {
             title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
             gridButton = (ImageButton) itemView.findViewById(R.id.grid_activity_button);
             favoriteButton = (ImageButton) itemView.findViewById(R.id.favorite_button);
+            loadingView = (GifImageView) itemView.findViewById(R.id.loading_view);
         }
     }
 
@@ -132,8 +136,8 @@ public class SignPagerAdapter extends PagerAdapter {
         });
 
         /************** Adding image to Image View ****************************/
-        Glide.with(mActivity).load(currentSign.imgURL).
-                placeholder(R.xml.progress_animation)
+        viewHolder.loadingView.setVisibility(View.VISIBLE);
+        Glide.with(mActivity).load(currentSign.imgURL)
                 /*********** Listener  used to display textview when image is done loading *****/
                 .listener(new RequestListener<String, GlideDrawable>() {
                     @Override
@@ -149,6 +153,7 @@ public class SignPagerAdapter extends PagerAdapter {
                             viewHolder.messageView.setVisibility(View.VISIBLE);
                             viewHolder.messageView.setText(currentSign.message);
                         }
+                        viewHolder.loadingView.setVisibility(View.INVISIBLE);
                         return false;
                     }
 
