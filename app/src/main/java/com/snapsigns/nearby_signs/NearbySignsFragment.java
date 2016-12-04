@@ -25,12 +25,14 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.snapsigns.BaseFragment;
 import com.snapsigns.ImageSign;
 import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 import com.snapsigns.utilities.Constants;
+import com.snapsigns.utilities.FireBaseUtility;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ public class NearbySignsFragment extends BaseFragment {
     View rootView;
     MainActivity mActivity;
     SnapSigns appContext;
+    FireBaseUtility fireBaseUtility;
 
     SlidingUpPanelLayout mLayout;
     LinearLayout commentView;
@@ -88,6 +91,7 @@ public class NearbySignsFragment extends BaseFragment {
 
         rootView = inflater.inflate(R.layout.nearby_sign_view_pager, container, false);
         mActivity = (MainActivity) getActivity();
+        fireBaseUtility = new FireBaseUtility(mActivity);
         appContext = (SnapSigns)mActivity.getApplicationContext();
         mNearbySigns = appContext.getNearbySigns();
 
@@ -202,7 +206,14 @@ public class NearbySignsFragment extends BaseFragment {
     public void setupCommentBox(){
         /**************** Setting default options ******************/
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        ArrayList<String> comments = new ArrayList<>();
+        ArrayList<String> comments;
+
+        if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments != null) {
+            comments = mNearbySigns.get(0).comments;
+        }
+        else{
+            comments = new ArrayList<>();
+        }
 
         /********** Setting up Views ***************/
         commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);
@@ -251,13 +262,23 @@ public class NearbySignsFragment extends BaseFragment {
             public void onClick(View v) {
                 mNearbySigns = mSignPageAdapter.mNearbySigns;
                 ImageSign currentSign = mNearbySigns.get(mPager.getCurrentItem());
-                if(currentSign.comments == null) currentSign.comments = new ArrayList<String>();
-                String newComment = addComment.getText().toString();
-                currentSign.comments.add(newComment);
 
-                arrayAdapter.add(newComment);
+                if(currentSign.comments == null) currentSign.comments = new ArrayList<String>();
+
+                String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                String commentMessage = addComment.getText().toString();
+
+                if(userName != null) commentMessage = userName+": "+commentMessage;
+
+                currentSign.comments.add(commentMessage);
+
+               
                 arrayAdapter.notifyDataSetChanged();
                 addComment.getText().clear();
+
+                fireBaseUtility.updateImageSign(currentSign);
+
+
             }
         });
 

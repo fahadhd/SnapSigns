@@ -157,16 +157,18 @@ public class SnapSigns extends android.app.Application implements
 
     public void signOut() {
         // FireBase sign out
-        mAuth.signOut();
+        if(mGoogleApiClient.isConnected()) {
+            mAuth.signOut();
 
-        // Google sign out
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
+            // Google sign out
+            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                    new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                        }
                     }
-                }
-        );
+            );
+        }
     }
 
 

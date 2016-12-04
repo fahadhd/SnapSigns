@@ -39,7 +39,6 @@ public class SignPagerAdapter extends PagerAdapter {
     List<ImageSign> mNearbySigns;
     ViewPager mPager;
     boolean isFullScreen;
-    private int numViews;
     private static final String TAG = SignPagerAdapter.class.getSimpleName();
 
     public SignPagerAdapter(MainActivity activity,View rootView) {
@@ -49,18 +48,14 @@ public class SignPagerAdapter extends PagerAdapter {
 
         mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getFilteredNearbySigns();
-        numViews = mNearbySigns.size();
         isFullScreen = NearbySignsFragment.isFullScreen;
     }
 
 
-    public void updateSize(){
-        numViews = mNearbySigns.size();
-    }
 
     @Override
     public int getCount() {
-        return numViews;
+        return mNearbySigns.size();
     }
 
 

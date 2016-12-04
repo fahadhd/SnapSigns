@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Helper class which executes reading/writing to FireBase backend **/
 public class FireBaseUtility {
@@ -132,10 +133,11 @@ public class FireBaseUtility {
 
                 String locationName = currentLocation.getLatitude()+","+currentLocation.getLongitude();
 
-                ImageSign imageSign = new ImageSign(uid, imgURL, message, locationName,locationCoords,tags);
-
                 //Pushes a new imagesign object into database
-                mDatabase.getRef().push().setValue(imageSign);
+                DatabaseReference pushedPostRef = mDatabase.getRef().push();
+                ImageSign imageSign = new ImageSign(pushedPostRef.getKey(),uid, imgURL, message, locationName,locationCoords,tags);
+                pushedPostRef.setValue(imageSign);
+
 
                 //Storing new image into cache at front
                 mMyImageSigns.add(0,imageSign);
@@ -299,13 +301,8 @@ public class FireBaseUtility {
         }
     }
 
-    private boolean hasSign(ImageSign imageSign, ArrayList<ImageSign> signList){
-        if(imageSign == null) return false;
-        for(ImageSign sign: signList){
-            if(sign.imgURL == null || imageSign.imgURL == null) continue;
-            if(sign.imgURL.equals(imageSign.imgURL))
-                return true;
-        }
-        return false;
+    public void updateImageSign(ImageSign currentSign){
+        if(currentSign != null) mDatabase.getRef().child(currentSign.key).setValue(currentSign);
+        else Toast.makeText(mContext,"Failed to update",Toast.LENGTH_SHORT).show();
     }
 }
