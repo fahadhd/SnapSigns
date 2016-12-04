@@ -19,4 +19,9 @@
     <string name="title_activity_nearby_signs_grid">NearbySignsGridActivity</string>
     <string name="searchRadiusKey">SearchRadius</string>
 
+
+    <!--////////// Comment Box Strings /////////-->
+    <string name="action_hide">Hide Panel</string>
+    <string name="action_show">Show Panel</string>
+
 </resources>

@@ -40,6 +40,7 @@ public class SignPagerAdapter extends PagerAdapter {
     ViewPager mPager;
     boolean isFullScreen;
     private int numViews;
+    private static final String TAG = SignPagerAdapter.class.getSimpleName();
 
     public SignPagerAdapter(MainActivity activity,View rootView) {
         mActivity = activity;

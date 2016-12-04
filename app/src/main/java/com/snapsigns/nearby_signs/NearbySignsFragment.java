@@ -63,6 +63,7 @@ public class NearbySignsFragment extends BaseFragment {
 
 
     public static boolean isFullScreen = false;
+    private boolean isHideComments = true;
     public static final int PAGER_REQUEST = 43;
     public static final String POSITION_KEY = "position_key";
     private static final String TAG = NearbySignsFragment.class.getSimpleName();
@@ -145,6 +146,7 @@ public class NearbySignsFragment extends BaseFragment {
 
         /**************** Comment Box Views ********************/
         mLayout = (SlidingUpPanelLayout) rootView.findViewById(R.id.sliding_layout);
+
         listView = (ListView) rootView.findViewById(R.id.comment_list);
         // This is the array adapter, it takes the context of the activity as a
         // first parameter, the type of list view as a second parameter and your
@@ -156,6 +158,7 @@ public class NearbySignsFragment extends BaseFragment {
         listView.setAdapter(arrayAdapter);
 
         addComment = (EditText) rootView.findViewById(R.id.add_comment);
+
         postBtn = (Button) rootView.findViewById(R.id.post_button);
         postBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +223,11 @@ public class NearbySignsFragment extends BaseFragment {
 
     /****** Setting up comment box *******/
     public void setupCommentBox(){
+        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        addComment.clearFocus();
+
         this.mNearbySigns = mSignPageAdapter.mNearbySigns;
+        this.commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);
 
         comments.add("First Entry");
 
@@ -232,6 +239,29 @@ public class NearbySignsFragment extends BaseFragment {
         } else {
             Log.i(TAG,"no nearby signs");
         }
+
+        /**************** Setting up comment button listeners *****************/
+        final ImageButton commentsButton = (ImageButton) rootView.findViewById(R.id.comments_button);
+
+        commentsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (mLayout != null) {
+                    if (mLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+                        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                        Log.i(TAG, "changing button to show");
+                        commentsButton.setImageResource(R.drawable.btn_show_comments);
+                        isHideComments = false;
+                    } else {
+                        mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        Log.i(TAG, "changing button to hide");
+                        commentsButton.setImageResource(R.drawable.btn_hide_comments);
+                        isHideComments = true;
+                    }
+                }
+            }
+        });
 
         /* Sets a listener for when the pages change so we can change the comments with it*/
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

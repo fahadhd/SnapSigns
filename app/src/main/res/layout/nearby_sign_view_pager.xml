@@ -27,7 +27,9 @@
             >
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                >
                 <ImageButton
                     android:id="@+id/favorite_button"
                     android:layout_width="wrap_content"
@@ -46,11 +48,20 @@
                     />
 
                 <ImageButton
-                    android:id="@+id/grid_activity_button"
+                    android:id="@+id/comments_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
+                    android:layout_toLeftOf="@+id/grid_activity_button"
+                    android:src="@drawable/btn_show_comments"
+                    android:background="@null"/>
+
+                <ImageButton
+                    android:id="@+id/grid_activity_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
+                    android:padding="10dp"
                     android:src="@drawable/btn_grid_activity"
                     android:background="@null"
                     />
@@ -92,14 +103,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
-        android:id="@+id/drag_view"
+        android:id="@+id/comment_view"
         android:orientation="vertical"
         android:background="#ffffff">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true"
             android:orientation="horizontal">
 
             <EditText
@@ -107,6 +119,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/add_comment"
                 android:hint="Add a comment..."
+                android:nextFocusUp="@id/add_comment"
+                android:nextFocusLeft="@id/add_comment"
                 android:layout_weight="1"/>
 
             <Button
