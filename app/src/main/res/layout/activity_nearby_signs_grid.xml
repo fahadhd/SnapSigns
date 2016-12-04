@@ -13,8 +13,50 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+        android:background="@color/dark_purple"
+        android:popupTheme="@style/Theme.AppCompat.Light">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+            <ImageButton
+                android:id="@+id/exit_grid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_exit_preview"
+                android:background="@null"
+                android:layout_marginRight="17dp"
+
+                />
+            <Button
+                android:id="@+id/filter_tags"
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:text="Filter Tags"
+                android:layout_height="match_parent"
+                android:background="@xml/setting_button"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/white"
+                />
+
+            <Button
+                android:id="@+id/clear_filter"
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:text="Clear Tags"
+                android:layout_height="match_parent"
+                android:background="@xml/setting_button"
+                android:textColor="@color/white"
+                />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.Toolbar>
+
+
 
 
     <GridView
