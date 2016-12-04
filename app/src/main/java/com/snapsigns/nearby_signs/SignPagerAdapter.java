@@ -34,15 +34,17 @@ import pl.droidsonroids.gif.GifImageView;
 
 public class SignPagerAdapter extends PagerAdapter {
     MainActivity mActivity;
+    View mRootView;
     LayoutInflater mLayoutInflater;
     List<ImageSign> mNearbySigns;
     ViewPager mPager;
     boolean isFullScreen;
     private int numViews;
 
-    public SignPagerAdapter(MainActivity activity, ViewPager pager) {
+    public SignPagerAdapter(MainActivity activity,View rootView) {
         mActivity = activity;
-        mPager = pager;
+        mRootView = rootView;
+        mPager = (ViewPager) rootView.findViewById(R.id.pager);
         SnapSigns appContex = (SnapSigns) mActivity.getApplicationContext();
 
         mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -80,13 +82,14 @@ public class SignPagerAdapter extends PagerAdapter {
         GifImageView loadingView;
 
         public ViewHolder(View itemView){
-            toolbar = (Toolbar) itemView.findViewById(R.id.toolbar);
             messageView = (TextView) itemView.findViewById(R.id.message);
             imageView = (ImageView) itemView.findViewById(R.id.pager_sign);
-            title = (TextView) itemView.findViewById(R.id.nearby_signs_toolbar_title);
-            gridButton = (ImageButton) itemView.findViewById(R.id.grid_activity_button);
-            favoriteButton = (ImageButton) itemView.findViewById(R.id.favorite_button);
             loadingView = (GifImageView) itemView.findViewById(R.id.loading_view);
+
+            toolbar = (Toolbar) mRootView.findViewById(R.id.toolbar);
+            title = (TextView) mRootView.findViewById(R.id.nearby_signs_toolbar_title);
+            gridButton = (ImageButton) mRootView.findViewById(R.id.grid_activity_button);
+            favoriteButton = (ImageButton) mRootView.findViewById(R.id.favorite_button);
         }
     }
 
@@ -104,19 +107,6 @@ public class SignPagerAdapter extends PagerAdapter {
         viewHolder.title.setText(currentSign.locationName);
 
         /*************** Setting button Listeners ******************/
-        viewHolder.gridButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
-                mActivity.startActivity(new Intent(mActivity,NearbySignsGridActivity.class));
-            }
-        });
-        viewHolder.favoriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: Finish favorite button
-            }
-        });
 
         viewHolder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

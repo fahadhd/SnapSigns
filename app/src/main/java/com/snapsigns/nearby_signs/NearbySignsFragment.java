@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,28 +33,36 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Displays Nearby Signs
  * For now uses test images.
  * Right Left buttons to go through the images.
  */
 public class NearbySignsFragment extends BaseFragment {
-    private ViewPager mPager;
+    public static  ViewPager mPager;
     View rootView;
     MainActivity mActivity;
     SnapSigns appContext;
-    private SlidingUpPanelLayout mLayout;
+
+    SlidingUpPanelLayout mLayout;
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
-    private String TAG = "nearby_signs_tag";
-    private ImageSign mCurrImageSign;
-    List<ImageSign> mNearbySigns;
-    private SignPagerAdapter mSignPageAdapter;
-    ViewTreeObserver viewTreeObserver;
+    Button postBtn;
     EditText addComment;
     ArrayList<String> comments = new ArrayList<>();
-    Button postBtn;
+
+    ImageSign mCurrImageSign;
+    List<ImageSign> mNearbySigns;
+    SignPagerAdapter mSignPageAdapter;
+    ViewTreeObserver viewTreeObserver;
+
+
     public static boolean isFullScreen = false;
+    public static final int PAGER_REQUEST = 43;
+    public static final String POSITION_KEY = "position_key";
+    private static final String TAG = NearbySignsFragment.class.getSimpleName();
 
     @Override
     public void onStart() {
@@ -75,9 +85,32 @@ public class NearbySignsFragment extends BaseFragment {
         mActivity = (MainActivity) getActivity();
         appContext = (SnapSigns)mActivity.getApplicationContext();
         mNearbySigns = appContext.getNearbySigns();
+
+        /************************ Toolbar Views ****************/
+        ImageButton gridButton = (ImageButton) rootView.findViewById(R.id.grid_activity_button);
+        gridButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
+
+                Fragment currentFragment =
+                        mActivity.getSupportFragmentManager().findFragmentByTag(MainActivity.NEARBY_SIGNS_FRAGMENT);
+
+                startActivity(new Intent(mActivity,NearbySignsGridActivity.class));
+            }
+        });
+
+        ImageButton favoriteButton = (ImageButton) rootView.findViewById(R.id.favorite_button);
+
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
         /*********************** ViewPager Views ***************/
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
-        mSignPageAdapter = new SignPagerAdapter(mActivity,mPager);
+        mSignPageAdapter = new SignPagerAdapter(mActivity,rootView);
         mPager.setAdapter(mSignPageAdapter);
 
         /**************** Comment Box Views ********************/
@@ -86,7 +119,7 @@ public class NearbySignsFragment extends BaseFragment {
         // This is the array adapter, it takes the context of the activity as a
         // first parameter, the type of list view as a second parameter and your
         // array as a third parameter.
-       arrayAdapter = new ArrayAdapter<String>(
+        arrayAdapter = new ArrayAdapter<String>(
                 getContext(),
                 android.R.layout.simple_list_item_1,
                 comments );
@@ -105,18 +138,19 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
 
-       // setupCommentBox();
+        // setupCommentBox();
 
         if(mNearbySigns.isEmpty()) {
-            rootView.setVisibility(View.INVISIBLE);
+            mPager.setVisibility(View.INVISIBLE);
             mActivity.showLoadingView();
+
             Snackbar snackbar = Snackbar.make(mActivity.findViewById(android.R.id.content), "Searching for nearby signs....", Snackbar.LENGTH_LONG);
             Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snackbar.getView();
             ViewGroup.LayoutParams params= layout.getLayoutParams();
             params.height = 220;
             layout.setLayoutParams(params);
             snackbar.show();
-            layout.setBackgroundColor(ContextCompat.getColor(mActivity,R.color.orange_900));
+            layout.setBackgroundColor(ContextCompat.getColor(mActivity,R.color.dark_purple));
         }
 
         return rootView;
@@ -128,15 +162,15 @@ public class NearbySignsFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS)){
                 Log.v(TAG,"Retrieved broadcast to update user signs");
-                mSignPageAdapter.updateSize();
-                mSignPageAdapter.notifyDataSetChanged();
+                mSignPageAdapter = new SignPagerAdapter(mActivity,rootView);
+                mPager.setVisibility(View.VISIBLE);
 
                 viewTreeObserver = mPager.getViewTreeObserver();
                 viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
                         if(mActivity != null) {
-                            rootView.setVisibility(View.VISIBLE);
+                            mPager.setAdapter(mSignPageAdapter);
                             mActivity.hideLoadingView();
                             mPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         }

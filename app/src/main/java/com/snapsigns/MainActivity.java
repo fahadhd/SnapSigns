@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MY_SIGNS_FRAGMENT = "my_signs_fragment";
     private static final String CREATE_SIGN_FRAGMENT = "camera_fragment";
-    private static final String NEARBY_SIGNS_FRAGMENT = "nearby_signs_fragment";
+    public static final String NEARBY_SIGNS_FRAGMENT = "nearby_signs_fragment";
     private static final String FAVORITES_FRAGMENT = "favorites_fragment";
     private static final String SETTINGS_FRAGMENT = "settings_fragment";
 
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == RESULT_OK){
+        if(requestCode == SignInActivity.SIGN_IN_REQUEST_CODE && resultCode == RESULT_OK){
             mBottomBar.selectTabAtPosition(2);
         }
     }

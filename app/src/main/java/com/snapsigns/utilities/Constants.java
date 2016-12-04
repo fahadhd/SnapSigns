@@ -11,6 +11,7 @@ public class Constants {
 
     public interface NEARBY_SIGNS {
         public static final String GET_NEARBY_SIGNS = "com.snapsigns.action.get_nearby_signs";
+        public static final String GET_GRID_SIGN = "com.snapsigns.action.get_grid_sign";
     }
 
     public interface LOADING_SIGNS {
