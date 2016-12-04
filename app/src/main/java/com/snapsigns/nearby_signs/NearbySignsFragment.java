@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -48,6 +49,7 @@ public class NearbySignsFragment extends BaseFragment {
     SnapSigns appContext;
 
     SlidingUpPanelLayout mLayout;
+    LinearLayout commentView;
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
     Button postBtn;
@@ -166,8 +168,6 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
 
-        // setupCommentBox();
-
         if(mNearbySigns.isEmpty()) {
             mPager.setVisibility(View.INVISIBLE);
             mActivity.showLoadingView();
@@ -180,6 +180,8 @@ public class NearbySignsFragment extends BaseFragment {
             snackbar.show();
             layout.setBackgroundColor(ContextCompat.getColor(mActivity,R.color.dark_purple));
         }
+
+        setupCommentBox();
 
         return rootView;
     }
@@ -242,9 +244,12 @@ public class NearbySignsFragment extends BaseFragment {
             public void onPageSelected(int position) {
                 ImageSign imageSign = mNearbySigns.get(position);
                 //TODO: Error found here
-//                arrayAdapter.clear();
-//                arrayAdapter.addAll(imageSign.comments);
-//                arrayAdapter.notifyDataSetChanged();
+                arrayAdapter.clear();
+                if(imageSign.comments == null){
+                    imageSign.comments = new ArrayList<String>();
+                }
+                arrayAdapter.addAll(imageSign.comments);
+                arrayAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -270,7 +275,10 @@ public class NearbySignsFragment extends BaseFragment {
                 mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             }
         });
+    }
 
+    private void showCommentBox(){
+        mPager.setVisibility(View.INVISIBLE);
 
     }
 }

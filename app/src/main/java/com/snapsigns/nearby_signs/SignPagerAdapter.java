@@ -47,7 +47,7 @@ public class SignPagerAdapter extends PagerAdapter {
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
 
         mLayoutInflater = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getNearbySigns();
+        mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getFilteredNearbySigns();
         numViews = mNearbySigns.size();
         isFullScreen = NearbySignsFragment.isFullScreen;
     }
