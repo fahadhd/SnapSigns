@@ -24,8 +24,10 @@ public class SearchRadiusFragment extends DialogFragment {
         final View dialogView = layoutInflater.inflate(R.layout.search_radius_dialog,null);
         EditText sR = (EditText) dialogView.findViewById(R.id.searchRadius);
 
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        sR.setHint("Current: "+sharedPref.getInt("searchRadiusKey",500));
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        final int searchRadius = prefs.getInt(getActivity().getString(R.string.searchRadiusKey),500);
+
+        sR.setHint("Current: "+searchRadius);
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

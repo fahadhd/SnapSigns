@@ -106,9 +106,6 @@ public class NearbySignsFragment extends BaseFragment {
             public void onClick(View view) {
                 ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
 
-                Fragment currentFragment =
-                        mActivity.getSupportFragmentManager().findFragmentByTag(MainActivity.NEARBY_SIGNS_FRAGMENT);
-
                 startActivity(new Intent(mActivity,NearbySignsGridActivity.class));
             }
         });
@@ -212,14 +209,13 @@ public class NearbySignsFragment extends BaseFragment {
     public void setupCommentBox(){
         /**************** Setting default options ******************/
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        ArrayList<String> comments;
+        ArrayList<String> comments = new ArrayList<>();
 
-        if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments != null) {
+        if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments == null) {
+            mNearbySigns.get(0).comments = new ArrayList<>();
             comments = mNearbySigns.get(0).comments;
         }
-        else{
-            comments = new ArrayList<>();
-        }
+
 
         /********** Setting up Views ***************/
         commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);

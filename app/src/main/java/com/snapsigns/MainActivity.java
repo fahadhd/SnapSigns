@@ -6,11 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -193,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     @Override
     protected void onPause() {
         Log.i(TAG,"in onPause");
+        //((SnapSigns)getApplicationContext()).mNearbySigns.clear();
         super.onPause();
     }
 
@@ -216,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == SignInActivity.SIGN_IN_REQUEST_CODE && resultCode == RESULT_OK){
+        if(requestCode != PLACE_PICKER_REQUEST&& resultCode == RESULT_OK){
             mBottomBar.selectTabAtPosition(2);
         } else if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(this,data);
@@ -631,8 +634,11 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
             Double lat = params[0];
             Double lon = params[1];
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            int searchRadius = prefs.getInt(getString(R.string.searchRadiusKey),500);
+
             String nearbySearchRequestURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+
-                    lat+","+lon+"&radius=500&key=AIzaSyBs-rk7XwonUuPuy20g5LDXBOgrwQ6KV04";
+                    lat+","+lon+"&radius="+searchRadius+"&key=AIzaSyBs-rk7XwonUuPuy20g5LDXBOgrwQ6KV04";
 
             /*************** Connect to google api url ********************/
             try {
