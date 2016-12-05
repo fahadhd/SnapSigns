@@ -383,6 +383,9 @@ public class FireBaseUtility {
     }
 
     public void getFavorites() {
+        if(auth.getCurrentUser() == null){
+            return;
+        }
         final String uid = auth.getCurrentUser().getUid();
 
         mDatabase.addListenerForSingleValueEvent(
