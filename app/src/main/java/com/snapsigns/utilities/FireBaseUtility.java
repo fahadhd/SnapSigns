@@ -286,9 +286,10 @@ public class FireBaseUtility {
                             }
                         }
                     }
-                    if(originalSize != mNearbySigns.size())
+                    if(originalSize != mNearbySigns.size()) {
                         mContext.sendBroadcast(nearbySignsIntent);
-                    Log.i(TAG, "notifying data changed");
+                        Log.i(TAG, "notifying data changed");
+                    }
 
                     appContext.populateAllTags();
                 }

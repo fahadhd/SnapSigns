@@ -211,9 +211,8 @@ public class NearbySignsFragment extends BaseFragment {
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         ArrayList<String> comments = new ArrayList<>();
 
-        if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments == null) {
-            mNearbySigns.get(0).comments = new ArrayList<>();
-            comments = mNearbySigns.get(0).comments;
+        if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments != null) {
+            comments.addAll(mNearbySigns.get(0).comments);
         }
 
 
@@ -278,8 +277,8 @@ public class NearbySignsFragment extends BaseFragment {
 
                 if(userName != null) commentMessage = userName+": "+commentMessage;
 
+                arrayAdapter.add(commentMessage);
                 currentSign.comments.add(commentMessage);
-
 
                 arrayAdapter.notifyDataSetChanged();
                 addComment.getText().clear();

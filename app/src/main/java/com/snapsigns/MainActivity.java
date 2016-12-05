@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
     @Override
     protected void onPause() {
         Log.i(TAG,"in onPause");
-        //((SnapSigns)getApplicationContext()).mNearbySigns.clear();
         super.onPause();
     }
 

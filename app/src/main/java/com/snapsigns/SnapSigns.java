@@ -39,7 +39,7 @@ public class SnapSigns extends android.app.Application implements
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     private List<ImageSign> myImageSigns;
-    public List<ImageSign> mNearbySigns;
+    private List<ImageSign> mNearbySigns;
     /********** Used to check values faster for cached items****************/
     private HashMap<String,ImageSign> mNearbySignsMap;
     /*************************/
