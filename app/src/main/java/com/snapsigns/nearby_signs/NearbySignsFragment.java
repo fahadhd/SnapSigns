@@ -4,9 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -38,7 +36,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Displays Nearby Signs
@@ -61,7 +58,7 @@ public class NearbySignsFragment extends BaseFragment {
     ImageButton commentsButton, hideCommentBox;
     EditText addComment;
 
-    ImageSign mCurrImageSign;
+    //ImageSign mCurrImageSign;
     List<ImageSign> mNearbySigns;
     SignPagerAdapter mSignPageAdapter;
     ViewTreeObserver viewTreeObserver;
@@ -77,6 +74,7 @@ public class NearbySignsFragment extends BaseFragment {
     @Override
     public void onStart() {
         registerImageSignReceiver();
+        mSignPageAdapter.updateDataSet();
         super.onStart();
     }
 
@@ -106,6 +104,9 @@ public class NearbySignsFragment extends BaseFragment {
             public void onClick(View view) {
                 ((SnapSigns)mActivity.getApplicationContext()).populateAllTags();
 
+                Fragment currentFragment =
+                        mActivity.getSupportFragmentManager().findFragmentByTag(MainActivity.NEARBY_SIGNS_FRAGMENT);
+
                 startActivity(new Intent(mActivity,NearbySignsGridActivity.class));
             }
         });
@@ -115,7 +116,26 @@ public class NearbySignsFragment extends BaseFragment {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mSignPageAdapter.mNearbySigns.size() == 0)
+                    return;
 
+                ImageSign currSign = mSignPageAdapter.mNearbySigns.get(
+                        mPager.getCurrentItem()
+                );
+
+                boolean isFavorited = false;
+
+                for (ImageSign sign : appContext.getFavoriteSigns()) {
+                    if (sign.imgURL.equals(currSign.imgURL)) {
+                        isFavorited = true;
+                        break;
+                    }
+                }
+
+                if (isFavorited)
+                    mActivity.getFireBaseUtility().unfavorite(currSign);
+                else
+                    mActivity.getFireBaseUtility().favorite(currSign);
             }
         });
         /*********************** ViewPager Views ***************/
@@ -178,8 +198,10 @@ public class NearbySignsFragment extends BaseFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS)){
-                Log.v(TAG,"Retrieved broadcast to update user signs");
+                Log.v(TAG,"Received broadcast to update user signs");
+
                 mSignPageAdapter = new SignPagerAdapter(mActivity,rootView);
+                //mSignPageAdapter.updateDataSet();
                 mPager.setVisibility(View.VISIBLE);
 
                 viewTreeObserver = mPager.getViewTreeObserver();
@@ -209,12 +231,14 @@ public class NearbySignsFragment extends BaseFragment {
     public void setupCommentBox(){
         /**************** Setting default options ******************/
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        ArrayList<String> comments = new ArrayList<>();
+        List<String> comments;
 
         if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments != null) {
-            comments.addAll(mNearbySigns.get(0).comments);
+            comments = mNearbySigns.get(0).comments;
         }
-
+        else{
+            comments = new ArrayList<>();
+        }
 
         /********** Setting up Views ***************/
         commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);
@@ -277,8 +301,8 @@ public class NearbySignsFragment extends BaseFragment {
 
                 if(userName != null) commentMessage = userName+": "+commentMessage;
 
-                arrayAdapter.add(commentMessage);
                 currentSign.comments.add(commentMessage);
+
 
                 arrayAdapter.notifyDataSetChanged();
                 addComment.getText().clear();
@@ -344,6 +368,5 @@ public class NearbySignsFragment extends BaseFragment {
 
     private void showCommentBox(){
         mPager.setVisibility(View.INVISIBLE);
-
     }
 }

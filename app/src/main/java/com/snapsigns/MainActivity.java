@@ -6,13 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -34,7 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 import com.snapsigns.create_sign.CameraFragment;
-import com.snapsigns.create_sign.PictureTakenActivity;
+import com.snapsigns.favorite_signs.FavoriteSignsFragment;
 import com.snapsigns.login.SignInActivity;
 import com.snapsigns.my_signs.MySignsFragment;
 import com.snapsigns.nearby_signs.NearbySignsFragment;
@@ -64,7 +61,6 @@ import app.dinus.com.loadingdrawable.LoadingView;
 import cn.qqtheme.framework.picker.OptionPicker;
 import co.lujun.androidtagview.TagContainerLayout;
 
-import static android.app.Activity.RESULT_OK;
 
 public class MainActivity extends AppCompatActivity implements AddTagDialog.Communicator {
     GoogleApiClient mGoogleApiClient;
@@ -168,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                 }
             }
         });
-
     }
 
     @Override
@@ -218,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode != PLACE_PICKER_REQUEST&& resultCode == RESULT_OK){
+        if(requestCode == SignInActivity.SIGN_IN_REQUEST_CODE && resultCode == RESULT_OK){
             mBottomBar.selectTabAtPosition(2);
         } else if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(this,data);
@@ -259,6 +254,8 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
                             break;
 
                         case R.id.tab_favorites:
+                            targetFragment = new FavoriteSignsFragment();
+                            mCurrentFragment = FAVORITES_FRAGMENT;
                             break;
 
                         case R.id.tab_create_sign:
@@ -315,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
 
     /**************************** Photo Taken Methods *****************************/
-
 
     /* Called whenever a new LocationPicker is created from a new location */
     private void setLocationPickerOptions() {
@@ -633,11 +629,8 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
             Double lat = params[0];
             Double lon = params[1];
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-            int searchRadius = prefs.getInt(getString(R.string.searchRadiusKey),500);
-
             String nearbySearchRequestURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+
-                    lat+","+lon+"&radius="+searchRadius+"&key=AIzaSyBs-rk7XwonUuPuy20g5LDXBOgrwQ6KV04";
+                    lat+","+lon+"&radius=500&key=AIzaSyBs-rk7XwonUuPuy20g5LDXBOgrwQ6KV04";
 
             /*************** Connect to google api url ********************/
             try {
@@ -693,4 +686,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
         }
     }
 
+    public FireBaseUtility getFireBaseUtility() {
+        return fireBaseUtility;
+    }
 }

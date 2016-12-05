@@ -14,11 +14,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+
 import com.snapsigns.ImageSign;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import pl.droidsonroids.gif.GifImageView;
@@ -92,13 +92,11 @@ public class NearbySignsGridAdapter extends BaseAdapter {
 
         }).into(viewHolder.gridImage);
 
-
         return gridItem;
     }
 
     public void updateDataSet() {
-        nearbySigns.clear();
-        nearbySigns.addAll(((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns());
+        nearbySigns = ((SnapSigns) mContext.getApplicationContext()).getFilteredNearbySigns();
         notifyDataSetChanged();
     }
 

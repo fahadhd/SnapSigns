@@ -7,6 +7,8 @@
     <!--/////////// My Signs Fragment Strings //////////////-->
     <string name="my_signs_title">My Signs</string>
 
+    <string name="favorite_signs_title">Favorite Signs</string>
+
     <!--///////////// Preview Layout Strings ////////////-->
     <string name="location_title">Sign Location</string>
     <!--/////////// Settings Fragment Strings //////////////-->
@@ -18,7 +20,6 @@
     <string name="google_sign_in_str">Login With Google</string>
     <string name="title_activity_nearby_signs_grid">NearbySignsGridActivity</string>
     <string name="searchRadiusKey">SearchRadius</string>
-
 
     <!--////////// Comment Box Strings /////////-->
     <string name="action_hide">Hide Panel</string>

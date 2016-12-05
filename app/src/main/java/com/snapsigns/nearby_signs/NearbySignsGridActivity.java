@@ -1,6 +1,5 @@
 package com.snapsigns.nearby_signs;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,13 +13,10 @@ import android.widget.ImageButton;
 
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
-import com.snapsigns.utilities.Constants;
-import com.snapsigns.utilities.FireBaseUtility;
 
 
 public class NearbySignsGridActivity extends AppCompatActivity {
     private NearbySignsGridAdapter mAdapter;
-    private boolean dataSetChanged = false;
 
     Button  mFilterTagsButton, mClearFilterButton;
     ImageButton mExitButton;
@@ -54,7 +50,6 @@ public class NearbySignsGridActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ((SnapSigns) getApplication()).setUseFilter(false);
-                dataSetChanged = true;
                 mAdapter.updateDataSet();
             }
         });
@@ -79,18 +74,19 @@ public class NearbySignsGridActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
-    public void finish() {
-        if (dataSetChanged) {
-            sendBroadcast(new Intent(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS));
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.filter_tags:
+                new TagFilterDialogFragment().show(getFragmentManager(), "Select filter tags");
+                return true;
+            case R.id.clear_filter:
+                ((SnapSigns) getApplication()).setUseFilter(false);
+                mAdapter.updateDataSet();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        super.finish();
-    }
-
-    public void setDataSetChanged(boolean changed) {
-        dataSetChanged = changed;
     }
 
     public NearbySignsGridAdapter getAdapter() {

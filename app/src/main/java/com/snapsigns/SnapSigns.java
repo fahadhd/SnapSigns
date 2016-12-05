@@ -1,6 +1,7 @@
 package com.snapsigns;
 
 
+import android.app.Application;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,11 +24,12 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 
-public class SnapSigns extends android.app.Application implements
+public class SnapSigns extends Application implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleApiClient mGoogleApiClient;
@@ -40,8 +42,9 @@ public class SnapSigns extends android.app.Application implements
 
     private List<ImageSign> myImageSigns;
     private List<ImageSign> mNearbySigns;
+    private List<ImageSign> favoriteSigns;
     /********** Used to check values faster for cached items****************/
-    private HashMap<String,ImageSign> mNearbySignsMap;
+    private Map<String,ImageSign> mNearbySignsMap;
     /*************************/
     private List<String> allTags;
     private List<String> filterTags;
@@ -53,6 +56,7 @@ public class SnapSigns extends android.app.Application implements
         super.onCreate();
         mNearbySigns = new ArrayList<>();
         myImageSigns = new ArrayList<>();
+        favoriteSigns = new ArrayList<>();
         filterTags = new ArrayList<>();
         allTags = new ArrayList<>();
 
@@ -86,8 +90,12 @@ public class SnapSigns extends android.app.Application implements
         return mNearbySigns;
     }
 
-    public HashMap<String,ImageSign> getNearbySignsMap() {
+    public Map<String,ImageSign> getNearbySignsMap() {
         return mNearbySignsMap;
+    }
+
+    public List<ImageSign> getFavoriteSigns() {
+        return favoriteSigns;
     }
 
     public List<String> getAllTags() {return allTags;}
@@ -175,8 +183,14 @@ public class SnapSigns extends android.app.Application implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);
+
         //Retrieve user signs at start up, ie when this list is empty
-        if(myImageSigns.isEmpty()) fireBaseUtility.getUserSigns();
+        if (myImageSigns.isEmpty())
+            fireBaseUtility.getUserSigns();
+
+        if (favoriteSigns.isEmpty())
+            fireBaseUtility.getFavorites();
+
         startLocationUpdates();
     }
 
@@ -204,7 +218,7 @@ public class SnapSigns extends android.app.Application implements
 
     }
 
-
+    @Override
     public void onLocationChanged(Location location) {
         mLocation = location;
         FireBaseUtility fireBaseUtility = new FireBaseUtility(this);

@@ -1,7 +1,6 @@
 package com.snapsigns.nearby_signs;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -23,10 +22,10 @@ import com.snapsigns.MainActivity;
 import com.snapsigns.R;
 import com.snapsigns.SnapSigns;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import pl.droidsonroids.gif.GifImageView;
+
 
 /**
  * Created by admin on 11/29/2016.
@@ -51,13 +50,10 @@ public class SignPagerAdapter extends PagerAdapter {
         isFullScreen = NearbySignsFragment.isFullScreen;
     }
 
-
-
     @Override
     public int getCount() {
         return mNearbySigns.size();
     }
-
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
@@ -111,7 +107,9 @@ public class SignPagerAdapter extends PagerAdapter {
                             viewHolder.messageView.setVisibility(View.VISIBLE);
                             viewHolder.messageView.setText(currentSign.message);
                         }
+
                         viewHolder.loadingView.setVisibility(View.INVISIBLE);
+
                         return false;
                     }
 
@@ -128,6 +126,13 @@ public class SignPagerAdapter extends PagerAdapter {
         container.removeView((RelativeLayout) object);
     }
 
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
 
-
+    public void updateDataSet() {
+        mNearbySigns = ((SnapSigns) mActivity.getApplicationContext()).getFilteredNearbySigns();
+        notifyDataSetChanged();
+    }
 }

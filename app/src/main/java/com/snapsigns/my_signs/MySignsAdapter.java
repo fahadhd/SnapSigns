@@ -26,6 +26,7 @@ import java.util.List;
 
 import pl.droidsonroids.gif.GifImageView;
 
+
 /**
  * Adapter is in charge of populating the listview with list item contents, in this case ImageSigns.
  */
@@ -112,14 +113,9 @@ public class MySignsAdapter extends BaseAdapter {
             gridImage.getLayoutParams().width = gridWidth;
             gridImage.getLayoutParams().height = gridWidth;
 
-
             loadingView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             loadingView.getLayoutParams().width = gridWidth;
             loadingView.getLayoutParams().height = gridWidth;
-
-
         }
-
     }
-
 }

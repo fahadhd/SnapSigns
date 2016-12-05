@@ -134,7 +134,6 @@ public class TagFilterDialogFragment extends DialogFragment {
                         app.setUseFilter(true);
                         app.setFilterTags(filterTags);
                         mActivity.getAdapter().updateDataSet();
-                        mActivity.setDataSetChanged(true);
 
                         dialog.dismiss();
                     }

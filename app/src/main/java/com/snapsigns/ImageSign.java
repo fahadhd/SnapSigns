@@ -1,19 +1,12 @@
 package com.snapsigns;
 
-import android.location.Location;
-import android.media.Image;
-import android.net.Uri;
-
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.io.File;
 import java.io.Serializable;
-import java.net.URI;
-import java.sql.Array;
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,15 +23,16 @@ public class ImageSign implements Serializable {
     public String imgURL;
     public String message;
     public String locationName;
-    public ArrayList<Double> location;
-    public ArrayList<String> tags;
-    public ArrayList<String> comments;
+    public List<Double> location;
+    public List<String> tags;
+    public List<String> comments;
+    public List<String> favoritedBy;
 
     public ImageSign(){
 
     }
 
-    public ImageSign(String key,String userID,String imgURL,String message, String locationName, ArrayList<Double> location, ArrayList<String> tags){
+    public ImageSign(String key,String userID,String imgURL,String message, String locationName, List<Double> location, List<String> tags){
         this.key = key;
         this.userID = userID;
         this.imgURL = imgURL;
@@ -47,6 +41,7 @@ public class ImageSign implements Serializable {
         this.location = location;
         this.tags = tags;
         this.comments = new ArrayList<>();
+        this.favoritedBy = new ArrayList<>();
     }
 
     @Exclude
@@ -59,10 +54,8 @@ public class ImageSign implements Serializable {
         result.put("location", location);
         result.put("tags", tags);
         result.put("comments", comments);
+        result.put("favoritedBy", favoritedBy);
 
         return result;
     }
-
-
-
 }

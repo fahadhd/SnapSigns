@@ -41,8 +41,8 @@ public class FireBaseUtility {
     private GoogleApiClient mGoogleApiClient;
     private String uid;
     FirebaseAuth auth;
-    List<ImageSign> mMyImageSigns, mNearbySigns;
-    HashMap<String,ImageSign> mNearbySignsMap;
+    List<ImageSign> mMyImageSigns, mNearbySigns, favoriteSigns;
+    Map<String,ImageSign> mNearbySignsMap;
 
     SnapSigns appContext;
     Context mContext;
@@ -50,7 +50,6 @@ public class FireBaseUtility {
     /**************** Action Intents for Fragment Broadcast Recivers ****************/
     public  Intent mySignsIntent = new Intent(Constants.MY_SIGNS.GET_MY_SIGNS);
     public  Intent nearbySignsIntent = new Intent(Constants.NEARBY_SIGNS.GET_NEARBY_SIGNS);
-
     public  Intent startLoadingIntent = new Intent(Constants.LOADING_SIGNS.START_LOADING);
     /*******************************************************************************/
 
@@ -68,9 +67,8 @@ public class FireBaseUtility {
         mNearbySigns = appContext.getNearbySigns();
         mMyImageSigns = appContext.getMyImageSigns();
         mNearbySignsMap = appContext.getNearbySignsMap();
-
         checkUserName();
-
+        favoriteSigns = appContext.getFavoriteSigns();
     }
 
     private void initFireBase(){
@@ -135,12 +133,10 @@ public class FireBaseUtility {
                     finalName = currentLocation.getLatitude()+","+currentLocation.getLongitude();
                 }
 
-
                 //Pushes a new imagesign object into database
                 DatabaseReference pushedPostRef = mDatabase.getRef().push();
                 ImageSign imageSign = new ImageSign(pushedPostRef.getKey(),uid, imgURL, message, finalName,locationCoords,tags);
                 pushedPostRef.setValue(imageSign);
-
 
                 //Storing new image into cache at front
                 mMyImageSigns.add(0,imageSign);
@@ -167,11 +163,14 @@ public class FireBaseUtility {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");
+
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         ImageSign currentSign = child.getValue(ImageSign.class);
                         mMyImageSigns.add(0,currentSign);
                     }
-                    Log.i(TAG, "notifying data changed");
+
+                    Log.i(TAG, "getting user signs");
+
                     //Broadcasting result to MySignsFragment
                     mContext.sendBroadcast(mySignsIntent);
                 }
@@ -199,11 +198,12 @@ public class FireBaseUtility {
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         child.getRef().removeValue();
                     }
-                    Log.i(TAG, "notifying data changed");
+
+                    Log.i(TAG, "deleting user signs");
+
                     //Broadcasting result to MySignsFragment
                     mMyImageSigns.clear();
                     mContext.sendBroadcast(mySignsIntent);
-
                 }
 
                 @Override
@@ -249,8 +249,6 @@ public class FireBaseUtility {
         }
     }
 
-
-
     public void checkNearbySigns(final Location currentLocation){
         final int originalSize = mNearbySigns.size();
         if(currentLocation == null){
@@ -266,6 +264,7 @@ public class FireBaseUtility {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Log.i(TAG, "in onDataChange");
+
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         Location signLocation = new Location("");
                         ImageSign currentSign = child.getValue(ImageSign.class);
@@ -286,10 +285,11 @@ public class FireBaseUtility {
                             }
                         }
                     }
-                    if(originalSize != mNearbySigns.size()) {
+
+                    if(originalSize != mNearbySigns.size())
                         mContext.sendBroadcast(nearbySignsIntent);
-                        Log.i(TAG, "notifying data changed");
-                    }
+
+                    Log.i(TAG, "getting nearby signs");
 
                     appContext.populateAllTags();
                 }
@@ -305,8 +305,116 @@ public class FireBaseUtility {
         }
     }
 
-    public void updateImageSign(ImageSign currentSign){
-        if(currentSign != null) mDatabase.getRef().child(currentSign.key).setValue(currentSign);
-        else Toast.makeText(mContext,"Failed to update",Toast.LENGTH_SHORT).show();
+    public void updateImageSign(ImageSign currentSign) {
+        if (currentSign != null) mDatabase.getRef().child(currentSign.key).setValue(currentSign);
+        else Toast.makeText(mContext, "Failed to update", Toast.LENGTH_SHORT).show();
+    }
+
+    public void favorite(final ImageSign sign) {
+        final String uid = auth.getCurrentUser().getUid();
+
+        appContext.getFavoriteSigns().add(sign);
+
+        mDatabase.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            ImageSign currSign = child.getValue(ImageSign.class);
+
+                            if (currSign.imgURL.equals(sign.imgURL)) {
+                                List<String> favoritedBy = currSign.favoritedBy != null ?
+                                        currSign.favoritedBy : new ArrayList<String>();
+                                favoritedBy.add(uid);
+                                child.child("favoritedBy").getRef().setValue(favoritedBy);
+
+                                Toast.makeText(mContext, "Added sign to favorites.", Toast.LENGTH_SHORT).show();
+                                break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+    }
+
+    public void unfavorite(final ImageSign sign) {
+        final String uid = auth.getCurrentUser().getUid();
+
+        List<ImageSign> favoriteSigns = appContext.getFavoriteSigns();
+
+        for (int i = 0; i < favoriteSigns.size(); i++) {
+            if (favoriteSigns.get(i).imgURL.equals(sign.imgURL)) {
+                favoriteSigns.remove(i);
+                break;
+            }
+        }
+
+        mDatabase.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            ImageSign currSign = child.getValue(ImageSign.class);
+
+                            if (currSign.imgURL.equals(sign.imgURL)) {
+                                if (currSign.favoritedBy != null) {
+                                    currSign.favoritedBy.remove(uid);
+                                    child.child("favoritedBy").getRef().setValue(currSign.favoritedBy);
+
+                                    Toast.makeText(mContext, "Removed sign from favorites.", Toast.LENGTH_SHORT).show();
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+    }
+
+    public void getFavorites() {
+        final String uid = auth.getCurrentUser().getUid();
+
+        mDatabase.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        favoriteSigns.clear();
+
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            ImageSign sign = child.getValue(ImageSign.class);
+
+                            if (sign.favoritedBy != null && sign.favoritedBy.contains(uid)) {
+                                favoriteSigns.add(sign);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+    }
+
+    private boolean hasSign(ImageSign imageSign, ArrayList<ImageSign> signList){
+        if(imageSign == null) return false;
+        for(ImageSign sign: signList){
+            if(sign.imgURL == null || imageSign.imgURL == null) continue;
+            if(sign.imgURL.equals(imageSign.imgURL))
+                return true;
+        }
+        return false;
     }
 }

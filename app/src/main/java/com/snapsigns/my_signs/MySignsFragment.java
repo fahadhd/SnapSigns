@@ -205,5 +205,4 @@ public class MySignsFragment extends BaseFragment {
         fullScreenContainer.setVisibility(View.INVISIBLE);
         message.setVisibility(View.INVISIBLE);
     }
-
 }
