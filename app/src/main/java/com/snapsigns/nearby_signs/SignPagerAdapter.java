@@ -36,12 +36,14 @@ public class SignPagerAdapter extends PagerAdapter {
     View mRootView;
     LayoutInflater mLayoutInflater;
     List<ImageSign> mNearbySigns;
+    SnapSigns appContext;
     ViewPager mPager;
     boolean isFullScreen;
     private static final String TAG = SignPagerAdapter.class.getSimpleName();
 
     public SignPagerAdapter(MainActivity activity,View rootView) {
         mActivity = activity;
+        appContext = (SnapSigns)mActivity.getApplicationContext();
         mRootView = rootView;
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
 
@@ -86,6 +88,7 @@ public class SignPagerAdapter extends PagerAdapter {
 
         final ViewHolder viewHolder = new ViewHolder(itemView);
         final ImageSign currentSign = mNearbySigns.get(position);
+
 
         //viewHolder.title.setText(currentSign.locationName);
 

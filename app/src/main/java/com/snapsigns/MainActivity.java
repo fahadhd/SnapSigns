@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements AddTagDialog.Comm
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == SignInActivity.SIGN_IN_REQUEST_CODE && resultCode == RESULT_OK){
+        if(requestCode != PLACE_PICKER_REQUEST&& resultCode == RESULT_OK){
             mBottomBar.selectTabAtPosition(2);
         } else if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(this,data);

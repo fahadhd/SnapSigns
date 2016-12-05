@@ -55,7 +55,7 @@ public class NearbySignsFragment extends BaseFragment {
     ListView listView;
     ArrayAdapter<String> arrayAdapter;
     Button postBtn;
-    ImageButton commentsButton, hideCommentBox;
+    ImageButton commentsButton, hideCommentBox, favoriteButton;
     EditText addComment;
 
     //ImageSign mCurrImageSign;
@@ -111,7 +111,16 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
 
-        ImageButton favoriteButton = (ImageButton) rootView.findViewById(R.id.favorite_button);
+        favoriteButton = (ImageButton) rootView.findViewById(R.id.favorite_button);
+
+        for (ImageSign sign : appContext.getFavoriteSigns()) {
+            if(mNearbySigns != null && !mNearbySigns.isEmpty()) {
+                if (sign.imgURL.equals(mNearbySigns.get(0).imgURL)) {
+                    favoriteButton.setImageResource(R.drawable.btn_favorited);
+                    break;
+                }
+            }
+        }
 
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,12 +141,18 @@ public class NearbySignsFragment extends BaseFragment {
                     }
                 }
 
-                if (isFavorited)
+                if (isFavorited){
                     mActivity.getFireBaseUtility().unfavorite(currSign);
-                else
+                    favoriteButton.setImageResource(R.drawable.btn_not_favorited);
+            }
+                else {
                     mActivity.getFireBaseUtility().favorite(currSign);
+                    favoriteButton.setImageResource(R.drawable.btn_favorited);
+                }
             }
         });
+
+
         /*********************** ViewPager Views ***************/
         mPager = (ViewPager) rootView.findViewById(R.id.pager);
         mSignPageAdapter = new SignPagerAdapter(mActivity,rootView);
@@ -231,14 +246,12 @@ public class NearbySignsFragment extends BaseFragment {
     public void setupCommentBox(){
         /**************** Setting default options ******************/
         mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-        List<String> comments;
+        ArrayList<String> comments = new ArrayList<>();
 
         if(!mNearbySigns.isEmpty() && mNearbySigns.get(0).comments != null) {
-            comments = mNearbySigns.get(0).comments;
+            comments.addAll(mNearbySigns.get(0).comments);
         }
-        else{
-            comments = new ArrayList<>();
-        }
+
 
         /********** Setting up Views ***************/
         commentView = (LinearLayout)rootView.findViewById(R.id.comment_view);
@@ -301,8 +314,8 @@ public class NearbySignsFragment extends BaseFragment {
 
                 if(userName != null) commentMessage = userName+": "+commentMessage;
 
+                arrayAdapter.add(commentMessage);
                 currentSign.comments.add(commentMessage);
-
 
                 arrayAdapter.notifyDataSetChanged();
                 addComment.getText().clear();
@@ -336,6 +349,23 @@ public class NearbySignsFragment extends BaseFragment {
                 title.setText(mNearbySigns.get(position).locationName);
 
 
+                boolean isFavorited = false;
+
+                for (ImageSign sign : appContext.getFavoriteSigns()) {
+                    if (sign.imgURL.equals(currentSign.imgURL)) {
+                        isFavorited = true;
+                        break;
+                    }
+                }
+
+                if (isFavorited){
+                    favoriteButton.setImageResource(R.drawable.btn_favorited);
+                }
+                else {
+                    favoriteButton.setImageResource(R.drawable.btn_not_favorited);
+                }
+
+
 
                 /********* Setting post button listener to current sign *************/
                 /********************************************************************/
@@ -365,7 +395,6 @@ public class NearbySignsFragment extends BaseFragment {
             }
         });
     }
-
     private void showCommentBox(){
         mPager.setVisibility(View.INVISIBLE);
     }

@@ -328,7 +328,7 @@ public class FireBaseUtility {
                                 favoritedBy.add(uid);
                                 child.child("favoritedBy").getRef().setValue(favoritedBy);
 
-                                Toast.makeText(mContext, "Added sign to favorites.", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(mContext, "Added sign to favorites.", Toast.LENGTH_SHORT).show();
                                 break;
                             }
                         }
@@ -366,7 +366,7 @@ public class FireBaseUtility {
                                     currSign.favoritedBy.remove(uid);
                                     child.child("favoritedBy").getRef().setValue(currSign.favoritedBy);
 
-                                    Toast.makeText(mContext, "Removed sign from favorites.", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(mContext, "Removed sign from favorites.", Toast.LENGTH_SHORT).show();
                                 }
 
                                 break;
@@ -408,13 +408,4 @@ public class FireBaseUtility {
         );
     }
 
-    private boolean hasSign(ImageSign imageSign, ArrayList<ImageSign> signList){
-        if(imageSign == null) return false;
-        for(ImageSign sign: signList){
-            if(sign.imgURL == null || imageSign.imgURL == null) continue;
-            if(sign.imgURL.equals(imageSign.imgURL))
-                return true;
-        }
-        return false;
-    }
 }
