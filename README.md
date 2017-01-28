@@ -1,6 +1,7 @@
 # Snap Signs
 
-## Concepts
-![alt tag](https://github.com/fahadhd/SnapSigns/blob/master/Project%20Assets/submission%20pictures/Screenshot2.jpg)
-![alt tag](https://github.com/fahadhd/SnapSigns/blob/master/Project%20Assets/submission%20pictures/Screenshot1.jpg?raw=true)
+#Alpha Pictures
+![alt tag](http://i.imgur.com/Osfhygt.jpg)
+![alt tag](http://i.imgur.com/nGgjRtb.jpg)
+![alt tag](http://i.imgur.com/UxtPNfV.jpg)
 
