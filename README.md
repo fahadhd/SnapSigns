@@ -16,3 +16,5 @@ SnapSigns is a fully integrated social media android application where users can
 
 ![alt tag](http://i.imgur.com/nGgjRtb.jpg)
 
+![alt tag](http://i.imgur.com/BEDChMJ.png)
+
