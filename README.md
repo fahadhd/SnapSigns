@@ -6,15 +6,15 @@ SnapSigns is a fully integrated social media android application where users can
 
 #Alpha Pictures
 
-![alt tag](http://i.imgur.com/cJ4jTQn.jpg)
+![alt tag](http://i.imgur.com/Qoax7hA.png)
 
-![alt tag](http://i.imgur.com/Osfhygt.jpg)
+![alt tag](http://i.imgur.com/ZhfuF4g.png)
 
-![alt tag](http://i.imgur.com/yY3ehhx.jpg)
+![alt tag](http://i.imgur.com/7c04P0E.png)
 
-![alt tag](http://i.imgur.com/UxtPNfV.jpg)
+![alt tag](http://i.imgur.com/gVOedoq.png)
 
-![alt tag](http://i.imgur.com/nGgjRtb.jpg)
+![alt tag](http://i.imgur.com/AHweg3v.png)
 
-![alt tag](http://i.imgur.com/BEDChMJ.png)
+![alt tag](http://i.imgur.com/HlZo5LP.png)
 
